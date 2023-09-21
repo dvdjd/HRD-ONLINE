@@ -1,0 +1,28 @@
+.likesComments{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 8px;
+    margin-bottom: 15px;
+}
+
+.btnLikeComments{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+.btnLikeComments-items{
+    flex: 1;
+    text-align: center;
+}
+
+.likes{
+    display: flex;
+    justify-content: space-evenly;
+    padding: 10px;
+    align-items: center;
+}
+
+.likes-items{
+    margin: 2px 5px;
+    cursor: pointer;
+}

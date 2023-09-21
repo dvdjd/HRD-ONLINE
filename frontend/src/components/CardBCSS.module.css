@@ -1,0 +1,26 @@
+.container{
+    border-radius: 15px;
+    background: #72b7e3;
+    /* background: linear-gradient(to left, #f8c2f2, #cd56f1); */
+    box-shadow:  5px 5px 10px #bebebe,
+                -5px -5px 10px #ffffff;
+    padding : 10px;
+}
+.title{
+    text-align: center;
+    padding: 10px;
+}
+
+h4{
+    margin : 0;
+    color: #fff;
+}
+.items{
+    background: #fff;
+    padding : 10px;
+    border-radius: 15px;
+}
+
+.birthday{
+    text-align: center;
+}

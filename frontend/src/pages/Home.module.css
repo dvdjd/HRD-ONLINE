@@ -1,0 +1,11 @@
+.hide {
+    display: none; /* Default display */
+}
+  
+@media (min-width: 900px) {
+    .hide {
+        display: flex; /* Display on larger screens (md and up) */
+        margin-right: 7px;
+        width: 100%;
+    }
+}

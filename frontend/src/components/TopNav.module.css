@@ -1,0 +1,23 @@
+/* styles.css (or use makeStyles from MUI for component-level styles) */
+.logo {
+    display: none; /* Default display */
+}
+  
+@media (min-width: 900px) {
+    .logo {
+        display: flex; /* Display on larger screens (md and up) */
+        margin-right: 7px;
+    }
+}
+
+.logo2 {
+    display: none
+}
+
+@media (max-width: 899px) {
+    .logo2 {
+        display: flex; /* Display on larger screens (md and up) */
+        margin-right: 7px;
+    }
+}
+  

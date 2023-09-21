@@ -1,0 +1,20 @@
+.celebs{
+    color : #8c949b;
+    display : flex;
+    font-size: 15px;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom : 1px solid #d0d5da;
+}
+
+.d-flex{
+    display: flex;
+    align-items: center;
+}
+.ml-10{
+    margin-left : 10px;
+}
+
+.img-round{
+    border-radius: 50%;
+}
