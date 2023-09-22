@@ -305,10 +305,8 @@ const TopNav = () => {
                                         >
                                             {page.name}
                                         </Button>
-                                </React.Fragment>
+                                    </React.Fragment>
                                 )
-
-
                             ))}
                         </Box>
 

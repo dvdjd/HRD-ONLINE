@@ -1,0 +1,14 @@
+.hide, .show{
+    display: none; /* Default display */
+}
+  
+@media (min-width: 900px) {
+    .show {
+        display: flex; /* Display on larger screens (md and up) */
+    }
+}
+@media (max-width: 900px) {
+    .hide {
+        display: flex; /* Display on larger screens (md and up) */
+    }
+}
