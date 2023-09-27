@@ -87,6 +87,7 @@ const TopNav = () => {
     const [anchorElUser, setAnchorElUser] = React.useState(null);
     const [subPages, setSubPages] = useState([])
     const handleSetSubPages = (index) => {
+        setSubPages([])
         pages[index].hasSubPages ? setSubPages(pages[index].subPages) : setSubPages([])
     }
     const handleOpenNavMenu = (event) => {
@@ -108,7 +109,8 @@ const TopNav = () => {
     const [open, setOpen] = React.useState(false);
     const [placement, setPlacement] = React.useState();
 
-    const handleClick = (newPlacement) => (event) => {
+    const handleClick = (newPlacement, index) => (event) => {
+        handleSetSubPages(index)
         setAnchorEl(event.currentTarget);
         setOpen((prev) => placement !== newPlacement || !prev);
         setPlacement(newPlacement);
@@ -204,12 +206,12 @@ const TopNav = () => {
                             {pages.map((page, index) => (
                                 page.hasSubPages ? (
                                     // <MenuItem key={index} onClick={handleCloseNavMenu}>
-                                    <MenuItem key={index}>
+                                    <MenuItem key={index} onClick={handleClick('right-start', index)}>
                                         <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
                                             {({ TransitionProps }) => (
                                             <Fade {...TransitionProps} timeout={350}>
                                                 <Paper>
-                                                    {page.subPages.map((subPage, subIndex) => (
+                                                    {subPages.map((subPage, subIndex) => (
                                                             <React.Fragment key={subIndex}>
                                                                 <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black'}}>{subPage.subName}</Button><br />
                                                             </React.Fragment>
@@ -223,7 +225,6 @@ const TopNav = () => {
                                             target={page.target}
                                             href={page.link}
                                             key={index}
-                                            onClick={handleClick('right-start')}
                                             sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
                                         >
                                             {page.name}
@@ -276,7 +277,7 @@ const TopNav = () => {
                                                 <Paper>
                                                     {subPages.map((subPage, subIndex) => (
                                                             <React.Fragment key={subIndex}>
-                                                                <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black', width: '100%'}} fullWidth>{subPage.subName}</Button><br />
+                                                                <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black', width: '100%', justifyContent: 'flex-start'}} fullWidth>{subPage.subName}</Button><br />
                                                             </React.Fragment>
                                                         )
                                                     )}
@@ -288,7 +289,7 @@ const TopNav = () => {
                                             target={page.target}
                                             href={page.link}
                                             key={index}
-                                            onClick={handleClick('bottom-start')}
+                                            onClick={handleClick('bottom-start', index)}
                                             sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
                                         >
                                             {page.name}

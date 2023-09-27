@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useRef, useImperativeHandle, forwardRef} from 'react'
 import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
@@ -31,7 +31,15 @@ import {ImShocked2} from 'react-icons/im'
 import AvatarGroup from '@mui/material/AvatarGroup';
 import Popper from '@mui/material/Popper';
 
-const SeePost = ({content}) => {
+import InputBase from '@mui/material/InputBase';
+import SendIcon from '@mui/icons-material/Send';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Divider from '@mui/material/Divider';
+
+const SeePost = forwardRef(({content}, ref) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
     const captionText = showFullCaption ? content.caption : `${(content.caption).substring(0, 100)}...Show more`
     const style = {
@@ -50,8 +58,8 @@ const SeePost = ({content}) => {
     };
     const [post, setPost] = useState(false);
     const handleOpenPost = () => setPost(true);
+    useImperativeHandle(ref, () => ({handleOpenPost}))
     const handleClosePost = () => setPost(false);
-
     const theme = useTheme();
     const [activeStep, setActiveStep] = useState(0);
 
@@ -136,6 +144,10 @@ const SeePost = ({content}) => {
             time: '2:57 PM'
         },
     ])
+    const [showComment, setShowComment] = useState(false)
+    const handleShowComment = () => {
+        showComment ? setShowComment(false) : setShowComment(true)
+    }
     const handleShowFullComment = (id, stat) => {
         const updatedCommentList = [...commentList]
         const indexToUpdate = updatedCommentList.findIndex(item => item.id === id)
@@ -284,16 +296,6 @@ const SeePost = ({content}) => {
                                                         </Typography>
                                                     </Button>
                                                 </AvatarGroup>
-                                                {/* <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
-                                                    <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
-                                                        <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                                            {commentList.length === 1 ? `only one comment` : `${commentList.length} comments`}
-                                                        </Typography>
-                                                    </Button>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                                                </AvatarGroup> */}
                                             </div>
                                         </div>
                                         <div className={SeePostCSS.show}>
@@ -325,9 +327,7 @@ const SeePost = ({content}) => {
                                                 <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
                                                     aria-owns={open ? 'mouse-over-popover' : undefined}
                                                     aria-haspopup="true"
-                                                    onMouseEnter={handleHoverOpen('top-start')}
-                                                    onBlur={handleHoverClose('top-start')}
-                                                    onClick={() => handleSetLike('like')}
+                                                    onClick={() => handleShowComment()}
                                                 >   <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
                                                 </Button>
                                                 <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
@@ -373,8 +373,58 @@ const SeePost = ({content}) => {
                                             </div>
                                         </div>
                                         <CardActions>
-                                            <Button size="medium" sx={{width: '100%'}} variant="contained" disableElevation onClick={() => {alert("yawa")}}>Post</Button>
+                                            <Paper
+                                                sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
+                                            >
+                                                <Avatar alt="Remy Sharp" src={Me} sx={{width: 24, height: 24}}/>
+                                                <form onSubmit={handleSubmitMyComment} style={{width: '100%', display: 'flex'}}>
+                                                    <InputBase
+                                                        sx={{ ml: 1, flex: 1 }}
+                                                        placeholder="Write a comment..."
+                                                        inputProps={{ 'aria-label': 'search google maps' }}
+                                                        required
+                                                        value={myComment}
+                                                        onChange={handleChangeMyComment}
+                                                        autoFocus
+                                                    />
+                                                    {validComment(myComment) ? (
+                                                        <IconButton sx={{ p: '10px', color: 'blue' }} aria-label="search" type={"submit"}>
+                                                            <SendIcon/>
+                                                        </IconButton>
+                                                    ): undefined}
+                                                </form>
+                                            </Paper>
+                                            {/* <Button size="medium" sx={{width: '100%'}} variant="contained" disableElevation onClick={() => {alert("yawa")}}>Post</Button> */}
                                         </CardActions>
+                                        {showComment ? (
+                                            <List sx={{ width: '100%', bgcolor: 'background.paper', height: 450}}>
+                                                {(commentList.slice().reverse()).map((comments, index) => (
+                                                    <React.Fragment key={index}>
+                                                        <ListItem alignItems="flex-start">
+                                                            <ListItemAvatar>
+                                                                <Avatar alt={comments.name} src={comments.avatar} />
+                                                            </ListItemAvatar>
+                                                            <ListItemText
+                                                                primary={comments.name}
+                                                                secondary={
+                                                                    <React.Fragment>
+                                                                        <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}}
+                                                                            onClick={() => handleShowFullComment(comments.id, !comments.showFullComment)}>
+                                                                            {!comments.showFullComment && comments.comment.length > 400 ? `${(comments.comment).substring(0, 400)}...Show more` : comments.comment}
+                                                                        </Button>
+                                                                        <br />
+                                                                        <span sx={{ mt: 2, fontSize: '8px', marginBottom: 0}} color="text.secondary">
+                                                                            {`${comments.date} ${comments.time}`}
+                                                                        </span>
+                                                                    </React.Fragment>
+                                                                }
+                                                            />
+                                                        </ListItem>
+                                                        <Divider variant="inset" component="li" />
+                                                    </React.Fragment>
+                                                ))}
+                                            </List>
+                                        ) : undefined}
                                     </CardContent>
                                 </div>
                                 
@@ -384,7 +434,7 @@ const SeePost = ({content}) => {
                     </Fade>
                 </Modal>
             </div>
-            <Card variant="outlined" sx={{borderRadius: '10px'}}>
+            {/* <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
                     <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
                         <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
@@ -395,9 +445,9 @@ const SeePost = ({content}) => {
                         </div>
                     </Stack>
                 </CardContent>
-            </Card>
+            </Card> */}
         </>
     )
-}
+})
 
 export default SeePost

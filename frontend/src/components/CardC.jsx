@@ -33,6 +33,7 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 
 import SeePost from './SeePost';
 import Post from './Post';
+import LikeList from './LikeList';
 
 
 const CardC = () => {
@@ -137,9 +138,13 @@ const CardC = () => {
     const handleLikeDecrement = () => {
         setCountLike((prevState) => prevState - 1)
     }
-    let [likeList, setLikeList] = useState('Jhobert Erato and others...')
+    let [likeList, setLikeList] = useState([
+        {name: 'Jhobert Erato', type: 'love'},
+        {name: 'David Jude Acula', type: 'laugh'},
+        {name: 'Kent Yedra Steven', type: 'like'},
+    ])
     const handleAddtoLikeList = () => {
-        setLikeList((prevState) => `You, ${prevState}`)
+        setLikeList([...likeList, {name: 'Marivic Villareal', type: 'love'}])
     }
     const handleRemovetoLikeList = () => {
         setLikeList((prevState) => `You, ${prevState}`)
@@ -241,9 +246,13 @@ const CardC = () => {
         caption: caps,
         media: itemData
     }
+    const seePost = useRef()    
+    const likes = useRef()    
+
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
-            <SeePost content={content}/>
+            <LikeList likes={{}} ref={likes}/>
+            <SeePost content={content} ref={seePost}/>
             <Post />
             <Card variant="outlined" sx={{borderRadius: '10px', marginTop: 2}}>
                 <CardContent sx={{paddingBottom: 0}}>
@@ -260,9 +269,9 @@ const CardC = () => {
                     </Stack>
                     <br />
                     <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
-                    <ImageList sx={{ width: '100%', height: 450 }} cols={3} rowHeight={'auto'}>
+                    <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={3} rowHeight={'auto'}>
                         {itemData.map((item) => (
-                        <ImageListItem key={item.img} onClick={() => {console.log("yawa")}}>
+                        <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
                             <img
                             src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
                             srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
@@ -283,9 +292,9 @@ const CardC = () => {
                             <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
                                 <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
                             </Avatar>
-                            <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}}>
+                            <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => likes.current?.handleOpen()}>
                                 <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                    {likeList}
+                                    {likeList[0].name}
                                 </Typography>
                             </Button>
                         </AvatarGroup>
@@ -304,100 +313,104 @@ const CardC = () => {
                 </CardContent>
                 <CardContent sx={{padding: 1}}>
                     {isLogin ? (
-                        <div className={CardCCSS['btnLikeComments']}>
-                            <div>
-                                <Button size="small" sx={{color: 'grey'}}
-                                    aria-owns={open ? 'mouse-over-popover' : undefined}
-                                    aria-haspopup="true"
-                                    onMouseEnter={handleHoverOpen('top-start')}
-                                    onBlur={handleHoverClose('top-start')}
-                                    onClick={() => handleSetLike('like')}
-                                >   {
-                                        like === 'none' ? (
-                                            <AiOutlineLike color='grey' size={20}/>
-                                        ) : like === 'like' ? (
-                                            <AiFillLike color='blue' size={20}/>
-                                        ) : like === 'heart' ? (
-                                            <AiFillHeart color='red' size={20}/>
-                                        ) : like === 'laugh' ? (
-                                            <FaLaughSquint color='ffbf00' size={20}/>
-                                        ) : like === 'sad' ? (
-                                            <FaSadTear color='ffbf00' size={20}/>
-                                        ) : like === 'wow' ? (
-                                            <ImShocked2 color='ffbf00' size={20}/>
-                                        ) : (
-                                            <FaAngry color='ffa187' size={20}/>
-                                        )
-                                    }&nbsp;{countLike}
-                                </Button>
-                                <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
-                                    {({ TransitionProps }) => (
-                                    <Fade {...TransitionProps} timeout={350}>
-                                        <Paper>
-                                            <div className={CardCCSS['likes']}>
-                                                <div className={CardCCSS['likes-items']}>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}} onClick={() => handleSetLike('like')}>
-                                                        <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
-                                                    </Avatar>
+                        <>
+                            <div className={CardCCSS['btnLikeComments']}>
+                                <div>
+                                    <Button size="small" sx={{color: 'grey'}}
+                                        aria-owns={open ? 'mouse-over-popover' : undefined}
+                                        aria-haspopup="true"
+                                        onMouseEnter={handleHoverOpen('top-start')}
+                                        onBlur={handleHoverClose('top-start')}
+                                        onClick={() => handleSetLike('like')}
+                                    >   {
+                                            like === 'none' ? (
+                                                <AiOutlineLike color='grey' size={20}/>
+                                            ) : like === 'like' ? (
+                                                <AiFillLike color='blue' size={20}/>
+                                            ) : like === 'heart' ? (
+                                                <AiFillHeart color='red' size={20}/>
+                                            ) : like === 'laugh' ? (
+                                                <FaLaughSquint color='ffbf00' size={20}/>
+                                            ) : like === 'sad' ? (
+                                                <FaSadTear color='ffbf00' size={20}/>
+                                            ) : like === 'wow' ? (
+                                                <ImShocked2 color='ffbf00' size={20}/>
+                                            ) : (
+                                                <FaAngry color='ffa187' size={20}/>
+                                            )
+                                        }&nbsp;{countLike}
+                                    </Button>
+                                    <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
+                                        {({ TransitionProps }) => (
+                                        <Fade {...TransitionProps} timeout={350}>
+                                            <Paper>
+                                                <div className={CardCCSS['likes']}>
+                                                    <div className={CardCCSS['likes-items']}>
+                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}} onClick={() => handleSetLike('like')}>
+                                                            <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
+                                                        </Avatar>
+                                                    </div>
+                                                    <div className={CardCCSS['likes-items']}>
+                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}} onClick={() => handleSetLike('heart')}>
+                                                            <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
+                                                        </Avatar>
+                                                    </div>
+                                                    <div className={CardCCSS['likes-items']}>
+                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('laugh')}>
+                                                            <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
+                                                        </Avatar>
+                                                    </div>
+                                                    <div className={CardCCSS['likes-items']}>
+                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('sad')}>
+                                                            <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>  
+                                                        </Avatar>
+                                                    </div>
+                                                    <div className={CardCCSS['likes-items']}>
+                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('wow')}>
+                                                            <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
+                                                        </Avatar>
+                                                    </div>
+                                                    <div className={CardCCSS['likes-items']}>
+                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
+                                                            <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
+                                                        </Avatar>
+                                                    </div>
                                                 </div>
-                                                <div className={CardCCSS['likes-items']}>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}} onClick={() => handleSetLike('heart')}>
-                                                        <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
-                                                    </Avatar>
-                                                </div>
-                                                <div className={CardCCSS['likes-items']}>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('laugh')}>
-                                                        <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
-                                                    </Avatar>
-                                                </div>
-                                                <div className={CardCCSS['likes-items']}>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('sad')}>
-                                                        <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>  
-                                                    </Avatar>
-                                                </div>
-                                                <div className={CardCCSS['likes-items']}>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('wow')}>
-                                                        <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
-                                                    </Avatar>
-                                                </div>
-                                                <div className={CardCCSS['likes-items']}>
-                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
-                                                        <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
-                                                    </Avatar>
-                                                </div>
-                                            </div>
-                                        </Paper>
-                                    </Fade>
-                                    )}
-                                </Popper>                                                                                                                                                                                            
+                                            </Paper>
+                                        </Fade>
+                                        )}
+                                    </Popper>                                                                                                                                                                                            
+                                </div>
+                                <div>
+                                    <Button size="small" sx={{color: 'grey'}} onClick={() => handleShowComment()}>
+                                        <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
+                                    </Button>
+                                </div>
+                                <div style={{marginRight: 10, flex: 3}}>
+                                    <Paper
+                                        sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
+                                    >
+                                        <Avatar alt="Remy Sharp" src={Me} sx={{width: 24, height: 24}}/>
+                                        <form onSubmit={handleSubmitMyComment} style={{width: '100%', display: 'flex'}}>
+                                            <InputBase
+                                                sx={{ ml: 1, flex: 1 }}
+                                                placeholder="Write a comment..."
+                                                inputProps={{ 'aria-label': 'search google maps' }}
+                                                required
+                                                value={myComment}
+                                                onChange={handleChangeMyComment}
+                                                autoFocus
+                                            />
+                                            {validComment(myComment) ? (
+                                                <IconButton sx={{ p: '10px', color: 'blue' }} aria-label="search" type={"submit"}>
+                                                <SendIcon />
+                                                </IconButton>
+                                            ): undefined}
+                                        </form>
+                                    </Paper>
+                                </div>
                             </div>
-                            <div>
-                                <Button size="small" sx={{color: 'grey'}} onClick={handleFocusComment}>
-                                    <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
-                                </Button>
-                            </div>
-                            <div style={{marginRight: 10, flex: 3}}>
-                                <Paper
-                                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
-                                >
-                                    <Avatar alt="Remy Sharp" src={Me} sx={{width: 24, height: 24}}/>
-                                    <form onSubmit={handleSubmitMyComment} style={{width: '100%', display: 'flex'}}>
-                                        <InputBase
-                                            sx={{ ml: 1, flex: 1 }}
-                                            placeholder="Write a comment..."
-                                            inputProps={{ 'aria-label': 'search google maps' }}
-                                            required
-                                            value={myComment}
-                                            onChange={handleChangeMyComment}
-                                            autoFocus
-                                        />
-                                        {validComment(myComment) ? (
-                                            <IconButton sx={{ p: '10px' }} aria-label="search" type={"submit"}>
-                                            <SendIcon color='blue' />
-                                            </IconButton>
-                                        ): undefined}
-                                    </form>
-                                </Paper>
+                            <div className={CardCCSS['btnLikeComments']}>
                                 {showComment ? (
                                     <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                                         {(commentList.slice().reverse()).map((comments, index) => (
@@ -427,9 +440,9 @@ const CardC = () => {
                                         ))}
                                     </List>
                                 ) : undefined}
-                                
                             </div>
-                        </div>
+                        </>
+                        
                     ) : (
                         <Tooltip title="Kindly login to access full features =)" placement="right">
                             <Button size="small">Learn More</Button>
