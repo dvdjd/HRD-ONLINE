@@ -85,7 +85,6 @@ const Post = () => {
             const validFiles = Array.from(files).filter((file) => {
                 return file.type.startsWith('image/')
             })
-            console.log(validFiles)
             if(validFiles.length > 0){
                 setSelectedImage(validFiles)
             }
@@ -101,7 +100,6 @@ const Post = () => {
             const validFiles = Array.from(files).filter((file) => {
                 return file.type.startsWith('video/')
             })
-            console.log(validFiles)
             if(validFiles.length > 0){
                 setSelectedVideo(validFiles)
             }
@@ -117,7 +115,6 @@ const Post = () => {
             const validFiles = Array.from(files).filter((file) => {
                 return file.type.startsWith('application/pdf')
             })
-            console.log(validFiles)
             if(validFiles.length > 0){
                 setSelectedFile(validFiles)
             }
@@ -224,7 +221,6 @@ const Post = () => {
                                             height: 50,
                                             pl: 2,
                                             bgcolor: 'background.default',
-                                            display: 'flex',
                                             justifyContent: 'center'
                                             }}
                                         >
@@ -276,7 +272,6 @@ const Post = () => {
                                             height: 50,
                                             pl: 2,
                                             bgcolor: 'background.default',
-                                            display: 'flex',
                                             justifyContent: 'center'
                                             }}
                                         >
@@ -330,7 +325,6 @@ const Post = () => {
                                             height: 50,
                                             pl: 2,
                                             bgcolor: 'background.default',
-                                            display: 'flex',
                                             justifyContent: 'center'
                                             }}
                                         >
