@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,30 +15,12 @@ import logo from '../style/images/nmcp-logo.png'
 import TopNavCSS from './TopNav.module.css'
 
 import Popper from '@mui/material/Popper';
-import Grid from '@mui/material/Grid';
 import Fade from '@mui/material/Fade';
 import Paper from '@mui/material/Paper';
+import Login from './Login';
 
-import Backdrop from '@mui/material/Backdrop';
-import Modal from '@mui/material/Modal';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import TextField from '@mui/material/TextField';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import LockIcon from '@mui/icons-material/Lock';
+import { capitalizeWords } from '../utils/global';
 
-const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: {xs: 200, md: 400},
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 1,
-
-};
 const TopNav = () => {
     const pages = [
         {
@@ -116,43 +98,15 @@ const TopNav = () => {
         setPlacement(newPlacement);
     };
     /*-----------------Login------------------------------*/
-    const [openLogin, setOpenLogin] = useState(false);
-    const handleOpen = () => setOpenLogin(true);
-    const handleClose = () => setOpenLogin(false);
+    const login = useRef()
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+    useEffect(() => {
+        setUser(JSON.parse(localStorage.getItem('user')))
+    }, [])
     return (
         <>
             <div>
-                <Modal
-                    aria-labelledby="transition-modal-title"
-                    aria-describedby="transition-modal-description"
-                    open={openLogin}
-                    onClose={handleClose}
-                    closeAfterTransition
-                    slots={{ backdrop: Backdrop }}
-                    slotProps={{
-                        backdrop: {
-                            timeout: 500,
-                        },
-                    }}
-                >
-                    <Fade in={openLogin}>
-                        <Card sx={style}>
-                            <CardContent>
-                                <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
-                                    <AccountCircle sx={{ color: '#1976d2', mr: 1, my: 0.5 }} />
-                                    <TextField id="input-with-sx" label="Enter Pin..." variant="standard" sx={{width: '100%'}}/>
-                                </Box>
-                                <Box sx={{ display: 'flex', alignItems: 'flex-end', mt: 4}}>
-                                    <LockIcon sx={{ color: '#1976d2', mr: 1, my: 0.5 }} />
-                                    <TextField id="input-with-sx" label="Enter Password..." variant="standard" type="password" sx={{width: '100%'}}/>
-                                </Box>
-                            </CardContent>
-                            <CardActions>
-                                <Button size="medium" sx={{width: '100%'}} variant="contained" disableElevation onClick={() => {alert("yawa")}}>Login</Button>
-                            </CardActions>
-                        </Card>
-                    </Fade>
-                </Modal>
+                <Login ref={login} />
             </div>
             <AppBar position="fixed" sx={{bgcolor: '#fff'}}>
                 <Container maxWidth={{xs: 'sm', md: 'lg'}}>
@@ -314,7 +268,7 @@ const TopNav = () => {
                         <Box sx={{ flexGrow: 0 }}>
                             <Tooltip title="">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                    <Avatar alt={localStorage.getItem('isLogin') !== 'false' ? capitalizeWords(user.FirstName) : ''} src="/static/images/avatar/2.jpg" />
                                 </IconButton>
                             </Tooltip>
                             <Menu
@@ -333,14 +287,15 @@ const TopNav = () => {
                             open={Boolean(anchorElUser)}
                             onClose={handleCloseUserMenu}
                             >
-                            {/* {settings.map((setting) => (
-                                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                <Typography textAlign="center">{setting}</Typography>
-                                </MenuItem>
-                            ))} */}
-                                <MenuItem onClick={handleCloseUserMenu}>
-                                    <Button onClick={handleOpen}>Login</Button>
-                                </MenuItem>
+                                {localStorage.getItem('isLogin') === 'false' ? (
+                                    <MenuItem onClick={handleCloseUserMenu}>
+                                        <Button onClick={() => login.current?.handleOpen()}>Login</Button>
+                                    </MenuItem>
+                                ) : (
+                                    <MenuItem onClick={handleCloseUserMenu}>
+                                        <Button onClick={() => (localStorage.setItem('isLogin', false), localStorage.removeItem('user'), window.location.reload())} sx={{color: 'red'}}>Logout</Button>
+                                    </MenuItem>
+                                )}
                             </Menu>
                         </Box>
                     </Toolbar>

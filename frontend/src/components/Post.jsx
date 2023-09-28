@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
@@ -26,6 +26,7 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { TextSnippetTwoTone } from '@mui/icons-material';
 import { Document, Page } from 'react-pdf';
+import { capitalizeWords } from '../utils/global';
 const Post = () => {
     /*--------------------------Post----------------------*/
     const style = {
@@ -155,6 +156,12 @@ const Post = () => {
         setActiveStepFile((prevActiveStep) => prevActiveStep - 1);
     };
     const [videoKey, setVideoKey] = useState(0)
+
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+    useEffect(() => {
+        setUser(JSON.parse(localStorage.getItem('user')))
+    },[])
+
   return (
     <>
         <div>
@@ -179,7 +186,7 @@ const Post = () => {
                                 <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
                                     <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
                                     <div style={{width: '100%'}}>
-                                        Jhobert Erato
+                                        {localStorage.getItem('isLogin') !== 'false' ? `${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}` : ''}
                                     </div>
                                 </Stack>
                                 <Box sx={{ display: 'flex', alignItems: 'flex-end', mt: 2}}>
@@ -378,13 +385,13 @@ const Post = () => {
                 </Fade>
             </Modal>
         </div>
-        <Card variant="outlined" sx={{borderRadius: '10px'}}>
+        <Card variant="outlined" sx={{borderRadius: '10px', marginBottom: 2}}>
             <CardContent sx={{paddingBottom: 0}}>
                 <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
                     <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
                     <div style={{width: '100%'}}>
                         <Button variant='outlined' onClick={handleOpenPost} sx={{padding: '5pxpx 20px', textTransform: 'none', textAlign: 'justify', fontWeight: 'normal', color: 'grey', width: '100%', borderRadius: 10, justifyContent: 'flex-start'}}>
-                            {`What's new Jhobert?`}
+                            {`What's new ${localStorage.getItem('isLogin') !== 'false' ? capitalizeWords(user.FirstName) : ''}?`}
                         </Button>
                     </div>
                 </Stack>
@@ -393,5 +400,4 @@ const Post = () => {
     </>
   )
 }
-
 export default Post

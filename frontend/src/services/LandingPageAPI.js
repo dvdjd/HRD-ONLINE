@@ -14,11 +14,13 @@ export const birthdayCelebrants = async () => {
 }
 
 //login
-export const login = async () => {
+export const login = async (loginDetails) => {
     try{
-
+        const {data} = await axios.post(`${api}/login`, loginDetails)
+        return data
     }
     catch(err){
         console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
     }
 }

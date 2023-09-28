@@ -9,11 +9,11 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
-import Me from '../style/images/me.png'
 import Box from '@mui/material/Box';
 import { birthdayCelebrants } from '../services/LandingPageAPI';
 import React, {useState, useEffect} from 'react'
 import moment from 'moment-timezone';
+import { capitalizeWords } from '../utils/global';
 
 const CardA = () => {
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -24,9 +24,9 @@ const CardA = () => {
             const birthdayData = await birthdayCelebrants()
             setBirthdayCeleb(birthdayData)
         }
-
         getBirthday()
     }, [])
+
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
@@ -40,7 +40,7 @@ const CardA = () => {
                         </div>
                     </Stack>
                     {birthdayCeleb.length > 0 ? birthdayCeleb.map((bday, index) => (
-                        <Celebrants key={index} name={`${bday.LastName.toLowerCase()}, ${bday.FirstName}`} birthday={moment(bday.Birthday).tz('Asia/Manila').format('DD')}/>
+                        <Celebrants key={index} name={`${capitalizeWords(bday.LastName)}, ${capitalizeWords(bday.FirstName)}`} img={"test"} birthday={moment(bday.Birthday).tz('Asia/Manila').format('DD')}/>
                     )) : undefined}
                 </CardContent>
                 <CardMedia component={"img"} image={birthday} alt='birthday' width={'auto'} height={'auto'}/>

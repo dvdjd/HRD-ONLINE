@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
@@ -247,14 +247,14 @@ const CardC = () => {
         media: itemData
     }
     const seePost = useRef()    
-    const likes = useRef()    
+    const likes = useRef()
 
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList likes={{}} ref={likes}/>
             <SeePost content={content} ref={seePost}/>
-            <Post />
-            <Card variant="outlined" sx={{borderRadius: '10px', marginTop: 2}}>
+            {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
+            <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
                     <Stack direction="row" spacing={2}>
                         <Avatar alt="Remy Sharp" src={Me} />

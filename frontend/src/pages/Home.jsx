@@ -4,7 +4,13 @@ import CardB from '../components/CardB'
 import CardC from '../components/CardC'
 import style from '../style/style.module.css'
 import homeCSS from './Home.module.css'
+import { useEffect } from 'react'
 const Home = () => {
+  useEffect(() => {
+    if (localStorage.getItem('isLogin') === null || localStorage.getItem('user') === null) {
+      localStorage.setItem('isLogin', false)
+    }
+  }, [])
   return (
     <>
       <br /><br /><br /><br />
