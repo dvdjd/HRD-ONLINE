@@ -5,11 +5,11 @@ const Celebrants = ({name, birthday, img}) => {
   return (
     <div className={CelebrantsCSS.celebs}>
         <div className={CelebrantsCSS['d-flex']}>
-            <Avatar alt={name} src={img} sx={{width: 35, height: 30}}/>
+            <Avatar alt={name} src={img} sx={{width: 35, height: 30, background: '#fb6f88'}}/>
             {/* <img src={Me} alt="" width="40px" height="30px" className={CelebrantsCSS['img-round']}/> */}
             <p className={CelebrantsCSS['ml-10']}>{name}</p>
         </div>
-        <p>{birthday}</p>
+        {/* <p>{birthday}</p> */}
     </div>
   )
 }

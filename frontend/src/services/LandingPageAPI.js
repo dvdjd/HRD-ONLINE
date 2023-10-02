@@ -24,3 +24,15 @@ export const login = async (loginDetails) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//post
+export const newPost = async (postDetails) => {
+    try{
+        const {data} = await axios.post(`${api}/post`, postDetails)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

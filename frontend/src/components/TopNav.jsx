@@ -12,6 +12,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import logo from '../style/images/nmcp-logo.png'
+import logo2 from '../style/images/logo.png'
 import TopNavCSS from './TopNav.module.css'
 
 import Popper from '@mui/material/Popper';
@@ -99,6 +100,7 @@ const TopNav = () => {
     };
     /*-----------------Login------------------------------*/
     const login = useRef()
+    // const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
     useEffect(() => {
         setUser(JSON.parse(localStorage.getItem('user')))
@@ -111,7 +113,7 @@ const TopNav = () => {
             <AppBar position="fixed" sx={{bgcolor: '#fff'}}>
                 <Container maxWidth={{xs: 'sm', md: 'lg'}}>
                     <Toolbar disableGutters>
-                        <img src={logo} alt="logo" width="40px" height="40px" className={TopNavCSS.logo}/>
+                        <img src={logo2} alt="logo" width="60px" height="60px" className={TopNavCSS.logo}/>
                         <Typography
                             variant="h6"
                             noWrap
@@ -244,7 +246,7 @@ const TopNav = () => {
                                             href={page.link}
                                             key={index}
                                             onClick={handleClick('bottom-start', index)}
-                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
+                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
                                         >
                                             {page.name}
                                         </Button>
@@ -256,7 +258,7 @@ const TopNav = () => {
                                             href={page.link}
                                             key={index}
                                             onClick={handleCloseUserMenu}
-                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
+                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
                                         >
                                             {page.name}
                                         </Button>
@@ -268,7 +270,7 @@ const TopNav = () => {
                         <Box sx={{ flexGrow: 0 }}>
                             <Tooltip title="">
                                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt={localStorage.getItem('isLogin') !== 'false' ? capitalizeWords(user.FirstName) : ''} src="/static/images/avatar/2.jpg" />
+                                    <Avatar alt={localStorage.getItem('user') !== null ? capitalizeWords(user.FirstName) : ''} src="/static/images/avatar/2.jpg" />
                                 </IconButton>
                             </Tooltip>
                             <Menu

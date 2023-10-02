@@ -32,7 +32,6 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 
 import SeePost from './SeePost';
-import Post from './Post';
 import LikeList from './LikeList';
 
 
@@ -162,19 +161,6 @@ const CardC = () => {
         showComment ? setShowComment(false) : setShowComment(true)
     }
 
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-    //     setData((current) => ({ ...current, status: 'loading' }));
-    //     try {
-    //         // Replace timeout with real backend operation
-    //         setTimeout(() => {
-    //         setData({ email: '', status: 'sent' });
-    //         }, 1500);
-    //     } catch (error) {
-    //         setData((current) => ({ ...current, status: 'failure' }));
-    //     }
-    // };
-
     const [commentList, setCommentList] = useState([
         {
             id: 0,
@@ -253,7 +239,6 @@ const CardC = () => {
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList likes={{}} ref={likes}/>
             <SeePost content={content} ref={seePost}/>
-            {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
                     <Stack direction="row" spacing={2}>
@@ -370,11 +355,11 @@ const CardC = () => {
                                                             <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
                                                         </Avatar>
                                                     </div>
-                                                    <div className={CardCCSS['likes-items']}>
+                                                    {/* <div className={CardCCSS['likes-items']}>
                                                         <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
                                                             <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
                                                         </Avatar>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </Paper>
                                         </Fade>

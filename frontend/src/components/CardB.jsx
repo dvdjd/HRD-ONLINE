@@ -1,19 +1,113 @@
-import CardBCSS from './CardACSS.module.css'
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import DraftsIcon from '@mui/icons-material/Drafts';
+import MessageIcon from '@mui/icons-material/Message';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import MedicationLiquidIcon from '@mui/icons-material/MedicationLiquid';
+
+import { Worker, Viewer} from '@react-pdf-viewer/core';
+import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css'
+import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import samplePDF from '../style/images/pdf-succinctly.pdf'
+
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Modal from '@mui/material/Modal';
+
+import React, { useEffect, useRef, useState } from 'react';
+
+const style = {
+  position: 'absolute',
+  width: {xs: 320, md: '90%'},
+  height: '90%',
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 1,
+  marginTop: '50px',
+  justifyContent: 'space-between',
+  alignItems: 'flex-start',
+  display: 'flex',
+  flexDirection: {xs: 'column', md: 'row'},
+  overflow: 'auto !important'
+};
 
 const CardB = () => {
+  const [nav, setNav] = useState([
+    {name: `President's Message`, icon: <MessageIcon />},
+    {name: `People Concern`, icon: <DraftsIcon />},
+    {name: `WW Calendars`, icon: <CalendarMonthIcon />},
+    {name: `Health Alert`, icon: <MedicationLiquidIcon />},
+  ])
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const handleListItemClick = (event, index) => {
+    setSelectedIndex(index);
+    setOpen(true)
+  };
+
+  const selectedIndexRef = useRef(selectedIndex)
+
+  useEffect(() => {
+    selectedIndexRef.current = selectedIndex
+    const timer = setInterval(() => {
+      setSelectedIndex((prev) => (prev === nav.length - 1 ? 0 : prev + 1))
+    }, 5000);
+    return () => clearInterval(timer)
+  }, [])
+
+  /*-----------PDF Viewer--------------*/
+  const newplugin = defaultLayoutPlugin()
+  const [open, setOpen] = React.useState(false);
+  const handleClose = () => setOpen(false);
+
   return (
-    <div className={CardBCSS['container']}>
-        <div className={CardBCSS['title']}>
-            <div className={CardBCSS['cont']}>
-                <h4>Updates</h4>
-            </div>
-            
-        </div>
-        <div className={CardBCSS['items']}>
-            <p style={{textAlign: 'center', color: '#8c949b'}}>No Updates</p>
-        </div>
-        
-    </div>
+    <>
+      <div>
+        <Modal
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <div style={{display:'flex', justifyContent: 'center', alignItems: 'flex-start'}}>
+            <Card sx={style}>
+              <CardContent sx={{flex: 2, width: {xs: 300, md: '90%'},}}>
+                <Box sx={{border: '1px solid #cccccc', mt: 1, padding: 1.5, borderRadius: 1}}>
+                  <div className="pdf-container">
+                    <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                      <Viewer fileUrl={samplePDF} plugins={[newplugin]} />
+                    </Worker>
+                  </div>
+                </Box>
+              </CardContent>
+            </Card>
+          </div> 
+        </Modal>
+      </div>
+      <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
+        <List component="nav" aria-label="main mailbox folders" sx={{display: 'flex', flexDirection: 'column', borderRadius: '10px', mb: 2, p: 2}}>
+          {nav.map((nav, index) => (
+            <React.Fragment key={index}>
+              <ListItemButton
+                selected={selectedIndex === index}
+                onClick={(event) => handleListItemClick(event, index)}
+                sx={{width: '100%'}}
+              >
+                <ListItemIcon>
+                  {nav.icon}
+                </ListItemIcon>
+                <ListItemText primary={nav.name}/>
+              </ListItemButton>
+            </React.Fragment>
+          ))}
+        </List>
+      </Box>
+    </>
+    
   )
 }
 

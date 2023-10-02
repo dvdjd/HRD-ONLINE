@@ -1,15 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import CardA from '../components/CardA'
 import CardB from '../components/CardB'
 import CardC from '../components/CardC'
 import style from '../style/style.module.css'
-import homeCSS from './Home.module.css'
-import { useEffect } from 'react'
+import Post from '../components/Post';
+import PresidentMessage from '../components/PresidentMessage'
+import { useRef } from 'react'
 const Home = () => {
+  const presidentMessage = useRef()
   useEffect(() => {
-    if (localStorage.getItem('isLogin') === null || localStorage.getItem('user') === null) {
-      localStorage.setItem('isLogin', false)
-    }
+    //presidentMessage.current?.handleClick()
   }, [])
   return (
     <>
@@ -19,13 +19,16 @@ const Home = () => {
               <CardA />
           </div>
           <div className={`${style["flex-item"]} ${style["large"]}`}>
+              {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
               <CardC />
-              {/* <CardC /> */}
+              {/* <CardC />
+              <CardC /> */}
           </div>
           <div className={`${style["flex-item"]} ${style["small"]}`}>
               <CardB />
           </div>
       </div>
+      <PresidentMessage ref={presidentMessage}/>
     </>
   )
 }
