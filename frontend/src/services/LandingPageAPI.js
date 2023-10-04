@@ -36,3 +36,15 @@ export const newPost = async (postDetails) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//fetchPost
+export const getPost = async () => {
+    try{
+        const {data} = await axios.post(`${api}/getPosts`,)
+        return data.data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

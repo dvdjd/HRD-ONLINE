@@ -34,11 +34,13 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import SeePost from './SeePost';
 import LikeList from './LikeList';
 
+import moment from 'moment-timezone';
 
-const CardC = () => {
+
+const CardC = (post) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
-    const caps = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel risus vel arcu sodales gravida. Nunc facilisis massa quis fringilla. Fusce a ligula eu nulla eleifend iaculis. Praesent id scelerisque nulla. Vestibulum et urna a elit sollicitudin vehicula ut eu leo. Vestibulum fermentum, turpis sit amet auctor facilisis, ex nisi vulputate nulla, vel consequat dolor nisi eu tortor. Sed a metus a orci laoreet vehicula vel et sapien. Fusce eget justo nec libero laoreet convallis id in metus. Integer tincidunt ante vitae justo vestibulum, a rhoncus urna mattis. Sed sit amet mi bibendum, malesuada leo eu, tincidunt tortor. Donec nec leo eu urna elementum congue id nec purus. Suspendisse potenti. Nulla facilisi. Nunc bibendum lorem eu metus varius eleifend. Suspendisse potenti. Integer et nunc eget justo hendrerit convallis. Vivamus euismod luctus augue in mattis. Fusce ac auctor nunc. Nunc interdum risus sed auctor tincidunt. Vivamus ac nulla ac mi tincidunt viverra nec nec odio. Suspendisse potenti. Curabitur suscipit erat ut ex efficitur, quis viverra nisi ullamcorper. In hac habitasse platea dictumst. Duis vestibulum, dui ut tempus iaculis, metus justo bibendum tellus, eu pellentesque sapien tellus eget nisl. Proin vehicula diam ac efficitur. Integer sodales bibendum lectus, et bibendum libero blandit non. Curabitur dapibus, urna ut accumsan tincidunt, odio ex vehicula nisi, non vestibulum tellus massa quis neque. In hac habitasse platea dictumst. Integer iaculis eu elit eu luctus. Quisque eget justo nec est varius bibendum. Vivamus bibendum mi sit amet lacinia venenatis. Nulla facilisi. Quisque fermentum augue a purus consequat, et feugiat orci tincidunt. Donec congue ligula vel arcu vulputate tincidunt. Curabitur at augue viverra, pellentesque arcu eu, auctor libero. Nullam vitae mauris in mi maximus euismod. Sed eget tristique odio. Quisque nec felis vitae arcu lacinia pellentesque. Nullam nec justo eget neque pharetra blandit. In ultricies libero in urna mattis, id facilisis ligula consectetur. Fusce vehicula, erat eu blandit pharetra, mi justo tempor justo, a vulputate urna est ut arcu.'
-    const captionText = showFullCaption ? caps : `${caps.substring(0, 400)}...Show more`
+    const caps = post.post.p.postCaption
+    const captionText = showFullCaption ? caps : caps.length > 400 ? `${caps.substring(0, 400)}...Show more` : caps
     const itemData = [
         {
             type: 'image',
@@ -102,6 +104,8 @@ const CardC = () => {
         },
     ];
     const isLogin = true
+
+    const [postDate, setPostDate] = useState(null)
 
     /*Yung react na button na parang facebook */
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -235,6 +239,24 @@ const CardC = () => {
     const seePost = useRef()    
     const likes = useRef()
 
+    useEffect(() => {
+        const today = new Date()
+        const today2 = new Date()
+        today.setHours(0, 0, 0, 0)
+        if(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY') === moment(today).tz('Asia/Manila').format('MMMM DD, YYYY')){
+            if(today2.getHours() == moment(post.post.p.postDate).tz('Asia/Manila').format('HH')){
+                setPostDate('Just Now')
+            }
+            else{
+                setPostDate(`${today2.getHours() - moment(post.post.p.postDate).tz('Asia/Manila').format('HH')} Hours Ago`)
+            }
+        }
+        else{
+            setPostDate(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY'))
+        }
+
+        console.log(post.post.p.file)
+    }, [])
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList likes={{}} ref={likes}/>
@@ -248,25 +270,78 @@ const CardC = () => {
                                 Jhobert Erato
                             </Typography>
                             <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
-                                12 hours ago
+                                {postDate}
                             </Typography>
                         </div>
                     </Stack>
                     <br />
                     <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
-                    <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={3} rowHeight={'auto'}>
-                        {itemData.map((item) => (
-                        <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
-                            <img
-                            src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
-                            srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                            alt={item.title}
-                            loading="lazy"
-                            />
-                        </ImageListItem>
-                        ))}
-                    </ImageList>
-                    <div className={CardCCSS['likesComments']}>
+                    {post.post.p.file.length > 0 ? post.post.p.file.length > 1 ? (
+                        <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={3} rowHeight={'auto'}>
+                            {post.post.p.file.map((item, index) => (
+                                <React.Fragment key={index}>
+                                    <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
+                                        {item.type == 'image/jpeg' ? (
+                                            <img
+                                            src={`https://th.bing.com/th/id/OIP.jhJAhvK47YBMibqPXXZzQgHaEK?pid=ImgDet&rs=1`}
+                                            // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                            alt={item.filename}
+                                            loading="lazy"
+                                            style={{width: '100%'}}
+                                            />
+                                        ) : item.type == 'video/mp4' ? (
+                                            <video
+                                                autoPlay
+                                                loop
+                                                muted
+                                                poster="https://assets.codepen.io/6093409/river.jpg"
+                                                style={{width: '100%'}}
+                                            >
+                                                <source
+                                                src="https://assets.codepen.io/6093409/river.mp4"
+                                                type="video/mp4"
+                                                />
+                                            </video>
+                                        ) : undefined }
+                                        
+                                    </ImageListItem>
+                                </React.Fragment>
+                                
+                            ))}
+                        </ImageList>
+                    ) : 
+                        post.post.p.file.map((item, index) => (
+                            <React.Fragment key={index}>
+                                <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
+                                    {item.type == 'image/jpeg' ? (
+                                        <img
+                                        src={`https://th.bing.com/th/id/OIP.jhJAhvK47YBMibqPXXZzQgHaEK?pid=ImgDet&rs=1`}
+                                        // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                        alt={item.filename}
+                                        loading="lazy"
+                                        style={{width: '100%'}}
+                                        />
+                                    ) : item.type == 'video/mp4' ? (
+                                        <video
+                                            autoPlay
+                                            loop
+                                            muted
+                                            poster="https://assets.codepen.io/6093409/river.jpg"
+                                            style={{width: '100%', height: '600px', objectFit: 'cover'}}
+                                        >
+                                            <source
+                                            src="https://assets.codepen.io/6093409/river.mp4"
+                                            type="video/mp4"
+                                            />
+                                        </video>
+                                    ) : undefined }
+                                    
+                                </ImageListItem>
+                            </React.Fragment>
+                            
+                        ))
+                     : undefined}
+                    <div className={CardCCSS['likesComments']} style={{marginTop: 15}}>
                         <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
                             <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}}>
                                 <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  

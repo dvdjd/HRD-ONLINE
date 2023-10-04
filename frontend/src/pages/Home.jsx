@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import CardA from '../components/CardA'
 import CardB from '../components/CardB'
 import CardC from '../components/CardC'
@@ -6,10 +6,20 @@ import style from '../style/style.module.css'
 import Post from '../components/Post';
 import PresidentMessage from '../components/PresidentMessage'
 import { useRef } from 'react'
+
+import { getPost } from '../services/LandingPageAPI'
 const Home = () => {
   const presidentMessage = useRef()
+  const [posts, setPost] = useState([])
   useEffect(() => {
     //presidentMessage.current?.handleClick()
+  
+    const kuninAngPost = async () => {
+      const lagayan = await getPost()
+      setPost(lagayan)
+    }
+
+    kuninAngPost()
   }, [])
   return (
     <>
@@ -20,9 +30,11 @@ const Home = () => {
           </div>
           <div className={`${style["flex-item"]} ${style["large"]}`}>
               {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
-              <CardC />
-              {/* <CardC />
-              <CardC /> */}
+              {posts.map((p, index) => (
+                <React.Fragment key={index}>
+                  <CardC post={{p}}/>
+                </React.Fragment>
+              ))}
           </div>
           <div className={`${style["flex-item"]} ${style["small"]}`}>
               <CardB />

@@ -28,7 +28,7 @@ import { TextSnippetTwoTone } from '@mui/icons-material';
 import { Document, Page } from 'react-pdf';
 import { capitalizeWords } from '../utils/global';
 
-import { newPost } from '../services/LandingPageAPI';
+import { newPost, getPost } from '../services/LandingPageAPI';
 const Post = () => {
     /*--------------------------Post----------------------*/
     const style = {
@@ -165,12 +165,34 @@ const Post = () => {
     const [caption, setCaption] = useState('')
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const postStat = await newPost({caption: caption, user: JSON.parse(localStorage.getItem('user')).ID_No})
-        postStat.staus === 'failed' || postStat.status === 'error' ? undefined : (
+        const ID = await getPost()
+        let formData = new FormData()
+        formData.append('post_id', ID.length === 0 ? 1 : ID[0].ID + 1)
+        formData.append('caption', caption)
+        formData.append('user', JSON.parse(localStorage.getItem('user')).ID_No)
+        if(selectedImage.length > 0){
+            selectedImage.forEach(image => {
+                formData.append('files', image)
+            })
+        }
+        if(selectedVideo.length > 0){
+            selectedVideo.forEach(video => {
+                formData.append('files', video)
+            })
+        }
+        if(selectedFile.length > 0){
+            selectedFile.forEach(file => {
+                formData.append('files', file)
+            })
+        }
+        const postStat = await newPost(formData)
+        postStat.status === 'failed' || postStat.status === 'error' ? undefined : (
             setCaption(''),
-            setPost(false)
+            setPost(false),
+            setSelectedFile([]),
+            setSelectedImage([]),
+            setSelectedVideo([])
         )
-        
     }
   return (
     <>
@@ -192,7 +214,7 @@ const Post = () => {
                 <Fade in={post}>
                     <div style={{display:'flex', justifyContent: 'center', alignItems: 'flex-start'}}>
                         <Card sx={style}>
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit} encType='multipart/form-data'>
                                 <CardContent sx={{overflowY: 'scroll'}}>
                                 
                                     <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
@@ -212,6 +234,7 @@ const Post = () => {
                                             sx={{width: '100%'}}
                                             onChange={(e) => setCaption(e.target.value)}
                                             value={caption}
+                                            required
                                         />
                                     </Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid #cccccc', mt: 1, padding: 1.5, borderRadius: 1}}>
@@ -396,7 +419,6 @@ const Post = () => {
                             </form>
                         </Card>
                     </div>
-
                 </Fade>
             </Modal>
         </div>
