@@ -84,3 +84,39 @@ export const countReact = async (postID) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//checkReact
+export const checkReact = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/checkReact`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
+
+//postComment
+export const postComment = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/comment`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
+
+//getComments
+export const getComments = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/getComments`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

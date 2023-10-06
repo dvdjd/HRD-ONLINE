@@ -3,6 +3,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
@@ -41,7 +42,7 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import samplePDF from '../style/images/pdf-succinctly.pdf'
 import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 
-import { getUser, reactPost, countReact } from '../services/LandingPageAPI';
+import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
 import { capitalizeWords } from '../utils/global';
 
 
@@ -129,19 +130,14 @@ const CardC = (post) => {
         setOpen((prev) => placement !== newPlacement || !prev);
         setPlacement(newPlacement);
     };
-    let [like, setLike] = useState('none')
-    let [newLike, setNewLike] = useState(null)
+    let [like, setLike] = useState(undefined)
     const handleSetLike = (l) => {
         let mode = 0
         if(like === l){
-            //handleLikeDecrement()
-            setNewLike()
             setLike('none')
             mode = 2
         }
         else{
-            //handleAddtoLikeList()
-           // handleLikeIncrement()
             setLike(l)
             mode = 1
         }
@@ -156,65 +152,49 @@ const CardC = (post) => {
         }
         rPost()
     }
-    let [countLike, setCountLike] = useState(7)
-    const handleLikeIncrement = () => {
-        setCountLike((prevState) => prevState + 1)
-    }
-    const handleLikeDecrement = () => {
-        setCountLike((prevState) => prevState - 1)
-    }
+    let [countLike, setCountLike] = useState(0)
     let [likeList, setLikeList] = useState({data: []})
-    const handleAddtoLikeList = () => {
-        setLikeList([...likeList, {name: 'Marivic Villareal', type: 'love'}])
-    }
-    const handleRemovetoLikeList = () => {
-        setLikeList((prevState) => `You, ${prevState}`)
-    }
 
     /*Comment to */
     const inputComment = useRef(null)
-    const handleFocusComment = () => {
-        if (inputComment.current) {
-            inputComment.current.focus();
-        }
-    }
     const [showComment, setShowComment] = useState(false)
     const handleShowComment = () => {
         showComment ? setShowComment(false) : setShowComment(true)
     }
 
-    const [commentList, setCommentList] = useState([
-        {
-            id: 0,
-            name: `Jude David Acula`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/1.jpg`,
-            comment: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel risus vel arcu sodales gravida. Nunc facilisis massa quis fringilla. Fusce a ligula eu nulla eleifend iaculis. Praesent id scelerisque nulla. Vestibulum et urna a elit sollicitudin vehicula ut eu leo. Vestibulum fermentum, turpis sit amet auctor facilisis, ex nisi vulputate nulla, vel consequat dolor nisi eu tortor. Sed a metus a orci laoreet vehicula vel et sapien. Fusce eget justo nec libero laoreet convallis id in metus. Integer tincidunt ante vitae justo vestibulum, a rhoncus urna mattis. Sed sit amet mi bibendum, malesuada leo eu, tincidunt tortor. Donec nec leo eu urna elementum congue id nec purus. Suspendisse potenti. Nulla facilisi. Nunc bibendum lorem eu metus varius eleifend. Suspendisse potenti. Integer et nunc eget justo hendrerit convallis. Vivamus euismod luctus augue in mattis. Fusce ac auctor nunc. Nunc interdum risus sed auctor tincidunt. Vivamus ac nulla ac mi tincidunt viverra nec nec odio. Suspendisse potenti. Curabitur suscipit erat ut ex efficitur, quis viverra nisi ullamcorper. In hac habitasse platea dictumst. Duis vestibulum, dui ut tempus iaculis, metus justo bibendum tellus, eu pellentesque sapien tellus eget nisl. Proin vehicula diam ac efficitur. Integer sodales bibendum lectus, et bibendum libero blandit non. Curabitur dapibus, urna ut accumsan tincidunt, odio ex vehicula nisi, non vestibulum tellus massa quis neque. In hac habitasse platea dictumst. Integer iaculis eu elit eu luctus. Quisque eget justo nec est varius bibendum. Vivamus bibendum mi sit amet lacinia venenatis. Nulla facilisi. Quisque fermentum augue a purus consequat, et feugiat orci tincidunt. Donec congue ligula vel arcu vulputate tincidunt. Curabitur at augue viverra, pellentesque arcu eu, auctor libero. Nullam vitae mauris in mi maximus euismod. Sed eget tristique odio. Quisque nec felis vitae arcu lacinia pellentesque. Nullam nec justo eget neque pharetra blandit. In ultricies libero in urna mattis, id facilisis ligula consectetur. Fusce vehicula, erat eu blandit pharetra, mi justo tempor justo, a vulputate urna est ut arcu.`,
-            showFullComment: false,
-            date: 'September 12, 2023',
-            time: '1:30 PM'
-        },
-        {
-            id: 1,
-            name: `Kent Steven Yedra`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/2.jpg`,
-            comment: `-Wish I could come, but I'm out of town this week...`,
-            showFullComment: false,
-            date: 'September 12, 2023',
-            time: '2:05 PM'
-        },
-        {
-            id: 2,
-            name: `Rencell Arcillas`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/3.jpg`,
-            comment: `-Do you have Paris recommendations? Have you ever there?`,
-            showFullComment: false,
-            date: 'September 12, 2023',
-            time: '2:57 PM'
-        },
-    ])
+    const [commentList, setCommentList] = useState([])
+    // const [commentList, setCommentList] = useState([
+    //     {
+    //         id: 0,
+    //         name: `Jude David Acula`,
+    //         department: `Systems`,
+    //         avatar: `/static/images/avatar/1.jpg`,
+    //         comment: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel risus vel arcu sodales gravida. Nunc facilisis massa quis fringilla. Fusce a ligula eu nulla eleifend iaculis. Praesent id scelerisque nulla. Vestibulum et urna a elit sollicitudin vehicula ut eu leo. Vestibulum fermentum, turpis sit amet auctor facilisis, ex nisi vulputate nulla, vel consequat dolor nisi eu tortor. Sed a metus a orci laoreet vehicula vel et sapien. Fusce eget justo nec libero laoreet convallis id in metus. Integer tincidunt ante vitae justo vestibulum, a rhoncus urna mattis. Sed sit amet mi bibendum, malesuada leo eu, tincidunt tortor. Donec nec leo eu urna elementum congue id nec purus. Suspendisse potenti. Nulla facilisi. Nunc bibendum lorem eu metus varius eleifend. Suspendisse potenti. Integer et nunc eget justo hendrerit convallis. Vivamus euismod luctus augue in mattis. Fusce ac auctor nunc. Nunc interdum risus sed auctor tincidunt. Vivamus ac nulla ac mi tincidunt viverra nec nec odio. Suspendisse potenti. Curabitur suscipit erat ut ex efficitur, quis viverra nisi ullamcorper. In hac habitasse platea dictumst. Duis vestibulum, dui ut tempus iaculis, metus justo bibendum tellus, eu pellentesque sapien tellus eget nisl. Proin vehicula diam ac efficitur. Integer sodales bibendum lectus, et bibendum libero blandit non. Curabitur dapibus, urna ut accumsan tincidunt, odio ex vehicula nisi, non vestibulum tellus massa quis neque. In hac habitasse platea dictumst. Integer iaculis eu elit eu luctus. Quisque eget justo nec est varius bibendum. Vivamus bibendum mi sit amet lacinia venenatis. Nulla facilisi. Quisque fermentum augue a purus consequat, et feugiat orci tincidunt. Donec congue ligula vel arcu vulputate tincidunt. Curabitur at augue viverra, pellentesque arcu eu, auctor libero. Nullam vitae mauris in mi maximus euismod. Sed eget tristique odio. Quisque nec felis vitae arcu lacinia pellentesque. Nullam nec justo eget neque pharetra blandit. In ultricies libero in urna mattis, id facilisis ligula consectetur. Fusce vehicula, erat eu blandit pharetra, mi justo tempor justo, a vulputate urna est ut arcu.`,
+    //         showFullComment: false,
+    //         date: 'September 12, 2023',
+    //         time: '1:30 PM'
+    //     },
+    //     {
+    //         id: 1,
+    //         name: `Kent Steven Yedra`,
+    //         department: `Systems`,
+    //         avatar: `/static/images/avatar/2.jpg`,
+    //         comment: `-Wish I could come, but I'm out of town this week...`,
+    //         showFullComment: false,
+    //         date: 'September 12, 2023',
+    //         time: '2:05 PM'
+    //     },
+    //     {
+    //         id: 2,
+    //         name: `Rencell Arcillas`,
+    //         department: `Systems`,
+    //         avatar: `/static/images/avatar/3.jpg`,
+    //         comment: `-Do you have Paris recommendations? Have you ever there?`,
+    //         showFullComment: false,
+    //         date: 'September 12, 2023',
+    //         time: '2:57 PM'
+    //     },
+    // ])
     const handleShowFullComment = (id, stat) => {
         const updatedCommentList = [...commentList]
         const indexToUpdate = updatedCommentList.findIndex(item => item.id === id)
@@ -227,7 +207,7 @@ const CardC = (post) => {
     const handleChangeMyComment = (event) => {
         setMyComment(event.target.value)
     }
-    const handleSubmitMyComment = (event) => {
+    const handleSubmitMyComment = async (event) => {
         event.preventDefault()
         const newComment = {
             id: commentList[commentList.length - 1].id + 1,
@@ -239,6 +219,8 @@ const CardC = (post) => {
             date: 'September 13, 2023',
             time: '07:12 AM'
         }
+        const pComment = await postComment({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No, comment: myComment})
+
         setCommentList([...commentList,newComment])
         setMyComment('')
         event.target.clear
@@ -281,42 +263,80 @@ const CardC = (post) => {
             setPoster(capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`))
         }
         user()
+
         const cReact = async () => {
             const cr = await countReact({post_id: post.post.p.ID})
             setLikeList(cr)
+            let c = 0
+            cr.data.forEach(element => {
+                c += element.count
+            });
+            setCountLike(c)
         }
         cReact()
+
+        const chReact = async() => {
+            const c = await checkReact({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
+            c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+        }
+        chReact()
+
+        const gComments = async () => {
+            const gc = await getComments({post_id : post.post.p.ID})
+            gc.data.forEach(element => {
+                let newComm = {}
+                newComm.id = element.ID
+                newComm.name = `${capitalizeWords(element.FirstName)} ${capitalizeWords(element.LastName)}`
+                newComm.department = element.Department
+                newComm.avatar = `/static/images/avatar/3.jpg`
+                newComm.comment = element.comment
+                newComm.showFullComment = false
+                newComm.date = moment(element.commentDateTime).tz('Asia/Manila').format('MMMM DD, YYYY')
+                newComm.time = moment(element.commentDateTime).tz('Asia/Manila').format('hh:MM A')
+                //setCommentList(...commentList, newComm)
+            });
+            
+        }
+        gComments()
     }, [])
 
-    // useEffect(() => {
-    //     // const mode = like === 'none' ? 0 : like === newLike ? 2 : 1
-    //     const rPost = async () => {
-    //         const r = await reactPost({
-    //             post_id : post.post.p.ID,
-    //             user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
-    //             react_type : like
-    //         })
-    //         return r
-    //     }
-    //     rPost()
-    // }, [like])
+    useEffect(() => {
+        const cReact = async () => {
+            const cr = await countReact({post_id: post.post.p.ID})
+            setLikeList(cr)
+            let c = 0
+            cr.data.forEach(element => {
+                c += element.count
+            });
+            setCountLike(c)
+        }
+        cReact()
+    }, [like])
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList likes={{}} ref={likes}/>
             <SeePost content={content} ref={seePost}/>
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
-                    <Stack direction="row" spacing={2}>
-                        <Avatar alt={poster} src={poster} />
-                        <div>
-                            <Typography variant="body2">
-                                {poster}
-                            </Typography>
-                            <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
-                                {postDate}
-                            </Typography>
-                        </div>
-                    </Stack>
+                    <div className={CardCCSS['likesComments']} style={{alignItems: 'center'}}>
+                        <Stack direction="row" spacing={2}>
+                            <Avatar alt={poster} src={poster} />
+                            <div>
+                                <Typography variant="body2">
+                                    {poster}
+                                </Typography>
+                                <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
+                                    {postDate}
+                                </Typography>
+                            </div>
+                        </Stack>
+                        {localStorage.getItem('isLogin') === 'true' && JSON.parse(localStorage.getItem('user')).ID_No === post.post.p.postUserID ? (
+                            <IconButton aria-label="settings">
+                                <MoreHorizIcon size={10} />
+                            </IconButton>
+                        ) : undefined}
+                    </div>
+                    
                     <br />
                     <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
                     {post.post.p.file.length > 0 ? post.post.p.file.length > 1 ? (
@@ -401,21 +421,36 @@ const CardC = (post) => {
                     <div className={CardCCSS['likesComments']} style={{marginTop: 15}}>
                         {likeList.data.length > 0 ? (
                             <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
-                                <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
-                                    <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
-                                </Avatar>
-                                {/* <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}}>
-                                    <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
-                                </Avatar>
-                                <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}}>
-                                    <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
-                                </Avatar>
-                                <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
-                                    <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
-                                </Avatar> */}
-                                <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => likes.current?.handleOpen()}>
-                                    <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                        {likeList.data.length}
+                                {likeList.data.slice(0, 3).map((like, index) => (
+                                    <div key={index}>
+                                        {like.reactType === 'laugh' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                <FaLaughSquint color='#fff' size={15} style={{margin: '0'}}/> 
+                                            </Avatar>
+                                        ) : like.reactType === 'like' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#0454d9'}}>
+                                                <AiFillLike color='#fff' size={15} style={{margin: '0'}}/>
+                                            </Avatar>
+                                        ) : like.reactType === 'heart' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: 'red'}}>
+                                                <AiFillHeart color='#fff' size={15} style={{margin: '0'}}/>
+                                            </Avatar>
+                                             
+                                        ) : like.reactType === 'wow' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                <ImShocked2 color='#fff' size={15} style={{margin: '0'}}/> 
+                                            </Avatar>
+                                        ) : like.reactType === 'sad' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>
+                                            </Avatar>
+                                        ) : undefined}
+                                    </div>
+                                ))}
+                                
+                                <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={() => likes.current?.handleOpen()}>
+                                    <Typography sx={{ mb: 1.5, fontSize: '14px', marginBottom: 0}} color="text.secondary">
+                                        {countLike}
                                     </Typography>
                                 </Button>
                             </AvatarGroup>
