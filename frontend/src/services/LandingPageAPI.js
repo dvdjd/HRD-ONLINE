@@ -48,3 +48,39 @@ export const getPost = async () => {
         return {data: [], status: 'failed'}
     }
 }
+
+//getUser
+export const getUser = async (id) => {
+    try{
+        const {data} = await axios.post(`${api}/getUser`, id)
+        return data.data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
+
+//reactPost
+export const reactPost = async (react) => {
+    try{
+        const {data} = await axios.post(`${api}/react`, react)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
+
+//reactPost
+export const countReact = async (postID) => {
+    try{
+        const {data} = await axios.post(`${api}/countReact`, postID)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

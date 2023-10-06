@@ -168,7 +168,7 @@ const Post = () => {
         const ID = await getPost()
         let formData = new FormData()
         formData.append('post_id', ID.length === 0 ? 1 : ID[0].ID + 1)
-        formData.append('caption', caption)
+        formData.append('caption', caption.replace(/'/g, "\\'"))
         formData.append('user', JSON.parse(localStorage.getItem('user')).ID_No)
         if(selectedImage.length > 0){
             selectedImage.forEach(image => {
@@ -193,6 +193,7 @@ const Post = () => {
             setSelectedImage([]),
             setSelectedVideo([])
         )
+        console.log(postStat.status)
     }
   return (
     <>

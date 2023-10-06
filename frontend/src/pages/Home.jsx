@@ -11,6 +11,7 @@ import { getPost } from '../services/LandingPageAPI'
 const Home = () => {
   const presidentMessage = useRef()
   const [posts, setPost] = useState([])
+  const c = useRef()
   useEffect(() => {
     //presidentMessage.current?.handleClick()
   
@@ -20,6 +21,9 @@ const Home = () => {
     }
 
     kuninAngPost()
+    if (c.current) {
+      c.current.scrollTo(0, 0);
+    }
   }, [])
   return (
     <>
@@ -28,7 +32,7 @@ const Home = () => {
           <div className={`${style["flex-item"]} ${style["small"]}`}>
               <CardA />
           </div>
-          <div className={`${style["flex-item"]} ${style["large"]}`}>
+          <div className={`${style["flex-item"]} ${style["large"]}`} ref={c}>
               {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
               {posts.map((p, index) => (
                 <React.Fragment key={index}>

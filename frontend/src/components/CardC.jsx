@@ -35,6 +35,14 @@ import SeePost from './SeePost';
 import LikeList from './LikeList';
 
 import moment from 'moment-timezone';
+import { Worker, Viewer} from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css'
+import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import samplePDF from '../style/images/pdf-succinctly.pdf'
+import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+
+import { getUser, reactPost, countReact } from '../services/LandingPageAPI';
+import { capitalizeWords } from '../utils/global';
 
 
 const CardC = (post) => {
@@ -122,17 +130,31 @@ const CardC = (post) => {
         setPlacement(newPlacement);
     };
     let [like, setLike] = useState('none')
-   
-    const handleSetLike = (newLike) => {
-        if(like === newLike){
-            handleLikeDecrement()
+    let [newLike, setNewLike] = useState(null)
+    const handleSetLike = (l) => {
+        let mode = 0
+        if(like === l){
+            //handleLikeDecrement()
+            setNewLike()
             setLike('none')
+            mode = 2
         }
         else{
-            handleAddtoLikeList()
-            handleLikeIncrement()
-            setLike(newLike)
+            //handleAddtoLikeList()
+           // handleLikeIncrement()
+            setLike(l)
+            mode = 1
         }
+        const rPost = async () => {
+            const r = await reactPost({
+                post_id : post.post.p.ID,
+                user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
+                react_type : l,
+                mode: mode
+            })
+            return r
+        }
+        rPost()
     }
     let [countLike, setCountLike] = useState(7)
     const handleLikeIncrement = () => {
@@ -141,11 +163,7 @@ const CardC = (post) => {
     const handleLikeDecrement = () => {
         setCountLike((prevState) => prevState - 1)
     }
-    let [likeList, setLikeList] = useState([
-        {name: 'Jhobert Erato', type: 'love'},
-        {name: 'David Jude Acula', type: 'laugh'},
-        {name: 'Kent Yedra Steven', type: 'like'},
-    ])
+    let [likeList, setLikeList] = useState({data: []})
     const handleAddtoLikeList = () => {
         setLikeList([...likeList, {name: 'Marivic Villareal', type: 'love'}])
     }
@@ -230,15 +248,18 @@ const CardC = (post) => {
         return regex.test(strng)
     }
 
+    //PDF
+    const newplugin = defaultLayoutPlugin()
     /*---------------zoom-----------------*/
     const content = {
-        id: 1,
+        id: post.post.p.ID,
         caption: caps,
-        media: itemData
+        media: post.post.p.file
     }
     const seePost = useRef()    
     const likes = useRef()
 
+    const [poster, setPoster] = useState(null)
     useEffect(() => {
         const today = new Date()
         const today2 = new Date()
@@ -252,11 +273,33 @@ const CardC = (post) => {
             }
         }
         else{
-            setPostDate(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY'))
+            setPostDate(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A'))
         }
 
-        console.log(post.post.p.file)
+        const user = async () => {
+            const u = await getUser({id : post.post.p.postUserID})
+            setPoster(capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`))
+        }
+        user()
+        const cReact = async () => {
+            const cr = await countReact({post_id: post.post.p.ID})
+            setLikeList(cr)
+        }
+        cReact()
     }, [])
+
+    // useEffect(() => {
+    //     // const mode = like === 'none' ? 0 : like === newLike ? 2 : 1
+    //     const rPost = async () => {
+    //         const r = await reactPost({
+    //             post_id : post.post.p.ID,
+    //             user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
+    //             react_type : like
+    //         })
+    //         return r
+    //     }
+    //     rPost()
+    // }, [like])
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList likes={{}} ref={likes}/>
@@ -264,10 +307,10 @@ const CardC = (post) => {
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
                     <Stack direction="row" spacing={2}>
-                        <Avatar alt="Remy Sharp" src={Me} />
+                        <Avatar alt={poster} src={poster} />
                         <div>
                             <Typography variant="body2">
-                                Jhobert Erato
+                                {poster}
                             </Typography>
                             <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
                                 {postDate}
@@ -277,13 +320,13 @@ const CardC = (post) => {
                     <br />
                     <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
                     {post.post.p.file.length > 0 ? post.post.p.file.length > 1 ? (
-                        <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={3} rowHeight={'auto'}>
+                        <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={post.post.p.file.length % 3 == 0 ? 3 : 2} rowHeight={'auto'}>
                             {post.post.p.file.map((item, index) => (
                                 <React.Fragment key={index}>
                                     <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
                                         {item.type == 'image/jpeg' ? (
                                             <img
-                                            src={`https://th.bing.com/th/id/OIP.jhJAhvK47YBMibqPXXZzQgHaEK?pid=ImgDet&rs=1`}
+                                            src={`http://192.168.5.12:4000/uploads/${item.filename}`}
                                             // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                                             alt={item.filename}
                                             loading="lazy"
@@ -294,47 +337,61 @@ const CardC = (post) => {
                                                 autoPlay
                                                 loop
                                                 muted
-                                                poster="https://assets.codepen.io/6093409/river.jpg"
-                                                style={{width: '100%'}}
+                                                poster={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                                style={{width: '100%', objectFit: 'contain'}}
                                             >
                                                 <source
-                                                src="https://assets.codepen.io/6093409/river.mp4"
+                                                src={`http://192.168.5.12:4000/uploads/${item.filename}`}
                                                 type="video/mp4"
                                                 />
                                             </video>
-                                        ) : undefined }
+                                        ) : (
+                                            <img
+                                                src={`https://th.bing.com/th/id/OIP.OzkFjeuoXNdMHiS3ZUL-swHaDm?w=349&h=169&c=7&r=0&o=5&dpr=1.4&pid=1.7`}
+                                                // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                                alt={item.filename}
+                                                loading="lazy"
+                                                style={{width: '100%'}}
+                                            />
+                                        ) }
                                         
                                     </ImageListItem>
                                 </React.Fragment>
-                                
                             ))}
                         </ImageList>
                     ) : 
                         post.post.p.file.map((item, index) => (
                             <React.Fragment key={index}>
-                                <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
-                                    {item.type == 'image/jpeg' ? (
+                                <ImageListItem key={item.img}>
+                                    {item.type == 'image/jpeg' ||  item.type == 'image/jpg' || item.type == 'image/png'? (
                                         <img
-                                        src={`https://th.bing.com/th/id/OIP.jhJAhvK47YBMibqPXXZzQgHaEK?pid=ImgDet&rs=1`}
+                                        src={`http://192.168.5.12:4000/uploads/${item.filename}`}
                                         // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                                         alt={item.filename}
                                         loading="lazy"
-                                        style={{width: '100%'}}
+                                        style={{width: '100%', height: 'auto'}}
                                         />
                                     ) : item.type == 'video/mp4' ? (
                                         <video
-                                            autoPlay
-                                            loop
+                                            // autoPlay
+                                            controls
+                                            // loop
                                             muted
-                                            poster="https://assets.codepen.io/6093409/river.jpg"
-                                            style={{width: '100%', height: '600px', objectFit: 'cover'}}
+                                            poster={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            style={{width: '100%', height: '600px', objectFit: 'contain'}}
                                         >
                                             <source
-                                            src="https://assets.codepen.io/6093409/river.mp4"
+                                            src={`http://192.168.5.12:4000/uploads/${item.filename}`}
                                             type="video/mp4"
                                             />
                                         </video>
-                                    ) : undefined }
+                                    ) : (
+                                        <div className="pdf-container" style={{height: '600px'}}>
+                                            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                                <Viewer fileUrl={samplePDF} plugins={[newplugin]} />
+                                            </Worker>
+                                        </div>
+                                    ) }
                                     
                                 </ImageListItem>
                             </React.Fragment>
@@ -342,22 +399,27 @@ const CardC = (post) => {
                         ))
                      : undefined}
                     <div className={CardCCSS['likesComments']} style={{marginTop: 15}}>
-                        <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}}>
-                                <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
-                            </Avatar>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}}>
-                                <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
-                            </Avatar>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
-                                <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
-                            </Avatar>
-                            <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => likes.current?.handleOpen()}>
-                                <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                    {likeList[0].name}
-                                </Typography>
-                            </Button>
-                        </AvatarGroup>
+                        {likeList.data.length > 0 ? (
+                            <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
+                                <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
+                                    <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
+                                </Avatar>
+                                {/* <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}}>
+                                    <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
+                                </Avatar>
+                                <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}}>
+                                    <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
+                                </Avatar>
+                                <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
+                                    <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
+                                </Avatar> */}
+                                <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => likes.current?.handleOpen()}>
+                                    <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
+                                        {likeList.data.length}
+                                    </Typography>
+                                </Button>
+                            </AvatarGroup>
+                        ) : undefined}
                         <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
                             <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
                                 <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
@@ -372,7 +434,7 @@ const CardC = (post) => {
                     <hr />
                 </CardContent>
                 <CardContent sx={{padding: 1}}>
-                    {isLogin ? (
+                    {localStorage.getItem('isLogin') === 'true' ?  (
                         <>
                             <div className={CardCCSS['btnLikeComments']}>
                                 <div>
@@ -383,22 +445,22 @@ const CardC = (post) => {
                                         onBlur={handleHoverClose('top-start')}
                                         onClick={() => handleSetLike('like')}
                                     >   {
-                                            like === 'none' ? (
+                                            like == 'none' ? (
                                                 <AiOutlineLike color='grey' size={20}/>
-                                            ) : like === 'like' ? (
+                                            ) : like == 'like' ? (
                                                 <AiFillLike color='blue' size={20}/>
-                                            ) : like === 'heart' ? (
+                                            ) : like == 'heart' ? (
                                                 <AiFillHeart color='red' size={20}/>
-                                            ) : like === 'laugh' ? (
+                                            ) : like == 'laugh' ? (
                                                 <FaLaughSquint color='ffbf00' size={20}/>
-                                            ) : like === 'sad' ? (
+                                            ) : like == 'sad' ? (
                                                 <FaSadTear color='ffbf00' size={20}/>
-                                            ) : like === 'wow' ? (
+                                            ) : like == 'wow' ? (
                                                 <ImShocked2 color='ffbf00' size={20}/>
                                             ) : (
                                                 <FaAngry color='ffa187' size={20}/>
                                             )
-                                        }&nbsp;{countLike}
+                                        }
                                     </Button>
                                     <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
                                         {({ TransitionProps }) => (
@@ -443,7 +505,7 @@ const CardC = (post) => {
                                 </div>
                                 <div>
                                     <Button size="small" sx={{color: 'grey'}} onClick={() => handleShowComment()}>
-                                        <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
+                                        <FaRegCommentAlt color='grey' size={20}/>
                                     </Button>
                                 </div>
                                 <div style={{marginRight: 10, flex: 3}}>
@@ -459,7 +521,7 @@ const CardC = (post) => {
                                                 required
                                                 value={myComment}
                                                 onChange={handleChangeMyComment}
-                                                autoFocus
+                                                // autoFocus
                                             />
                                             {validComment(myComment) ? (
                                                 <IconButton sx={{ p: '10px', color: 'blue' }} aria-label="search" type={"submit"}>
