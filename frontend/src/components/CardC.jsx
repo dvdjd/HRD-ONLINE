@@ -161,7 +161,6 @@ const CardC = (post) => {
     const handleShowComment = () => {
         showComment ? setShowComment(false) : setShowComment(true)
     }
-
     const [commentList, setCommentList] = useState([])
     // const [commentList, setCommentList] = useState([
     //     {
@@ -210,14 +209,15 @@ const CardC = (post) => {
     const handleSubmitMyComment = async (event) => {
         event.preventDefault()
         const newComment = {
-            id: commentList[commentList.length - 1].id + 1,
-            name: `Jhobert Erato`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/3.jpg`,
+            // id: commentList[commentList.length - 1].id + 1,
+            Post_ID : post.post.p.ID,
+            commentUserID: JSON.parse(localStorage.getItem('user')).ID_No,
             comment: myComment,
             showFullComment: false,
-            date: 'September 13, 2023',
-            time: '07:12 AM'
+            commentDateTime: moment().tz('Asia/Manila').format('YYYY-MM-DD HH:mm:ss'),
+            FirstName : JSON.parse(localStorage.getItem('user')).FirstName,
+            LastName : JSON.parse(localStorage.getItem('user')).LastName,
+            Department : JSON.parse(localStorage.getItem('user')).Department
         }
         const pComment = await postComment({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No, comment: myComment})
 
@@ -283,19 +283,10 @@ const CardC = (post) => {
 
         const gComments = async () => {
             const gc = await getComments({post_id : post.post.p.ID})
-            gc.data.forEach(element => {
-                let newComm = {}
-                newComm.id = element.ID
-                newComm.name = `${capitalizeWords(element.FirstName)} ${capitalizeWords(element.LastName)}`
-                newComm.department = element.Department
-                newComm.avatar = `/static/images/avatar/3.jpg`
-                newComm.comment = element.comment
-                newComm.showFullComment = false
-                newComm.date = moment(element.commentDateTime).tz('Asia/Manila').format('MMMM DD, YYYY')
-                newComm.time = moment(element.commentDateTime).tz('Asia/Manila').format('hh:MM A')
-                //setCommentList(...commentList, newComm)
-            });
-            
+            if(gc.length > 0){
+                setCommentList(gc) 
+            }
+                
         }
         gComments()
     }, [])
@@ -455,16 +446,20 @@ const CardC = (post) => {
                                 </Button>
                             </AvatarGroup>
                         ) : undefined}
-                        <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
-                            <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
-                                <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                    {commentList.length === 1 ? `only one comment` : `${commentList.length} comments`}
-                                </Typography>
-                            </Button>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                        </AvatarGroup>
+                        {commentList.length > 0 ? (
+                            <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
+                                <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
+                                    <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
+                                        {commentList.length === 1 ? `only one comment` : `${commentList.length} comments`}
+                                    </Typography>
+                                </Button>
+                                {commentList.slice(0, 3).map((comment, index) => (
+                                    <Avatar key={index} size='sm' alt={`${capitalizeWords(comment.FirstName)} ${capitalizeWords(comment.LastName)}`} sx={{width: '30px', height: '30px'}} src={`${capitalizeWords(comment.FirstName)} ${capitalizeWords(comment.LastName)}`}/>
+                                ))}
+                                
+                            </AvatarGroup>
+                        ) : undefined}
+                        
                     </div>
                     <hr />
                 </CardContent>
@@ -547,7 +542,7 @@ const CardC = (post) => {
                                     <Paper
                                         sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
                                     >
-                                        <Avatar alt="Remy Sharp" src={Me} sx={{width: 24, height: 24}}/>
+                                        <Avatar alt={`${capitalizeWords(JSON.parse(localStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(localStorage.getItem('user')).LastName)}`} src={`${capitalizeWords(JSON.parse(localStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(localStorage.getItem('user')).LastName)}`} sx={{width: 24, height: 24}}/>
                                         <form onSubmit={handleSubmitMyComment} style={{width: '100%', display: 'flex'}}>
                                             <InputBase
                                                 sx={{ ml: 1, flex: 1 }}
@@ -570,14 +565,14 @@ const CardC = (post) => {
                             <div className={CardCCSS['btnLikeComments']}>
                                 {showComment ? (
                                     <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-                                        {(commentList.slice().reverse()).map((comments, index) => (
+                                        {commentList.length > 0 ? commentList.map((comments, index) => (
                                             <React.Fragment key={index}>
                                                 <ListItem alignItems="flex-start">
                                                     <ListItemAvatar>
-                                                        <Avatar alt={comments.name} src={comments.avatar} />
+                                                        <Avatar alt={`${capitalizeWords(comments.FirstName)} ${capitalizeWords(comments.LastName)}`} src={`${capitalizeWords(comments.FirstName)} ${capitalizeWords(comments.LastName)}`} />
                                                     </ListItemAvatar>
                                                     <ListItemText
-                                                        primary={comments.name}
+                                                        primary={`${capitalizeWords(comments.FirstName)} ${capitalizeWords(comments.LastName)}`}
                                                         secondary={
                                                             <React.Fragment>
                                                                 <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}}
@@ -586,7 +581,7 @@ const CardC = (post) => {
                                                                 </Button>
                                                                 <br />
                                                                 <span sx={{ mt: 2, fontSize: '8px', marginBottom: 0}} color="text.secondary">
-                                                                    {`${comments.date} ${comments.time}`}
+                                                                    {`${moment(comments.commentDateTime).tz('Asia/Manila').format('MMMM DD, YYYY')} ${moment(comments.commentDateTime).tz('Asia/Manila').format('hh:MM A')}`}
                                                                 </span>
                                                             </React.Fragment>
                                                         }
@@ -594,7 +589,7 @@ const CardC = (post) => {
                                                 </ListItem>
                                                 <Divider variant="inset" component="li" />
                                             </React.Fragment>
-                                        ))}
+                                        )) : undefined}
                                     </List>
                                 ) : undefined}
                             </div>

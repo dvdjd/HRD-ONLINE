@@ -113,7 +113,7 @@ export const postComment = async (details) => {
 export const getComments = async (details) => {
     try{
         const {data} = await axios.post(`${api}/getComments`, details)
-        return data
+        return data.data
     }
     catch(err){
         console.log(`Ne may error : ${err}`)

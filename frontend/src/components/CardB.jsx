@@ -7,6 +7,7 @@ import DraftsIcon from '@mui/icons-material/Drafts';
 import MessageIcon from '@mui/icons-material/Message';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MedicationLiquidIcon from '@mui/icons-material/MedicationLiquid';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -94,13 +95,12 @@ const CardB = () => {
             <React.Fragment key={index}>
               <ListItemButton
                 selected={selectedIndex === index}
-                onClick={(event) => handleListItemClick(event, index)}
                 sx={{width: '100%'}}
               >
-                <ListItemIcon>
+                <ListItemIcon onClick={() => alert('test')} onMouseEnter={() => console.log("yawa")}>
                   {nav.icon}
                 </ListItemIcon>
-                <ListItemText primary={nav.name}/>
+                <ListItemText primary={nav.name} onClick={(event) => handleListItemClick(event, index)}/>
               </ListItemButton>
             </React.Fragment>
           ))}
