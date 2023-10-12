@@ -43,7 +43,7 @@ import samplePDF from '../style/images/pdf-succinctly.pdf'
 import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 
 import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
-import { capitalizeWords } from '../utils/global';
+import { capitalizeWords, getTime } from '../utils/global';
 
 
 const CardC = (post) => {
@@ -214,7 +214,7 @@ const CardC = (post) => {
             commentUserID: JSON.parse(localStorage.getItem('user')).ID_No,
             comment: myComment,
             showFullComment: false,
-            commentDateTime: moment().tz('Asia/Manila').format('YYYY-MM-DD HH:mm:ss'),
+            commentDateTime: "Just Now",
             FirstName : JSON.parse(localStorage.getItem('user')).FirstName,
             LastName : JSON.parse(localStorage.getItem('user')).LastName,
             Department : JSON.parse(localStorage.getItem('user')).Department
@@ -305,7 +305,7 @@ const CardC = (post) => {
     }, [like])
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
-            <LikeList likes={{}} ref={likes}/>
+            <LikeList postID={post.post.p.ID} ref={likes}/>
             <SeePost content={content} ref={seePost}/>
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
@@ -581,7 +581,7 @@ const CardC = (post) => {
                                                                 </Button>
                                                                 <br />
                                                                 <span sx={{ mt: 2, fontSize: '8px', marginBottom: 0}} color="text.secondary">
-                                                                    {`${moment(comments.commentDateTime).tz('Asia/Manila').format('MMMM DD, YYYY')} ${moment(comments.commentDateTime).tz('Asia/Manila').format('hh:MM A')}`}
+                                                                    {comments.commentDateTime == "Just Now" ? "Just Now" : `${getTime(comments.commentDateTime)}`}
                                                                 </span>
                                                             </React.Fragment>
                                                         }

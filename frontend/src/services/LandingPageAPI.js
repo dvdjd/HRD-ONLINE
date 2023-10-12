@@ -120,3 +120,15 @@ export const getComments = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//getReact
+export const getReact = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/getReact`, details)
+        return data.data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
