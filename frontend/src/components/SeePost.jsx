@@ -269,7 +269,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                     sx={{ maxWidth: 400, flexGrow: 1 }}
                                                     nextButton={
                                                         <Button size="small" sx={{margin: 2}} onClick={handleNext} disabled={activeStep === content.media.length - 1}>
-                                                        Next
+                                                        {/* Next */}
                                                         {theme.direction === 'rtl' ? (
                                                             <KeyboardArrowLeft />
                                                         ) : (
@@ -284,7 +284,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                         ) : (
                                                             <KeyboardArrowLeft />
                                                         )}
-                                                        Back
+                                                        {/* Back */}
                                                         </Button>
                                                     }
                                                 />

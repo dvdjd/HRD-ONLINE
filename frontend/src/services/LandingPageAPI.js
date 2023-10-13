@@ -132,3 +132,15 @@ export const getReact = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//getReact
+export const deletePost = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/removePost`, details)
+        return data.status
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

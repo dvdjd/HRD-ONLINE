@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -8,7 +7,6 @@ import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import Stack from '@mui/material/Stack';
-import Me from '../style/images/me.png'
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import Tooltip from '@mui/material/Tooltip';
@@ -25,7 +23,8 @@ import Box from '@mui/material/Box';
 
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
-import SendIcon from '@mui/icons-material/Send';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Divider from '@mui/material/Divider';
@@ -40,10 +39,20 @@ import { Worker, Viewer} from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import samplePDF from '../style/images/pdf-succinctly.pdf'
-import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 
 import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
 import { capitalizeWords, getTime } from '../utils/global';
+
+import ListSubheader from '@mui/material/ListSubheader';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Collapse from '@mui/material/Collapse';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import DraftsIcon from '@mui/icons-material/Drafts';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import StarBorder from '@mui/icons-material/StarBorder';
 
 
 const CardC = (post) => {
@@ -212,7 +221,7 @@ const CardC = (post) => {
             // id: commentList[commentList.length - 1].id + 1,
             Post_ID : post.post.p.ID,
             commentUserID: JSON.parse(localStorage.getItem('user')).ID_No,
-            comment: myComment,
+            comment: myComment.replace(/'/g, "\\'"),
             showFullComment: false,
             commentDateTime: "Just Now",
             FirstName : JSON.parse(localStorage.getItem('user')).FirstName,
@@ -303,6 +312,17 @@ const CardC = (post) => {
         }
         cReact()
     }, [like])
+
+    /*---------------------Edit/Delete Post -------------------*/
+    const [anchorEditPost, setAnchorEditPost] = useState(null)
+    const[openEditPost, setOpenEditPost] = useState(false)
+    const [editPlacement, setEditPlacement] = useState()
+
+    const handleOpenEdit = (newPlacement) => (event) => {
+        setAnchorEditPost(event.currentTarget)
+        setOpenEditPost((prev) => editPlacement !== newPlacement || !prev)
+        setEditPlacement(newPlacement)
+    }
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList postID={post.post.p.ID} ref={likes}/>
@@ -322,9 +342,36 @@ const CardC = (post) => {
                             </div>
                         </Stack>
                         {localStorage.getItem('isLogin') === 'true' && JSON.parse(localStorage.getItem('user')).ID_No === post.post.p.postUserID ? (
-                            <IconButton aria-label="settings">
-                                <MoreHorizIcon size={10} />
-                            </IconButton>
+                            <>
+                                <Popper open={openEditPost} anchorEl={anchorEditPost} placement={editPlacement} transition>
+                                    {({ TransitionProps }) => (
+                                    <Fade {...TransitionProps} timeout={350}>
+                                        <List
+                                            sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper', flexDirection: 'column', borderRadius: 2}}
+                                            component="nav"
+                                            aria-labelledby="nested-list-subheader"
+                                            >
+                                            <ListItemButton>
+                                                <ListItemIcon>
+                                                    <EditIcon />
+                                                </ListItemIcon>
+                                                <ListItemText primary="&nbsp;&nbsp;Edit&nbsp;&nbsp;"/>
+                                            </ListItemButton>
+                                            <ListItemButton sx={{":hover" : {background: 'rgba(255,114,118, .2)'}}}>
+                                                <ListItemIcon sx={{color: 'red'}}>
+                                                    <DeleteIcon />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Delete" sx={{color: 'red'}}/>
+                                            </ListItemButton>
+                                        </List>
+                                    </Fade>
+                                    )}
+                                </Popper>
+                                <IconButton aria-label="settings" onClick={handleOpenEdit('left-start')}>
+                                    <MoreHorizIcon size={10} />
+                                </IconButton>
+                            </>
+                            
                         ) : undefined}
                     </div>
                     

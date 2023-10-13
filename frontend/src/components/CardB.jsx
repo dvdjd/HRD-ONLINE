@@ -8,6 +8,7 @@ import MessageIcon from '@mui/icons-material/Message';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MedicationLiquidIcon from '@mui/icons-material/MedicationLiquid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Zoom } from '@mui/material';
 
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -60,10 +61,13 @@ const CardB = () => {
     return () => clearInterval(timer)
   }, [])
 
+  const [addIcon, setAddIcon] = useState((<Zoom in={true}><AddCircleIcon sx={{color: '#0275d8'}} /></Zoom>))
+  const [showAddIcon, setShowAddIcon] = useState(false)
   /*-----------PDF Viewer--------------*/
   const newplugin = defaultLayoutPlugin()
   const [open, setOpen] = React.useState(false);
   const handleClose = () => setOpen(false);
+  const [addIndex, setAddIndex] = useState(0)
 
   return (
     <>
@@ -97,8 +101,8 @@ const CardB = () => {
                 selected={selectedIndex === index}
                 sx={{width: '100%'}}
               >
-                <ListItemIcon onClick={() => alert('test')} onMouseEnter={() => console.log("yawa")}>
-                  {nav.icon}
+                <ListItemIcon onClick={() => alert(index)} onMouseEnter={() => {setShowAddIcon(true), setAddIndex(index)}} onMouseLeave={() => {setShowAddIcon(false)}}>
+                  {showAddIcon === true && addIndex === index ? addIcon : nav.icon}
                 </ListItemIcon>
                 <ListItemText primary={nav.name} onClick={(event) => handleListItemClick(event, index)}/>
               </ListItemButton>

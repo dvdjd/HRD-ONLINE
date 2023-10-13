@@ -14,6 +14,8 @@ import MenuItem from '@mui/material/MenuItem';
 import logo from '../style/images/nmcp-logo.png'
 import logo2 from '../style/images/logo.png'
 import TopNavCSS from './TopNav.module.css'
+import NavigationCSS from './Navigation.module.css'
+import {HiUser} from 'react-icons/hi'
 
 import Popper from '@mui/material/Popper';
 import Fade from '@mui/material/Fade';
@@ -111,7 +113,7 @@ const TopNav = () => {
                 <Login ref={login} />
             </div>
             <AppBar position="fixed" sx={{bgcolor: '#fff'}}>
-                <Container maxWidth={{xs: 'sm', md: 'lg'}}>
+                <Container maxWidth={{xs: 'sm', md: 'lg'}} sx={{paddingRight: '0px'}}>
                     <Toolbar disableGutters>
                         <img src={logo2} alt="logo" width="60px" height="60px" className={TopNavCSS.logo}/>
                         <Typography
@@ -269,9 +271,20 @@ const TopNav = () => {
 
                         <Box sx={{ flexGrow: 0 }}>
                             <Tooltip title="">
-                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                    <Avatar alt={localStorage.getItem('user') !== null ? capitalizeWords(user.FirstName) : ''} src="/static/images/avatar/2.jpg" />
-                                </IconButton>
+                                {localStorage.getItem('isLogin') === 'true' ? (
+                                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                        <Avatar alt={localStorage.getItem('user') !== null ? capitalizeWords(user.FirstName) : ''} src="/static/images/avatar/2.jpg" />
+                                    </IconButton>
+                                ) : (
+                                    <ul className={NavigationCSS['navbar-items']} onClick={() => login.current?.handleOpen()}>
+                                        <li className={NavigationCSS['login']}><a className={`${NavigationCSS['d-flex']} ${NavigationCSS['align-center']}`}>
+                                            <div className={NavigationCSS["icon"]}>  
+                                                <HiUser color='#0454d9' size={20} className={NavigationCSS['mr-10']} style={{margin: '0'}}/>
+                                            </div>
+                                            Login
+                                        </a></li>
+                                    </ul>
+                                )}
                             </Tooltip>
                             <Menu
                             sx={{ mt: '45px' }}
