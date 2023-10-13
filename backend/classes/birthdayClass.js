@@ -1,8 +1,8 @@
-const MYSQL_BIRTHDAY = require("../models/MYSQL_BIRTHDAY")
+const MYSQL_USER = require("../models/MYSQL_USER")
 
 module.exports = class loginClass {
     constructor(item_information) {
-        this.mysql_birthday = new MYSQL_BIRTHDAY();
+        this.mysql_user = new MYSQL_USER();
         this.item_information = item_information;
     }
 
@@ -10,7 +10,7 @@ module.exports = class loginClass {
         let res = {};
 
         try {
-            res.data = await this.mysql_birthday.getBirthday();
+            res.data = await this.mysql_user.getBirthday();
 
             if (res.data.length == 0) {
                 res.status = "error";
