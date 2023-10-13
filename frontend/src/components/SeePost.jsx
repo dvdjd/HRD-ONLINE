@@ -1,4 +1,4 @@
-import React, {useState, useRef, useImperativeHandle, forwardRef} from 'react'
+import React, {useState, useRef, useImperativeHandle, forwardRef, useEffect} from 'react'
 import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
@@ -39,9 +39,15 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Divider from '@mui/material/Divider';
 
+import { Worker, Viewer} from '@react-pdf-viewer/core';
+import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import '@react-pdf-viewer/core/lib/styles/index.css'
+import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import samplePDF from '../style/images/pdf-succinctly.pdf'
+
 const SeePost = forwardRef(({content}, ref) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
-    const captionText = showFullCaption ? content.caption : `${(content.caption).substring(0, 100)}...Show more`
+    const captionText = showFullCaption ? content.caption : content.caption.length > 400 ? `${(content.caption).substring(0, 400)}...Show more` : content.caption
     const style = {
         position: 'absolute',
         width: {xs: 320, md: '90%'},
@@ -65,11 +71,14 @@ const SeePost = forwardRef(({content}, ref) => {
 
     const handleNext = () => {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setVideoKey(prev => prev + 1)
     };
     const handleBack = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
+        setVideoKey(prev => prev + 1)
     };
     const [videoKey, setVideoKey] = useState(0)
+    const newplugin = defaultLayoutPlugin()
 
     /*---------------------react-----------------*/
     let [likeList, setLikeList] = useState('Jhobert Erato and others...')
@@ -180,6 +189,10 @@ const SeePost = forwardRef(({content}, ref) => {
         const regex = /\S/
         return regex.test(strng)
     }
+
+    useEffect(() => {
+        // console.log(content)
+    }, [])
     return (
         <>
             <div>
@@ -221,40 +234,62 @@ const SeePost = forwardRef(({content}, ref) => {
                                         <div className={SeePostCSS.hide}>
                                             <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
                                         </div>
-                                        <div style={{display: 'flex', justifyContent:'center', flexDirection: 'column', alignItems: 'center'}}>
-                                            {content.media[activeStep].type == 'image' ? (
-                                                <img src={`${content.media[activeStep].img}`} width="100%" height="auto"/>
-                                            ): undefined}
-                                            <br />
-                                            <MobileStepper
-                                                variant="dots"
-                                                steps={content.media.length}
-                                                position="static"
-                                                activeStep={activeStep}
-                                                sx={{ maxWidth: 400, flexGrow: 1 }}
-                                                nextButton={
-                                                    <Button size="small" sx={{margin: 2}} onClick={handleNext} disabled={activeStep === content.media.length - 1}>
-                                                    Next
-                                                    {theme.direction === 'rtl' ? (
-                                                        <KeyboardArrowLeft />
-                                                    ) : (
-                                                        <KeyboardArrowRight />
-                                                    )}
-                                                    </Button>
-                                                }
-                                                backButton={
-                                                    <Button size="small" sx={{margin: 2}} onClick={handleBack} disabled={activeStep === 0}>
-                                                    {theme.direction === 'rtl' ? (
-                                                        <KeyboardArrowRight />
-                                                    ) : (
-                                                        <KeyboardArrowLeft />
-                                                    )}
-                                                    Back
-                                                    </Button>
-                                                }
-                                            />
-                                        </div>
-                                        
+                                        {content.media.length > 0 ? (
+                                            <div style={{display: 'flex', justifyContent:'center', flexDirection: 'column', alignItems: 'center'}}>
+                                                {content.media[activeStep].type == 'image/jpeg' ? (
+                                                    <img src={`http://192.168.5.12:4000/uploads/${content.media[activeStep].filename}`} width="100%" height="auto"/>
+                                                ): content.media[activeStep].type == 'video/mp4' ? (
+                                                    <video
+                                                        // autoPlay
+                                                        // loop
+                                                        // muted
+                                                        key={videoKey}
+                                                        controls
+                                                        poster={`http://192.168.5.12:4000/uploads/${content.media[activeStep].filename}`}
+                                                        style={{width: '100%', objectFit: 'contain', height: '600px'}}
+                                                    >
+                                                        <source
+                                                        src={`http://192.168.5.12:4000/uploads/${content.media[activeStep].filename}`}
+                                                        type="video/mp4"
+                                                        />
+                                                    </video>
+                                                ) : (
+                                                    <div className="pdf-container" style={{width: '100%', height: '600px'}}>
+                                                        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                                        <Viewer fileUrl={samplePDF} plugins={[newplugin]} />
+                                                        </Worker>
+                                                    </div>
+                                                )}
+                                                <br />
+                                                <MobileStepper
+                                                    variant="dots"
+                                                    steps={content.media.length}
+                                                    position="static"
+                                                    activeStep={activeStep}
+                                                    sx={{ maxWidth: 400, flexGrow: 1 }}
+                                                    nextButton={
+                                                        <Button size="small" sx={{margin: 2}} onClick={handleNext} disabled={activeStep === content.media.length - 1}>
+                                                        Next
+                                                        {theme.direction === 'rtl' ? (
+                                                            <KeyboardArrowLeft />
+                                                        ) : (
+                                                            <KeyboardArrowRight />
+                                                        )}
+                                                        </Button>
+                                                    }
+                                                    backButton={
+                                                        <Button size="small" sx={{margin: 2}} onClick={handleBack} disabled={activeStep === 0}>
+                                                        {theme.direction === 'rtl' ? (
+                                                            <KeyboardArrowRight />
+                                                        ) : (
+                                                            <KeyboardArrowLeft />
+                                                        )}
+                                                        Back
+                                                        </Button>
+                                                    }
+                                                />
+                                            </div>
+                                        ) : undefined}
                                     </Box>
                                 </CardContent>
                                 <div style={{flex: 1, width: '100%'}}>

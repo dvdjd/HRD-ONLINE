@@ -26,6 +26,10 @@ body{
     overflow: auto;
     overflow-x: auto;
 }
+.small{
+    overflow: auto;
+    overflow-x: auto;
+}
 @media (max-width: 900px) {
     .small {
         display: none; /* Display on larger screens (md and up) */

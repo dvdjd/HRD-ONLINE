@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
@@ -32,14 +33,23 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 
 import SeePost from './SeePost';
-import Post from './Post';
 import LikeList from './LikeList';
 
+import moment from 'moment-timezone';
+import { Worker, Viewer} from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css'
+import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import samplePDF from '../style/images/pdf-succinctly.pdf'
+import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 
-const CardC = () => {
+import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
+import { capitalizeWords, getTime } from '../utils/global';
+
+
+const CardC = (post) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
-    const caps = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel risus vel arcu sodales gravida. Nunc facilisis massa quis fringilla. Fusce a ligula eu nulla eleifend iaculis. Praesent id scelerisque nulla. Vestibulum et urna a elit sollicitudin vehicula ut eu leo. Vestibulum fermentum, turpis sit amet auctor facilisis, ex nisi vulputate nulla, vel consequat dolor nisi eu tortor. Sed a metus a orci laoreet vehicula vel et sapien. Fusce eget justo nec libero laoreet convallis id in metus. Integer tincidunt ante vitae justo vestibulum, a rhoncus urna mattis. Sed sit amet mi bibendum, malesuada leo eu, tincidunt tortor. Donec nec leo eu urna elementum congue id nec purus. Suspendisse potenti. Nulla facilisi. Nunc bibendum lorem eu metus varius eleifend. Suspendisse potenti. Integer et nunc eget justo hendrerit convallis. Vivamus euismod luctus augue in mattis. Fusce ac auctor nunc. Nunc interdum risus sed auctor tincidunt. Vivamus ac nulla ac mi tincidunt viverra nec nec odio. Suspendisse potenti. Curabitur suscipit erat ut ex efficitur, quis viverra nisi ullamcorper. In hac habitasse platea dictumst. Duis vestibulum, dui ut tempus iaculis, metus justo bibendum tellus, eu pellentesque sapien tellus eget nisl. Proin vehicula diam ac efficitur. Integer sodales bibendum lectus, et bibendum libero blandit non. Curabitur dapibus, urna ut accumsan tincidunt, odio ex vehicula nisi, non vestibulum tellus massa quis neque. In hac habitasse platea dictumst. Integer iaculis eu elit eu luctus. Quisque eget justo nec est varius bibendum. Vivamus bibendum mi sit amet lacinia venenatis. Nulla facilisi. Quisque fermentum augue a purus consequat, et feugiat orci tincidunt. Donec congue ligula vel arcu vulputate tincidunt. Curabitur at augue viverra, pellentesque arcu eu, auctor libero. Nullam vitae mauris in mi maximus euismod. Sed eget tristique odio. Quisque nec felis vitae arcu lacinia pellentesque. Nullam nec justo eget neque pharetra blandit. In ultricies libero in urna mattis, id facilisis ligula consectetur. Fusce vehicula, erat eu blandit pharetra, mi justo tempor justo, a vulputate urna est ut arcu.'
-    const captionText = showFullCaption ? caps : `${caps.substring(0, 400)}...Show more`
+    const caps = post.post.p.postCaption
+    const captionText = showFullCaption ? caps : caps.length > 400 ? `${caps.substring(0, 400)}...Show more` : caps
     const itemData = [
         {
             type: 'image',
@@ -104,6 +114,8 @@ const CardC = () => {
     ];
     const isLogin = true
 
+    const [postDate, setPostDate] = useState(null)
+
     /*Yung react na button na parang facebook */
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [open, setOpen] = React.useState(false);
@@ -118,95 +130,70 @@ const CardC = () => {
         setOpen((prev) => placement !== newPlacement || !prev);
         setPlacement(newPlacement);
     };
-    let [like, setLike] = useState('none')
-   
-    const handleSetLike = (newLike) => {
-        if(like === newLike){
-            handleLikeDecrement()
+    let [like, setLike] = useState(undefined)
+    const handleSetLike = (l) => {
+        let mode = 0
+        if(like === l){
             setLike('none')
+            mode = 2
         }
         else{
-            handleAddtoLikeList()
-            handleLikeIncrement()
-            setLike(newLike)
+            setLike(l)
+            mode = 1
         }
+        const rPost = async () => {
+            const r = await reactPost({
+                post_id : post.post.p.ID,
+                user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
+                react_type : l,
+                mode: mode
+            })
+            return r
+        }
+        rPost()
     }
-    let [countLike, setCountLike] = useState(7)
-    const handleLikeIncrement = () => {
-        setCountLike((prevState) => prevState + 1)
-    }
-    const handleLikeDecrement = () => {
-        setCountLike((prevState) => prevState - 1)
-    }
-    let [likeList, setLikeList] = useState([
-        {name: 'Jhobert Erato', type: 'love'},
-        {name: 'David Jude Acula', type: 'laugh'},
-        {name: 'Kent Yedra Steven', type: 'like'},
-    ])
-    const handleAddtoLikeList = () => {
-        setLikeList([...likeList, {name: 'Marivic Villareal', type: 'love'}])
-    }
-    const handleRemovetoLikeList = () => {
-        setLikeList((prevState) => `You, ${prevState}`)
-    }
+    let [countLike, setCountLike] = useState(0)
+    let [likeList, setLikeList] = useState({data: []})
 
     /*Comment to */
     const inputComment = useRef(null)
-    const handleFocusComment = () => {
-        if (inputComment.current) {
-            inputComment.current.focus();
-        }
-    }
     const [showComment, setShowComment] = useState(false)
     const handleShowComment = () => {
         showComment ? setShowComment(false) : setShowComment(true)
     }
-
-    // const handleSubmit = (event) => {
-    //     event.preventDefault();
-    //     setData((current) => ({ ...current, status: 'loading' }));
-    //     try {
-    //         // Replace timeout with real backend operation
-    //         setTimeout(() => {
-    //         setData({ email: '', status: 'sent' });
-    //         }, 1500);
-    //     } catch (error) {
-    //         setData((current) => ({ ...current, status: 'failure' }));
-    //     }
-    // };
-
-    const [commentList, setCommentList] = useState([
-        {
-            id: 0,
-            name: `Jude David Acula`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/1.jpg`,
-            comment: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel risus vel arcu sodales gravida. Nunc facilisis massa quis fringilla. Fusce a ligula eu nulla eleifend iaculis. Praesent id scelerisque nulla. Vestibulum et urna a elit sollicitudin vehicula ut eu leo. Vestibulum fermentum, turpis sit amet auctor facilisis, ex nisi vulputate nulla, vel consequat dolor nisi eu tortor. Sed a metus a orci laoreet vehicula vel et sapien. Fusce eget justo nec libero laoreet convallis id in metus. Integer tincidunt ante vitae justo vestibulum, a rhoncus urna mattis. Sed sit amet mi bibendum, malesuada leo eu, tincidunt tortor. Donec nec leo eu urna elementum congue id nec purus. Suspendisse potenti. Nulla facilisi. Nunc bibendum lorem eu metus varius eleifend. Suspendisse potenti. Integer et nunc eget justo hendrerit convallis. Vivamus euismod luctus augue in mattis. Fusce ac auctor nunc. Nunc interdum risus sed auctor tincidunt. Vivamus ac nulla ac mi tincidunt viverra nec nec odio. Suspendisse potenti. Curabitur suscipit erat ut ex efficitur, quis viverra nisi ullamcorper. In hac habitasse platea dictumst. Duis vestibulum, dui ut tempus iaculis, metus justo bibendum tellus, eu pellentesque sapien tellus eget nisl. Proin vehicula diam ac efficitur. Integer sodales bibendum lectus, et bibendum libero blandit non. Curabitur dapibus, urna ut accumsan tincidunt, odio ex vehicula nisi, non vestibulum tellus massa quis neque. In hac habitasse platea dictumst. Integer iaculis eu elit eu luctus. Quisque eget justo nec est varius bibendum. Vivamus bibendum mi sit amet lacinia venenatis. Nulla facilisi. Quisque fermentum augue a purus consequat, et feugiat orci tincidunt. Donec congue ligula vel arcu vulputate tincidunt. Curabitur at augue viverra, pellentesque arcu eu, auctor libero. Nullam vitae mauris in mi maximus euismod. Sed eget tristique odio. Quisque nec felis vitae arcu lacinia pellentesque. Nullam nec justo eget neque pharetra blandit. In ultricies libero in urna mattis, id facilisis ligula consectetur. Fusce vehicula, erat eu blandit pharetra, mi justo tempor justo, a vulputate urna est ut arcu.`,
-            showFullComment: false,
-            date: 'September 12, 2023',
-            time: '1:30 PM'
-        },
-        {
-            id: 1,
-            name: `Kent Steven Yedra`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/2.jpg`,
-            comment: `-Wish I could come, but I'm out of town this week...`,
-            showFullComment: false,
-            date: 'September 12, 2023',
-            time: '2:05 PM'
-        },
-        {
-            id: 2,
-            name: `Rencell Arcillas`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/3.jpg`,
-            comment: `-Do you have Paris recommendations? Have you ever there?`,
-            showFullComment: false,
-            date: 'September 12, 2023',
-            time: '2:57 PM'
-        },
-    ])
+    const [commentList, setCommentList] = useState([])
+    // const [commentList, setCommentList] = useState([
+    //     {
+    //         id: 0,
+    //         name: `Jude David Acula`,
+    //         department: `Systems`,
+    //         avatar: `/static/images/avatar/1.jpg`,
+    //         comment: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vel risus vel arcu sodales gravida. Nunc facilisis massa quis fringilla. Fusce a ligula eu nulla eleifend iaculis. Praesent id scelerisque nulla. Vestibulum et urna a elit sollicitudin vehicula ut eu leo. Vestibulum fermentum, turpis sit amet auctor facilisis, ex nisi vulputate nulla, vel consequat dolor nisi eu tortor. Sed a metus a orci laoreet vehicula vel et sapien. Fusce eget justo nec libero laoreet convallis id in metus. Integer tincidunt ante vitae justo vestibulum, a rhoncus urna mattis. Sed sit amet mi bibendum, malesuada leo eu, tincidunt tortor. Donec nec leo eu urna elementum congue id nec purus. Suspendisse potenti. Nulla facilisi. Nunc bibendum lorem eu metus varius eleifend. Suspendisse potenti. Integer et nunc eget justo hendrerit convallis. Vivamus euismod luctus augue in mattis. Fusce ac auctor nunc. Nunc interdum risus sed auctor tincidunt. Vivamus ac nulla ac mi tincidunt viverra nec nec odio. Suspendisse potenti. Curabitur suscipit erat ut ex efficitur, quis viverra nisi ullamcorper. In hac habitasse platea dictumst. Duis vestibulum, dui ut tempus iaculis, metus justo bibendum tellus, eu pellentesque sapien tellus eget nisl. Proin vehicula diam ac efficitur. Integer sodales bibendum lectus, et bibendum libero blandit non. Curabitur dapibus, urna ut accumsan tincidunt, odio ex vehicula nisi, non vestibulum tellus massa quis neque. In hac habitasse platea dictumst. Integer iaculis eu elit eu luctus. Quisque eget justo nec est varius bibendum. Vivamus bibendum mi sit amet lacinia venenatis. Nulla facilisi. Quisque fermentum augue a purus consequat, et feugiat orci tincidunt. Donec congue ligula vel arcu vulputate tincidunt. Curabitur at augue viverra, pellentesque arcu eu, auctor libero. Nullam vitae mauris in mi maximus euismod. Sed eget tristique odio. Quisque nec felis vitae arcu lacinia pellentesque. Nullam nec justo eget neque pharetra blandit. In ultricies libero in urna mattis, id facilisis ligula consectetur. Fusce vehicula, erat eu blandit pharetra, mi justo tempor justo, a vulputate urna est ut arcu.`,
+    //         showFullComment: false,
+    //         date: 'September 12, 2023',
+    //         time: '1:30 PM'
+    //     },
+    //     {
+    //         id: 1,
+    //         name: `Kent Steven Yedra`,
+    //         department: `Systems`,
+    //         avatar: `/static/images/avatar/2.jpg`,
+    //         comment: `-Wish I could come, but I'm out of town this week...`,
+    //         showFullComment: false,
+    //         date: 'September 12, 2023',
+    //         time: '2:05 PM'
+    //     },
+    //     {
+    //         id: 2,
+    //         name: `Rencell Arcillas`,
+    //         department: `Systems`,
+    //         avatar: `/static/images/avatar/3.jpg`,
+    //         comment: `-Do you have Paris recommendations? Have you ever there?`,
+    //         showFullComment: false,
+    //         date: 'September 12, 2023',
+    //         time: '2:57 PM'
+    //     },
+    // ])
     const handleShowFullComment = (id, stat) => {
         const updatedCommentList = [...commentList]
         const indexToUpdate = updatedCommentList.findIndex(item => item.id === id)
@@ -219,18 +206,21 @@ const CardC = () => {
     const handleChangeMyComment = (event) => {
         setMyComment(event.target.value)
     }
-    const handleSubmitMyComment = (event) => {
+    const handleSubmitMyComment = async (event) => {
         event.preventDefault()
         const newComment = {
-            id: commentList[commentList.length - 1].id + 1,
-            name: `Jhobert Erato`,
-            department: `Systems`,
-            avatar: `/static/images/avatar/3.jpg`,
+            // id: commentList[commentList.length - 1].id + 1,
+            Post_ID : post.post.p.ID,
+            commentUserID: JSON.parse(localStorage.getItem('user')).ID_No,
             comment: myComment,
             showFullComment: false,
-            date: 'September 13, 2023',
-            time: '07:12 AM'
+            commentDateTime: "Just Now",
+            FirstName : JSON.parse(localStorage.getItem('user')).FirstName,
+            LastName : JSON.parse(localStorage.getItem('user')).LastName,
+            Department : JSON.parse(localStorage.getItem('user')).Department
         }
+        const pComment = await postComment({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No, comment: myComment})
+
         setCommentList([...commentList,newComment])
         setMyComment('')
         event.target.clear
@@ -240,79 +230,241 @@ const CardC = () => {
         return regex.test(strng)
     }
 
+    //PDF
+    const newplugin = defaultLayoutPlugin()
     /*---------------zoom-----------------*/
     const content = {
-        id: 1,
+        id: post.post.p.ID,
         caption: caps,
-        media: itemData
+        media: post.post.p.file
     }
     const seePost = useRef()    
-    const likes = useRef()    
+    const likes = useRef()
 
+    const [poster, setPoster] = useState(null)
+    useEffect(() => {
+        const today = new Date()
+        const today2 = new Date()
+        today.setHours(0, 0, 0, 0)
+        if(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY') === moment(today).tz('Asia/Manila').format('MMMM DD, YYYY')){
+            if(today2.getHours() == moment(post.post.p.postDate).tz('Asia/Manila').format('HH')){
+                setPostDate('Just Now')
+            }
+            else{
+                setPostDate(`${today2.getHours() - moment(post.post.p.postDate).tz('Asia/Manila').format('HH')} Hours Ago`)
+            }
+        }
+        else{
+            setPostDate(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A'))
+        }
+
+        const user = async () => {
+            const u = await getUser({id : post.post.p.postUserID})
+            setPoster(capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`))
+        }
+        user()
+
+        const cReact = async () => {
+            const cr = await countReact({post_id: post.post.p.ID})
+            setLikeList(cr)
+            let c = 0
+            cr.data.forEach(element => {
+                c += element.count
+            });
+            setCountLike(c)
+        }
+        cReact()
+
+        const chReact = async() => {
+            const c = await checkReact({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
+            c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+        }
+        chReact()
+
+        const gComments = async () => {
+            const gc = await getComments({post_id : post.post.p.ID})
+            if(gc.length > 0){
+                setCommentList(gc) 
+            }
+                
+        }
+        gComments()
+    }, [])
+
+    useEffect(() => {
+        const cReact = async () => {
+            const cr = await countReact({post_id: post.post.p.ID})
+            setLikeList(cr)
+            let c = 0
+            cr.data.forEach(element => {
+                c += element.count
+            });
+            setCountLike(c)
+        }
+        cReact()
+    }, [like])
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
-            <LikeList likes={{}} ref={likes}/>
+            <LikeList postID={post.post.p.ID} ref={likes}/>
             <SeePost content={content} ref={seePost}/>
-            <Post />
-            <Card variant="outlined" sx={{borderRadius: '10px', marginTop: 2}}>
+            <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
-                    <Stack direction="row" spacing={2}>
-                        <Avatar alt="Remy Sharp" src={Me} />
-                        <div>
-                            <Typography variant="body2">
-                                Jhobert Erato
-                            </Typography>
-                            <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
-                                12 hours ago
-                            </Typography>
-                        </div>
-                    </Stack>
+                    <div className={CardCCSS['likesComments']} style={{alignItems: 'center'}}>
+                        <Stack direction="row" spacing={2}>
+                            <Avatar alt={poster} src={poster} />
+                            <div>
+                                <Typography variant="body2">
+                                    {poster}
+                                </Typography>
+                                <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
+                                    {postDate}
+                                </Typography>
+                            </div>
+                        </Stack>
+                        {localStorage.getItem('isLogin') === 'true' && JSON.parse(localStorage.getItem('user')).ID_No === post.post.p.postUserID ? (
+                            <IconButton aria-label="settings">
+                                <MoreHorizIcon size={10} />
+                            </IconButton>
+                        ) : undefined}
+                    </div>
+                    
                     <br />
                     <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
-                    <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={3} rowHeight={'auto'}>
-                        {itemData.map((item) => (
-                        <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
-                            <img
-                            src={`${item.img}?w=164&h=164&fit=crop&auto=format`}
-                            srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
-                            alt={item.title}
-                            loading="lazy"
-                            />
-                        </ImageListItem>
-                        ))}
-                    </ImageList>
-                    <div className={CardCCSS['likesComments']}>
-                        <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}}>
-                                <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
-                            </Avatar>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}}>
-                                <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
-                            </Avatar>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}}>
-                                <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
-                            </Avatar>
-                            <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => likes.current?.handleOpen()}>
-                                <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                    {likeList[0].name}
-                                </Typography>
-                            </Button>
-                        </AvatarGroup>
-                        <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
-                            <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
-                                <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                    {commentList.length === 1 ? `only one comment` : `${commentList.length} comments`}
-                                </Typography>
-                            </Button>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                            <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px'}} src={Me}/>
-                        </AvatarGroup>
+                    {post.post.p.file.length > 0 ? post.post.p.file.length > 1 ? (
+                        <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={post.post.p.file.length % 3 == 0 ? 3 : 2} rowHeight={'auto'}>
+                            {post.post.p.file.map((item, index) => (
+                                <React.Fragment key={index}>
+                                    <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
+                                        {item.type == 'image/jpeg' ? (
+                                            <img
+                                            src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                            alt={item.filename}
+                                            loading="lazy"
+                                            style={{width: '100%'}}
+                                            />
+                                        ) : item.type == 'video/mp4' ? (
+                                            <video
+                                                autoPlay
+                                                loop
+                                                muted
+                                                poster={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                                style={{width: '100%', objectFit: 'contain'}}
+                                            >
+                                                <source
+                                                src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                                type="video/mp4"
+                                                />
+                                            </video>
+                                        ) : (
+                                            <img
+                                                src={`https://th.bing.com/th/id/OIP.OzkFjeuoXNdMHiS3ZUL-swHaDm?w=349&h=169&c=7&r=0&o=5&dpr=1.4&pid=1.7`}
+                                                // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                                alt={item.filename}
+                                                loading="lazy"
+                                                style={{width: '100%'}}
+                                            />
+                                        ) }
+                                        
+                                    </ImageListItem>
+                                </React.Fragment>
+                            ))}
+                        </ImageList>
+                    ) : 
+                        post.post.p.file.map((item, index) => (
+                            <React.Fragment key={index}>
+                                <ImageListItem key={item.img}>
+                                    {item.type == 'image/jpeg' ||  item.type == 'image/jpg' || item.type == 'image/png'? (
+                                        <img
+                                        src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                        // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                                        alt={item.filename}
+                                        loading="lazy"
+                                        style={{width: '100%', height: 'auto'}}
+                                        />
+                                    ) : item.type == 'video/mp4' ? (
+                                        <video
+                                            // autoPlay
+                                            controls
+                                            // loop
+                                            muted
+                                            poster={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            style={{width: '100%', height: '600px', objectFit: 'contain'}}
+                                        >
+                                            <source
+                                            src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            type="video/mp4"
+                                            />
+                                        </video>
+                                    ) : (
+                                        <div className="pdf-container" style={{height: '600px'}}>
+                                            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                                <Viewer fileUrl={samplePDF} plugins={[newplugin]} />
+                                            </Worker>
+                                        </div>
+                                    ) }
+                                    
+                                </ImageListItem>
+                            </React.Fragment>
+                            
+                        ))
+                     : undefined}
+                    <div className={CardCCSS['likesComments']} style={{marginTop: 15}}>
+                        {likeList.data.length > 0 ? (
+                            <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
+                                {likeList.data.slice(0, 3).map((like, index) => (
+                                    <div key={index}>
+                                        {like.reactType === 'laugh' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                <FaLaughSquint color='#fff' size={15} style={{margin: '0'}}/> 
+                                            </Avatar>
+                                        ) : like.reactType === 'like' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#0454d9'}}>
+                                                <AiFillLike color='#fff' size={15} style={{margin: '0'}}/>
+                                            </Avatar>
+                                        ) : like.reactType === 'heart' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: 'red'}}>
+                                                <AiFillHeart color='#fff' size={15} style={{margin: '0'}}/>
+                                            </Avatar>
+                                             
+                                        ) : like.reactType === 'wow' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                <ImShocked2 color='#fff' size={15} style={{margin: '0'}}/> 
+                                            </Avatar>
+                                        ) : like.reactType === 'sad' ? (
+                                            <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>
+                                            </Avatar>
+                                        ) : undefined}
+                                    </div>
+                                ))}
+                                
+                                <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={() => likes.current?.handleOpen()}>
+                                    <Typography sx={{ mb: 1.5, fontSize: '14px', marginBottom: 0}} color="text.secondary">
+                                        {countLike}
+                                    </Typography>
+                                </Button>
+                            </AvatarGroup>
+                        ) : undefined}
+                        {commentList.length > 0 ? (
+                            <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
+                                <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
+                                    <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
+                                        {commentList.length === 1 ? `only one comment` : `${commentList.length} comments`}
+                                    </Typography>
+                                </Button>
+                                {commentList.slice(0, 3).map((comment, index) => (
+                                    <Avatar key={index} size='sm' alt={`${capitalizeWords(comment.FirstName)} ${capitalizeWords(comment.LastName)}`} sx={{width: '30px', height: '30px'}} src={`${capitalizeWords(comment.FirstName)} ${capitalizeWords(comment.LastName)}`}/>
+                                ))}
+                                
+                            </AvatarGroup>
+                        ) : undefined}
+                        
                     </div>
                     <hr />
                 </CardContent>
                 <CardContent sx={{padding: 1}}>
-                    {isLogin ? (
+                    {localStorage.getItem('isLogin') === 'true' ?  (
                         <>
                             <div className={CardCCSS['btnLikeComments']}>
                                 <div>
@@ -323,22 +475,22 @@ const CardC = () => {
                                         onBlur={handleHoverClose('top-start')}
                                         onClick={() => handleSetLike('like')}
                                     >   {
-                                            like === 'none' ? (
+                                            like == 'none' ? (
                                                 <AiOutlineLike color='grey' size={20}/>
-                                            ) : like === 'like' ? (
+                                            ) : like == 'like' ? (
                                                 <AiFillLike color='blue' size={20}/>
-                                            ) : like === 'heart' ? (
+                                            ) : like == 'heart' ? (
                                                 <AiFillHeart color='red' size={20}/>
-                                            ) : like === 'laugh' ? (
+                                            ) : like == 'laugh' ? (
                                                 <FaLaughSquint color='ffbf00' size={20}/>
-                                            ) : like === 'sad' ? (
+                                            ) : like == 'sad' ? (
                                                 <FaSadTear color='ffbf00' size={20}/>
-                                            ) : like === 'wow' ? (
+                                            ) : like == 'wow' ? (
                                                 <ImShocked2 color='ffbf00' size={20}/>
                                             ) : (
                                                 <FaAngry color='ffa187' size={20}/>
                                             )
-                                        }&nbsp;{countLike}
+                                        }
                                     </Button>
                                     <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
                                         {({ TransitionProps }) => (
@@ -370,11 +522,11 @@ const CardC = () => {
                                                             <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
                                                         </Avatar>
                                                     </div>
-                                                    <div className={CardCCSS['likes-items']}>
+                                                    {/* <div className={CardCCSS['likes-items']}>
                                                         <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
                                                             <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
                                                         </Avatar>
-                                                    </div>
+                                                    </div> */}
                                                 </div>
                                             </Paper>
                                         </Fade>
@@ -383,14 +535,14 @@ const CardC = () => {
                                 </div>
                                 <div>
                                     <Button size="small" sx={{color: 'grey'}} onClick={() => handleShowComment()}>
-                                        <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
+                                        <FaRegCommentAlt color='grey' size={20}/>
                                     </Button>
                                 </div>
                                 <div style={{marginRight: 10, flex: 3}}>
                                     <Paper
                                         sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
                                     >
-                                        <Avatar alt="Remy Sharp" src={Me} sx={{width: 24, height: 24}}/>
+                                        <Avatar alt={`${capitalizeWords(JSON.parse(localStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(localStorage.getItem('user')).LastName)}`} src={`${capitalizeWords(JSON.parse(localStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(localStorage.getItem('user')).LastName)}`} sx={{width: 24, height: 24}}/>
                                         <form onSubmit={handleSubmitMyComment} style={{width: '100%', display: 'flex'}}>
                                             <InputBase
                                                 sx={{ ml: 1, flex: 1 }}
@@ -399,7 +551,7 @@ const CardC = () => {
                                                 required
                                                 value={myComment}
                                                 onChange={handleChangeMyComment}
-                                                autoFocus
+                                                // autoFocus
                                             />
                                             {validComment(myComment) ? (
                                                 <IconButton sx={{ p: '10px', color: 'blue' }} aria-label="search" type={"submit"}>
@@ -413,14 +565,14 @@ const CardC = () => {
                             <div className={CardCCSS['btnLikeComments']}>
                                 {showComment ? (
                                     <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-                                        {(commentList.slice().reverse()).map((comments, index) => (
+                                        {commentList.length > 0 ? commentList.map((comments, index) => (
                                             <React.Fragment key={index}>
                                                 <ListItem alignItems="flex-start">
                                                     <ListItemAvatar>
-                                                        <Avatar alt={comments.name} src={comments.avatar} />
+                                                        <Avatar alt={`${capitalizeWords(comments.FirstName)} ${capitalizeWords(comments.LastName)}`} src={`${capitalizeWords(comments.FirstName)} ${capitalizeWords(comments.LastName)}`} />
                                                     </ListItemAvatar>
                                                     <ListItemText
-                                                        primary={comments.name}
+                                                        primary={`${capitalizeWords(comments.FirstName)} ${capitalizeWords(comments.LastName)}`}
                                                         secondary={
                                                             <React.Fragment>
                                                                 <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}}
@@ -429,7 +581,7 @@ const CardC = () => {
                                                                 </Button>
                                                                 <br />
                                                                 <span sx={{ mt: 2, fontSize: '8px', marginBottom: 0}} color="text.secondary">
-                                                                    {`${comments.date} ${comments.time}`}
+                                                                    {comments.commentDateTime == "Just Now" ? "Just Now" : `${getTime(comments.commentDateTime)}`}
                                                                 </span>
                                                             </React.Fragment>
                                                         }
@@ -437,7 +589,7 @@ const CardC = () => {
                                                 </ListItem>
                                                 <Divider variant="inset" component="li" />
                                             </React.Fragment>
-                                        ))}
+                                        )) : undefined}
                                     </List>
                                 ) : undefined}
                             </div>
