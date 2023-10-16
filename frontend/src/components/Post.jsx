@@ -29,7 +29,7 @@ import { Document, Page } from 'react-pdf';
 import { capitalizeWords } from '../utils/global';
 
 import { newPost, getPost } from '../services/LandingPageAPI';
-const Post = () => {
+const Post = (onPost) => {
     /*--------------------------Post----------------------*/
     const style = {
         position: 'absolute',
@@ -173,16 +173,19 @@ const Post = () => {
         if(selectedImage.length > 0){
             selectedImage.forEach(image => {
                 formData.append('files', image)
+                console.log(image)
             })
         }
         if(selectedVideo.length > 0){
             selectedVideo.forEach(video => {
                 formData.append('files', video)
+                console.log(video)
             })
         }
         if(selectedFile.length > 0){
             selectedFile.forEach(file => {
                 formData.append('files', file)
+                console.log(file)
             })
         }
         const postStat = await newPost(formData)
@@ -194,6 +197,15 @@ const Post = () => {
             setSelectedVideo([])
         )
         console.log(postStat.status)
+        // const newPost = {
+        //     ID : ID.length === 0 ? 1 : ID[0].ID + 1,
+        //     postCaption : caption.replace(/'/g, "\\'"),
+        //     postDate : new Date(),
+        //     postUserID : JSON.parse(localStorage.getItem('user')).ID_No,
+        //     isDelete : 0,
+        //     file : []
+        // }
+        onPost
     }
   return (
     <>
@@ -426,7 +438,7 @@ const Post = () => {
         <Card variant="outlined" sx={{borderRadius: '10px', marginBottom: 2}}>
             <CardContent sx={{paddingBottom: 0}}>
                 <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
-                    <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
+                    <Avatar alt={`${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}`} src={`${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}`} sx={{ width: 30, height: 30, fontSize: '12px'}} />
                     <div style={{width: '100%'}}>
                         <Button variant='outlined' onClick={handleOpenPost} sx={{padding: '5pxpx 20px', textTransform: 'none', textAlign: 'justify', fontWeight: 'normal', color: 'grey', width: '100%', borderRadius: 10, justifyContent: 'flex-start'}}>
                             {`What's new ${localStorage.getItem('isLogin') !== 'false' ? capitalizeWords(user.FirstName) : ''}?`}
