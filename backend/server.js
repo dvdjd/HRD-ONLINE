@@ -6,12 +6,14 @@ const birthdayController = require("./controllers/birthdayController");
 const postController = require("./controllers/postController");
 const commentController = require("./controllers/commentController");
 const reactController = require("./controllers/reactController");
+const hrUploadController = require("./controllers/hrUploadController");
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 app.use('/uploads', express.static(__dirname + '/public/files'));
+app.use('/hr_uploads', express.static(__dirname + '/public/hr_uploads'));
 
 app.post("/login", loginController.login);
 app.post("/birthday", birthdayController.getBirthday);
@@ -26,6 +28,10 @@ app.post("/checkReact", reactController.checkReact);
 app.post("/getReact", reactController.getReact);
 app.post("/comment", commentController.comment);
 app.post("/getComments", commentController.getComments);
+
+//HR UPLOADS
+app.post("/hrUpload", hrUploadController.upload);
+app.post("/getHrUpload", hrUploadController.getUpload);
 
 app.listen(4000, (err) => {
     if (err) throw err;
