@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useState, forwardRef, useImperativeHandle} from 'react'
 import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
@@ -30,7 +30,7 @@ import { capitalizeWords } from '../utils/global';
 
 import { newPost, getPost } from '../services/LandingPageAPI';
 
-const EditPost = () => {
+const EditPost = forwardRef(({id}, ref) => {
     const style = {
         position: 'absolute',
         width: {xs: 320, md: 400},
@@ -42,6 +42,7 @@ const EditPost = () => {
     };
     const [post, setPost] = useState(true);
     const handleOpenPost = () => setPost(true);
+    useImperativeHandle(ref, () => ({handleOpenPost}))
     const handleClosePost = () => setPost(false);
     const PostImage = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -412,7 +413,6 @@ const EditPost = () => {
                                             />
                                         </Box>
                                     ) : undefined}
-                                
                                 </CardContent>
                                 <CardActions>
                                     <Button size="medium" sx={{width: '100%'}} variant="contained" type="submit" disableElevation>Post</Button>
@@ -425,6 +425,6 @@ const EditPost = () => {
         </div>
     </>
   )
-}
+})
 
 export default EditPost

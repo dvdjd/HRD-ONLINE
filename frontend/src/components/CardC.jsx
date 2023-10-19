@@ -15,6 +15,7 @@ import {FaRegCommentAlt} from 'react-icons/fa'
 import {FaLaughSquint, FaSadTear, FaSadCry, FaAngry} from 'react-icons/fa'
 import {ImShocked2} from 'react-icons/im'
 import CardCCSS from './CardCCSS.module.css'
+import SendIcon from '@mui/icons-material/Send';
 
 import Popper from '@mui/material/Popper';
 import Fade from '@mui/material/Fade';
@@ -44,20 +45,13 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
 import { capitalizeWords, getTime } from '../utils/global';
 
-import ListSubheader from '@mui/material/ListSubheader';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Collapse from '@mui/material/Collapse';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import DraftsIcon from '@mui/icons-material/Drafts';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import StarBorder from '@mui/icons-material/StarBorder';
 
 
-const CardC = (post) => {
+const CardC = ({post, deletePost}) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
-    const caps = post.post.p.postCaption
+    const caps = post.p.postCaption
     const captionText = showFullCaption ? caps : caps.length > 400 ? `${caps.substring(0, 400)}...Show more` : caps
     const itemData = [
         {
@@ -152,7 +146,7 @@ const CardC = (post) => {
         }
         const rPost = async () => {
             const r = await reactPost({
-                post_id : post.post.p.ID,
+                post_id : post.p.ID,
                 user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
                 react_type : l,
                 mode: mode
@@ -219,7 +213,7 @@ const CardC = (post) => {
         event.preventDefault()
         const newComment = {
             // id: commentList[commentList.length - 1].id + 1,
-            Post_ID : post.post.p.ID,
+            Post_ID : post.p.ID,
             commentUserID: JSON.parse(localStorage.getItem('user')).ID_No,
             comment: myComment.replace(/'/g, "\\'"),
             showFullComment: false,
@@ -228,7 +222,7 @@ const CardC = (post) => {
             LastName : JSON.parse(localStorage.getItem('user')).LastName,
             Department : JSON.parse(localStorage.getItem('user')).Department
         }
-        const pComment = await postComment({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No, comment: myComment})
+        const pComment = await postComment({post_id: post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No, comment: myComment})
 
         setCommentList([...commentList,newComment])
         setMyComment('')
@@ -243,9 +237,9 @@ const CardC = (post) => {
     const newplugin = defaultLayoutPlugin()
     /*---------------zoom-----------------*/
     const content = {
-        id: post.post.p.ID,
+        id: post.p.ID,
         caption: caps,
-        media: post.post.p.file
+        media: post.p.file
     }
     const seePost = useRef()    
     const likes = useRef()
@@ -255,26 +249,26 @@ const CardC = (post) => {
         const today = new Date()
         const today2 = new Date()
         today.setHours(0, 0, 0, 0)
-        if(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY') === moment(today).tz('Asia/Manila').format('MMMM DD, YYYY')){
-            if(today2.getHours() == moment(post.post.p.postDate).tz('Asia/Manila').format('HH')){
+        if(moment(post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY') === moment(today).tz('Asia/Manila').format('MMMM DD, YYYY')){
+            if(today2.getHours() == moment(post.p.postDate).tz('Asia/Manila').format('HH')){
                 setPostDate('Just Now')
             }
             else{
-                setPostDate(`${today2.getHours() - moment(post.post.p.postDate).tz('Asia/Manila').format('HH')} Hours Ago`)
+                setPostDate(`${today2.getHours() - moment(post.p.postDate).tz('Asia/Manila').format('HH')} Hours Ago`)
             }
         }
         else{
-            setPostDate(moment(post.post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A'))
+            setPostDate(moment(post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A'))
         }
 
         const user = async () => {
-            const u = await getUser({id : post.post.p.postUserID})
+            const u = await getUser({id : post.p.postUserID})
             setPoster(capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`))
         }
         user()
 
         const cReact = async () => {
-            const cr = await countReact({post_id: post.post.p.ID})
+            const cr = await countReact({post_id: post.p.ID})
             setLikeList(cr)
             let c = 0
             cr.data.forEach(element => {
@@ -285,13 +279,13 @@ const CardC = (post) => {
         cReact()
 
         const chReact = async() => {
-            const c = await checkReact({post_id: post.post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
+            const c = await checkReact({post_id: post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
             c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
         }
         chReact()
 
         const gComments = async () => {
-            const gc = await getComments({post_id : post.post.p.ID})
+            const gc = await getComments({post_id : post.p.ID})
             if(gc.length > 0){
                 setCommentList(gc) 
             }
@@ -302,7 +296,7 @@ const CardC = (post) => {
 
     useEffect(() => {
         const cReact = async () => {
-            const cr = await countReact({post_id: post.post.p.ID})
+            const cr = await countReact({post_id: post.p.ID})
             setLikeList(cr)
             let c = 0
             cr.data.forEach(element => {
@@ -323,9 +317,13 @@ const CardC = (post) => {
         setOpenEditPost((prev) => editPlacement !== newPlacement || !prev)
         setEditPlacement(newPlacement)
     }
+    const handleDeletePost = () => {
+        deletePost(post.p.ID)
+        setOpenEditPost(false)
+    }
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
-            <LikeList postID={post.post.p.ID} ref={likes}/>
+            <LikeList postID={post.p.ID} ref={likes}/>
             <SeePost content={content} ref={seePost}/>
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
@@ -341,7 +339,7 @@ const CardC = (post) => {
                                 </Typography>
                             </div>
                         </Stack>
-                        {localStorage.getItem('isLogin') === 'true' && JSON.parse(localStorage.getItem('user')).ID_No === post.post.p.postUserID ? (
+                        {localStorage.getItem('isLogin') === 'true' && JSON.parse(localStorage.getItem('user')).ID_No === post.p.postUserID ? (
                             <>
                                 <Popper open={openEditPost} anchorEl={anchorEditPost} placement={editPlacement} transition>
                                     {({ TransitionProps }) => (
@@ -357,7 +355,7 @@ const CardC = (post) => {
                                                 </ListItemIcon>
                                                 <ListItemText primary="&nbsp;&nbsp;Edit&nbsp;&nbsp;"/>
                                             </ListItemButton>
-                                            <ListItemButton sx={{":hover" : {background: 'rgba(255,114,118, .2)'}}}>
+                                            <ListItemButton sx={{":hover" : {background: 'rgba(255,114,118, .2)'}}} onClick={handleDeletePost}>
                                                 <ListItemIcon sx={{color: 'red'}}>
                                                     <DeleteIcon />
                                                 </ListItemIcon>
@@ -377,9 +375,9 @@ const CardC = (post) => {
                     
                     <br />
                     <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
-                    {post.post.p.file.length > 0 ? post.post.p.file.length > 1 ? (
-                        <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={post.post.p.file.length % 3 == 0 ? 3 : 2} rowHeight={'auto'}>
-                            {post.post.p.file.map((item, index) => (
+                    {post.p.file.length > 0 ? post.p.file.length > 1 ? (
+                        <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={post.p.file.length % 3 == 0 ? 3 : 2} rowHeight={'auto'}>
+                            {post.p.file.map((item, index) => (
                                 <React.Fragment key={index}>
                                     <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
                                         {item.type == 'image/jpeg' ? (
@@ -418,7 +416,7 @@ const CardC = (post) => {
                             ))}
                         </ImageList>
                     ) : 
-                        post.post.p.file.map((item, index) => (
+                        post.p.file.map((item, index) => (
                             <React.Fragment key={index}>
                                 <ImageListItem key={item.img}>
                                     {item.type == 'image/jpeg' ||  item.type == 'image/jpg' || item.type == 'image/png'? (
@@ -493,7 +491,7 @@ const CardC = (post) => {
                                 </Button>
                             </AvatarGroup>
                         ) : undefined}
-                        {commentList.length > 0 ? (
+                        {/* {commentList.length > 0 ? (
                             <AvatarGroup sx={{ flexDirection: 'row', display: {xs: 'none', md: 'flex'}}}>
                                 <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}} onClick={() => handleShowComment()}>
                                     <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
@@ -505,7 +503,7 @@ const CardC = (post) => {
                                 ))}
                                 
                             </AvatarGroup>
-                        ) : undefined}
+                        ) : undefined} */}
                         
                     </div>
                     <hr />
@@ -580,7 +578,7 @@ const CardC = (post) => {
                                         )}
                                     </Popper>                                                                                                                                                                                            
                                 </div>
-                                <div>
+                                {/* <div>
                                     <Button size="small" sx={{color: 'grey'}} onClick={() => handleShowComment()}>
                                         <FaRegCommentAlt color='grey' size={20}/>
                                     </Button>
@@ -607,7 +605,7 @@ const CardC = (post) => {
                                             ): undefined}
                                         </form>
                                     </Paper>
-                                </div>
+                                </div> */}
                             </div>
                             <div className={CardCCSS['btnLikeComments']}>
                                 {showComment ? (
@@ -628,7 +626,7 @@ const CardC = (post) => {
                                                                 </Button>
                                                                 <br />
                                                                 <span sx={{ mt: 2, fontSize: '8px', marginBottom: 0}} color="text.secondary">
-                                                                    {comments.commentDateTime == "Just Now" ? "Just Now" : `${getTime(comments.commentDateTime)}`}
+                                                                    {comments.commentDateTime == "Just Now" ? "Just Now" : `${moment(comments.commentDateTime).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A')}`}
                                                                 </span>
                                                             </React.Fragment>
                                                         }

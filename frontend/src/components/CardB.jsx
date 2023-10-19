@@ -3,12 +3,14 @@ import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
 import DraftsIcon from '@mui/icons-material/Drafts';
 import MessageIcon from '@mui/icons-material/Message';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MedicationLiquidIcon from '@mui/icons-material/MedicationLiquid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Zoom } from '@mui/material';
+import UploadPDF from './uploadPDF';
 
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -42,7 +44,13 @@ const CardB = () => {
     {name: `President's Message`, icon: <MessageIcon />},
     {name: `People Concern`, icon: <DraftsIcon />},
     {name: `WW Calendars`, icon: <CalendarMonthIcon />},
-    {name: `Health Alert`, icon: <MedicationLiquidIcon />},
+    // {name: `Health Alert`, icon: <MedicationLiquidIcon />},
+  ])
+  const [system, setSystem] = useState([
+    {name: 'Performance Appraisal'},
+    {name: 'PTR-Online'},
+    {name: 'HRIS '},
+    {name: 'Intranet Online Filing'},
   ])
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -68,9 +76,10 @@ const CardB = () => {
   const [open, setOpen] = React.useState(false);
   const handleClose = () => setOpen(false);
   const [addIndex, setAddIndex] = useState(0)
-
+  const upload = useRef()
   return (
     <>
+      <UploadPDF ref={upload} />
       <div>
         <Modal
           open={open}
@@ -101,9 +110,28 @@ const CardB = () => {
                 selected={selectedIndex === index}
                 sx={{width: '100%'}}
               >
-                <ListItemIcon onClick={() => alert(index)} onMouseEnter={() => {setShowAddIcon(true), setAddIndex(index)}} onMouseLeave={() => {setShowAddIcon(false)}}>
+                <ListItemIcon onMouseEnter={() => {setShowAddIcon(true), setAddIndex(index)}} onMouseLeave={() => {setShowAddIcon(false)}} onClick={() => upload.current?.handleOpen(nav.name)}>
                   {showAddIcon === true && addIndex === index ? addIcon : nav.icon}
                 </ListItemIcon>
+                <ListItemText primary={nav.name} onClick={(event) => handleListItemClick(event, index)}/>
+              </ListItemButton>
+            </React.Fragment>
+          ))}
+        </List>
+      </Box>
+      <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>
+        <List component="nav" aria-label="main mailbox folders" sx={{display: 'flex', flexDirection: 'column', borderRadius: '10px', mb: 2, p: 2}}
+          subheader={
+            <ListSubheader component="div" id="nested-list-subheader">
+              HRD Links
+            </ListSubheader>
+          }
+        >
+          {system.map((nav, index) => (
+            <React.Fragment key={index}>
+              <ListItemButton
+                sx={{width: '100%'}}
+              >
                 <ListItemText primary={nav.name} onClick={(event) => handleListItemClick(event, index)}/>
               </ListItemButton>
             </React.Fragment>
