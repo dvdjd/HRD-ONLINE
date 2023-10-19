@@ -15,7 +15,7 @@ const Home = () => {
   const c = useRef()
   useEffect(() => {
     //presidentMessage.current?.handleClick()
-  
+
     const kuninAngPost = async () => {
       const lagayan = await getPost()
       setPost(lagayan)
@@ -64,7 +64,7 @@ const Home = () => {
               <CardB />
           </div>
       </div>
-      <PresidentMessage ref={presidentMessage}/>
+      <PresidentMessage ref={presidentMessage} />
     </>
   )
 }

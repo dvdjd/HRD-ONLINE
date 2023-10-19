@@ -18,8 +18,19 @@ const storageAttachment = multer.diskStorage({
     }
 });
 
+const hrAttachment = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "./public/hr_uploads/")
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + ".pdf");
+    }
+});
+
 let upload = multer({ storage: storageAttachment }).array("files");
+let hr_upload = multer({ storage: hrAttachment }).single("file");
 
 module.exports = {
-    upload
+    upload,
+    hr_upload
 }
