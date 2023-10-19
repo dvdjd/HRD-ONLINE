@@ -35,8 +35,11 @@ const CardA = () => {
                     <Stack direction="row" spacing={2} sx={{alignItems: 'center'}} mb={2}>
                         <Avatar alt="Remy Sharp" src={cake} />
                         <div>
-                            <Typography variant="body2" sx={{fontSize: '16px'}}>
+                            <Typography variant="body2" sx={{fontSize: '14px'}}>
                                 Today's Birthday Celebrant\s
+                            </Typography>
+                            <Typography variant="subtitle1" sx={{fontSize: '14px'}}>
+                                {moment(Date.now()).format('MMMM DD, YYYY')}
                             </Typography>
                         </div>
                     </Stack>

@@ -1,4 +1,8 @@
 import moment from "moment";
+// import React, {Component} from 'react'
+// import {render} from 'react-dom'
+// import { EditorState } from 'draft-js'
+// import {Editor} from 'react-draft-wysiwyg'
 
 export const capitalizeWords = (str) => {
     if(str === null){

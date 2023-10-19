@@ -144,3 +144,27 @@ export const deletePost = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//hr_uploads
+export const hrUpload = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/hrUpload`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
+
+//getHrUploads
+export const getHrUpload = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/getHrUpload`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

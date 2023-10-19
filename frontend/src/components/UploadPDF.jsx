@@ -6,13 +6,18 @@ import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import CancelIcon from '@mui/icons-material/Cancel';
+import WYSIWYG from './WYSIWYG';
+import { hrUpload } from '../services/LandingPageAPI';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
-import { DefaultLayoutPlugin, defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
-import samplePDF from '../style/images/pdf-succinctly.pdf'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
+import { Wysiwyg } from '@mui/icons-material';
 
 const UploadPDF = forwardRef(({}, ref) => {
     const style = {
@@ -20,7 +25,7 @@ const UploadPDF = forwardRef(({}, ref) => {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: {xs: 200, md: 400},
+        width: {xs: 200, md: 800},
         bgcolor: 'background.paper',
         boxShadow: 24,
         p: 1,
@@ -39,15 +44,17 @@ const UploadPDF = forwardRef(({}, ref) => {
     });
     const newplugin = defaultLayoutPlugin()
     const [inputPDF, setInputPDF] = useState()
+    const [sendFile, setSendFile] = useState()
+    const [uploadType, setUploadType] = useState('')
     const [hasSelected, setHasSelected] = useState(false)
     const [pdfKey, setPdfKey] = useState(0)
     const handleSelectPDF = (e) => {
         const file = e.target.files[0]
+        setSendFile(file)
         setInputPDF(URL.createObjectURL(file))
         setTimeout(() => {
             setHasSelected(true)
             setPdfKey((prev) => prev + 1)
-            console.log("test")
         }, 2000)
         // if(file.length > 0){
         //     const validFile = Array.from(file).filter((f) => {
@@ -67,7 +74,14 @@ const UploadPDF = forwardRef(({}, ref) => {
     }
     const handleOpen = (type) => {
         setOpenLogin(true)
-        {type === "People Concern" ? undefined : (
+        setUploadType(type)
+        {type === "People Concern" ? (
+            setFormIcon(
+                <>
+                    <WYSIWYG />
+                </>
+            )
+        ) : (
             setFormIcon(
                 <>
                     <Button component="label" variant="contained" startIcon={<CloudUploadIcon />} sx={{width: '100%'}}>
@@ -79,7 +93,11 @@ const UploadPDF = forwardRef(({}, ref) => {
         )}
     };
     const [formIcon, setFormIcon] = useState()
-    const handleClose = () => setOpenLogin(false);
+    const handleClose = () => {
+        setUploadType('')
+        setHasSelected(false)
+        setOpenLogin(false)
+    };
 
     useImperativeHandle(ref, () => ({handleOpen}))
 
@@ -87,19 +105,23 @@ const UploadPDF = forwardRef(({}, ref) => {
     const [pin, setPin] = useState('')
 
     useEffect( () => {
-        console.log(hasSelected)
-        console.log(pdfKey)
+    
     }, [])
     
     const handleSubmit = async (e) => {
         e.preventDefault()
+        let formData = new FormData()
+        formData.append('type', uploadType.replace(/'/g, "\\'"))
+        formData.append('file', sendFile)
+        const upload = await hrUpload(formData)
+        handleClose()
     }
   return (
     <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         open={openLogin}
-        onClose={handleClose}
+        //onClose={() => console.log("TEST")}
         closeAfterTransition
         slots={{ backdrop: Backdrop }}
         slotProps={{
@@ -109,10 +131,16 @@ const UploadPDF = forwardRef(({}, ref) => {
         }}
     >
         <Fade in={openLogin}>
-            <Card sx={style}>
+            <Card sx={style} >
+                <Stack direction="row-reverse" spacing={1}>
+                    <IconButton aria-label="delete" size="medium" onClick={handleClose}>
+                        <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
+                    </IconButton>
+                </Stack>
+                
                 <form onSubmit={handleSubmit} >
                     <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'flex-end', mb: 2 }}>
+                        <Box sx={{ mb: 2, }}>
                             {formIcon}
                         </Box>
                         {hasSelected ? (
