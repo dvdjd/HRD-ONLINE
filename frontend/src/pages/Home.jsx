@@ -14,7 +14,7 @@ const Home = () => {
   const c = useRef()
   useEffect(() => {
     //presidentMessage.current?.handleClick()
-  
+
     const kuninAngPost = async () => {
       const lagayan = await getPost()
       setPost(lagayan)
@@ -29,22 +29,22 @@ const Home = () => {
     <>
       <br /><br /><br /><br />
       <div className={style['flex-container']}>
-          <div className={`${style["flex-item"]} ${style["small"]}`}>
-              <CardA />
-          </div>
-          <div className={`${style["flex-item"]} ${style["large"]}`} ref={c}>
-              {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
-              {posts.map((p, index) => (
-                <React.Fragment key={index}>
-                  <CardC post={{p}}/>
-                </React.Fragment>
-              ))}
-          </div>
-          <div className={`${style["flex-item"]} ${style["small"]}`}>
-              <CardB />
-          </div>
+        <div className={`${style["flex-item"]} ${style["small"]}`}>
+          <CardA />
+        </div>
+        <div className={`${style["flex-item"]} ${style["large"]}`} ref={c}>
+          {localStorage.getItem('isLogin') === 'true' ? <Post /> : (<></>)}
+          {posts.map((p, index) => (
+            <React.Fragment key={index}>
+              <CardC post={{ p }} />
+            </React.Fragment>
+          ))}
+        </div>
+        <div className={`${style["flex-item"]} ${style["small"]}`}>
+          <CardB />
+        </div>
       </div>
-      <PresidentMessage ref={presidentMessage}/>
+      <PresidentMessage ref={presidentMessage} />
     </>
   )
 }

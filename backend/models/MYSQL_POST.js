@@ -19,7 +19,7 @@ class MYSQL_POST extends MODEL {
     }
 
     async getPosts() {
-        let res = await this.query(`SELECT * FROM ${this.table} ORDER BY postDate DESC`);
+        let res = await this.query(`SELECT * FROM ${this.table} WHERE isDelete = 0 ORDER BY postDate DESC`);
 
         return res;
     }
