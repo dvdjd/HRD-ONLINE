@@ -1,25 +1,39 @@
-
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Typography from '@mui/material/Typography';
-import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
-
-const drawerWidth = 240;
-
+import React, { useEffect, useState } from 'react'
+import CardD from "../components/CardD"
+import CardE from '../components/CardE'
+import style from '../style/style.module.css'
+import { useParams } from 'react-router-dom'
+import { getUploadItems } from '../services/LandingPageAPI'
 const PDF = () => {
+    const [pdfArr, setPdfArrr] = useState([])
+    const [selectedPdf, setSelectedPdf] = useState("")
+    const handleSetSelectedPdf = (p) => {
+        setSelectedPdf(p)
+        console.log(p)
+    }
+    const handleAddPdf = (newElem) => {
+        setPdfArrr([newElem, ...pdfArr])
+    }
+    const {cat} = useParams()
+    useEffect(() => {
+        const getPDF = async () => {
+            const gPdf = await getUploadItems({type: cat})
+            setPdfArrr(gPdf.data)
+        }
+        getPDF()
+    }, [])
   return (
-    <div>PDF</div>
+    <>
+        <br /><br /><br /><br />
+        <div className={style['flex-container']}>
+            <div className={`${style["flex-item"]} ${style["small"]}`}>
+                <CardD categ={pdfArr} handleAddCateg={handleAddPdf} handleSelectFile={handleSetSelectedPdf}/>
+            </div>
+            <div className={`${style["flex-item"]} ${style["large"]}`}>
+                <CardE pdfFile={selectedPdf}/>
+            </div>
+        </div>
+    </>
   )
 }
 

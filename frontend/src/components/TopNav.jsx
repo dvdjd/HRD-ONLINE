@@ -43,8 +43,8 @@ const TopNav = () => {
         {
             name: 'Compensation / Benefits', hasSubPages: true,
             subPages: [
-                {subName: 'Benefits', link: '/pdf', target: '_self'},
-                {subName: 'Promotions', link: '/pdf', target: '_self'},
+                {subName: 'Benefits', link: '/pdf/benefits', target: '_self'},
+                {subName: 'Promotions', link: '/pdf/promotions', target: '_self'},
                 {subName: 'Government Updates', link: '/pdf', target: '_self'},
             ]
         },
@@ -57,9 +57,9 @@ const TopNav = () => {
         {
             name: 'Activities / Programs', link: '/', target: '_self', hasSubPages: false
         },
-        {
-            name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false
-        },
+        // {
+        //     name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false
+        // },
     ];
     const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
     const [anchorElNav, setAnchorElNav] = React.useState(null);

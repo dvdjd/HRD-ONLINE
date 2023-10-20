@@ -54,6 +54,7 @@ const CardC = ({post, deletePost}) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
     const caps = post.p.postCaption
     const captionText = showFullCaption ? caps : caps.length > 400 ? `${caps.substring(0, 400)}...Show more` : caps
+    const [pdfAttached, setPdfAttached] = useState("")
     const itemData = [
         {
             type: 'image',
@@ -295,6 +296,9 @@ const CardC = ({post, deletePost}) => {
                 
         }
         gComments()
+
+        setPdfAttached(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
+        console.log(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
     }, [])
 
     useEffect(() => {
@@ -452,7 +456,7 @@ const CardC = ({post, deletePost}) => {
                                             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                                                 
                                                 {/* <Viewer fileUrl={samplePDF} plugins={[newplugin]} /> */}
-                                                <Viewer fileUrl={samplePDF} plugins={[fullScreenPluginInstance]} />
+                                                <Viewer fileUrl={pdfAttached === "" ? samplePDF : `http://192.168.5.12:4000/files/${pdfAttached}`} plugins={[fullScreenPluginInstance]} />
                                             </Worker>
                                         </div>
                                     ) }

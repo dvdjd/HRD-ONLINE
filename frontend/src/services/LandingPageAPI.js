@@ -168,3 +168,15 @@ export const getHrUpload = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//getUploadItems
+export const getUploadItems = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/getUploadItems`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

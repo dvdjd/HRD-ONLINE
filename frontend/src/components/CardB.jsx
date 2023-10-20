@@ -166,7 +166,7 @@ const CardB = () => {
                 sx={{width: '100%'}}
               >
                 <ListItemIcon onMouseEnter={() => {nav.name !== "People Concern" ? (setShowAddIcon(true), setAddIndex(index)) : undefined}} onMouseLeave={() => {setShowAddIcon(false)}} onClick={() => upload.current?.handleOpen(nav.name)}>
-                  {showAddIcon === true && addIndex === index ? addIcon : nav.icon}
+                  {showAddIcon === true && addIndex === index && localStorage.getItem('isLogin') === 'true' ? addIcon : nav.icon}
                 </ListItemIcon>
                 <ListItemText primary={nav.name} onClick={nav.name === "People Concern" ? localStorage.getItem('isLogin') === 'true' ? () => upload.current?.handleOpen(nav.name) : () => setOpen2(true) : (event) => handleListItemClick(event, index, nav.name)}/>
               </ListItemButton>
