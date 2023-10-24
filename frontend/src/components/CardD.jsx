@@ -22,7 +22,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AddCircleIcon from '@mui/icons-material/AddCircle';import WYSIWYG from './WYSIWYG';
-import { hrUpload } from '../services/LandingPageAPI';
+import { hrUpload, updateItem } from '../services/LandingPageAPI';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css'
@@ -79,8 +79,9 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
     const newplugin = defaultLayoutPlugin()
     const [inputPDF, setInputPDF] = useState()
     const [category, setCategory] = useState('')
+    const [editID, setEditID] = useState(0)
+    const [mode, setMode] = useState()
     const [sendFile, setSendFile] = useState()
-    const [uploadType, setUploadType] = useState('')
     const [hasSelected, setHasSelected] = useState(false)
     const [pdfKey, setPdfKey] = useState(0)
     const handleSelectPDF = (e) => {
@@ -95,11 +96,15 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
    
     const handleOpen = () => {
         setOpenLogin(true)
+        setSendFile("")
+        setInputPDF("")
+        setMode("add")
     };
     const handleClose = () => {
         setCategory('')
         setHasSelected(false)
         setOpenLogin(false)
+        setHasSelected(false)
     };
 
     useEffect( () => {
@@ -107,20 +112,41 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
     
     const handleSubmit = async (e) => {
         e.preventDefault()
-        handleAddCateg({
-            ID: categ.length > 0 ? categ[0].ID + 1 : 0,
-            uploadDateTime: Date.now(),
-            uploadDisplayName: category,
-            uploadName: `${sendFile.lastModified}.pdf`,
-            uploadType: cat
-        })
+        const newDate = Date.now()
         let formData = new FormData()
-        // formData.append('type', uploadType.replace(/'/g, "\\'"))
-        formData.append('type', "Benefits")
-        formData.append('file', sendFile)
-        formData.append('display_name', category)
-        const upload = await hrUpload(formData)
-        handleClose()
+        if(category === "" || inputPDF === ""){
+            alert("Kindly input display name and attched a pdf file.")
+        }
+        else{
+            if(mode === "add"){
+                handleAddCateg({
+                    ID: categ.length > 0 ? categ[0].ID + 1 : 0,
+                    uploadDateTime: newDate,
+                    uploadDisplayName: category,
+                    uploadName: `${newDate}.pdf`,
+                    uploadType: cat
+                })
+                formData.append('type', cat)
+                formData.append('file_name', newDate)
+                formData.append('file', sendFile)
+                formData.append('display_name', category)
+                console.log(formData)
+                const upload = await hrUpload(formData)
+                setSelectedIndex(1)
+                handleClose()
+            }
+            else{
+                formData.append('id', editID)
+                formData.append('type', cat)
+                formData.append('file_name', newDate)
+                formData.append('file', sendFile)
+                formData.append('display_name', category)
+                console.log(formData)
+                const update = await updateItem(formData)
+                handleClose()
+                window.location.reload()
+            }
+        }
     }
     return (
         <>
@@ -146,20 +172,12 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                         
                         <form onSubmit={handleSubmit} >
                             <CardContent>
-                                {/* <Box sx={{ mb: 2, }}>
-                                    <Stack direction="row" spacing={2}>
-                                        <TextField id="outlined-multiline-flexible" onChange={(e) => setCategory(e.target.value)} label="Category" sx={{width: '100%'}} />
-                                        <Button component="label" variant="contained" startIcon={<CloudUploadIcon />} sx={{width: '100%'}}>
-                                            Upload
-                                            <VisuallyHiddenInput type="file" accept="application/pdf" onChange={handleSelectPDF}/>
-                                        </Button>
-                                    </Stack>
-                                </Box> */}
                                 <Paper sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "100%", mb: 2 }}>
                                     <InputBase
                                         sx={{ ml: 1, flex: 1 }}
                                         placeholder="Enter Display Name ..."
                                         inputProps={{ 'aria-label': 'upload file' }}
+                                        defaultValue={category}
                                         onChange={(e) => setCategory(e.target.value)}
                                     />
                                     <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
@@ -167,10 +185,6 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                                         <CloudUploadIcon />
                                         <VisuallyHiddenInput type="file" accept="application/pdf" onChange={handleSelectPDF}/>
                                     </Button>
-                                    {/* <IconButton color="primary" sx={{ p: '10px' }} aria-label="directions">
-                                        <VisuallyHiddenInput type="file" accept="application/pdf" onChange={handleSelectPDF}/>
-                                        <CloudUploadIcon />
-                                    </IconButton> */}
                                 </Paper>
                                 {hasSelected ? (
                                     <>
@@ -187,7 +201,7 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                     </Card>
                 </Fade>
             </Modal>
-            <Box sx={{ minWidth: 275, mb: 2, height: "80%", overflowY: 'scroll'}}>
+            <Box sx={{ minWidth: 275, mb: 2, height: "95%", overflowY: 'scroll'}}>
                 <Card variant="outlined" sx={{borderRadius: '10px', mb: 2}}>
                     <CardContent sx={{paddingBottom: 0}}>
                         <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpen} sx={{width: '100%'}}>Add</Button>
@@ -195,21 +209,20 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                             <Demo>
                                 <List dense={dense}>
                                     {categ.length > 0 ? categ.map((c, index) => (
-                                        // <ListItem key={index}
-                                        //     secondaryAction={
-                                        //         <IconButton edge="end" aria-label="delete" sx={{color: '#42a5f5'}}>
-                                        //             <ModeIcon />
-                                        //         </IconButton>
-                                        //     }
-                                        // >
-                                        //     <ListItemButton sx={{borderRadius: '10px'}} selected={selectedIndex === 2} onClick={(event) => handleListItemClick(event, 2)}>
-                                        //         <ListItemText primary="Trash" />
-                                        //     </ListItemButton>
-                                        // </ListItem>
-                                        
                                         <ListItem key={index}
                                             secondaryAction={
-                                                <IconButton edge="end" aria-label="delete" sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}>
+                                                <IconButton edge="end" aria-label="delete" sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}
+                                                    onClick={(event) => {
+                                                        handleListItemClick(event, index);
+                                                        handleSelectFile(c);
+                                                        setCategory(c.uploadDisplayName);
+                                                        setOpenLogin(true);
+                                                        setMode("edit");
+                                                        setEditID(c.ID)
+                                                        setInputPDF("")
+                                                        setHasSelected(false)
+                                                    }}
+                                                >
                                                     <ModeIcon />
                                                 </IconButton>
                                             }
@@ -225,9 +238,8 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                                                 />
                                             </ListItemButton>
                                             
-                                        </ListItem>
-                                        )
-                                    ) : undefined}
+                                        </ListItem> 
+                                    )) : undefined}
                                 </List>
                             </Demo>
                         </Grid>

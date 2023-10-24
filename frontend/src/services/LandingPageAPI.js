@@ -180,3 +180,15 @@ export const getUploadItems = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//updateItem
+export const updateItem = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/updateItem`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

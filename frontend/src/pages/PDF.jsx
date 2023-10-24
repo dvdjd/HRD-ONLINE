@@ -9,7 +9,6 @@ const PDF = () => {
     const [selectedPdf, setSelectedPdf] = useState("")
     const handleSetSelectedPdf = (p) => {
         setSelectedPdf(p)
-        console.log(p)
     }
     const handleAddPdf = (newElem) => {
         setPdfArrr([newElem, ...pdfArr])

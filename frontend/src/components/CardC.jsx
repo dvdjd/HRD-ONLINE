@@ -298,7 +298,7 @@ const CardC = ({post, deletePost}) => {
         gComments()
 
         setPdfAttached(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
-        console.log(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
+        //console.log(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
     }, [])
 
     useEffect(() => {

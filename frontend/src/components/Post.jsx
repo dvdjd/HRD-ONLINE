@@ -206,6 +206,7 @@ const Post = (onPost) => {
         //     file : []
         // }
         onPost
+        window.location.reload()
     }
   return (
     <>

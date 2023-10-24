@@ -10,7 +10,7 @@ body{
 .flex-container{
     display : flex;
     justify-content: space-between;
-    height: 1000px;
+    height: 900px;
 }
 
 .flex-item{
@@ -27,12 +27,21 @@ body{
     overflow-x: auto;
 }
 .small{
-    overflow: auto;
-    overflow-x: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
     .small {
         display: none; /* Display on larger screens (md and up) */
-
+    }
+}
+@media (max-width: 1312px) {
+    .small {
+        display: none;
+    }
+}
+@media (max-width: 1500px) {
+    .flex-container {
+        height: 650px;
     }
 }

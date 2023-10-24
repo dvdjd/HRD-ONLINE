@@ -29,12 +29,12 @@ const TopNav = () => {
         {
             name: 'NMCP Company', hasSubPages: true,
             subPages: [
-                {subName: 'Company Profile', link: '/', target: '_blank'},
-                {subName: 'Organization Chart', link: '/', target: '_blank'},
-                {subName: 'Corporate Values, Vision & Mission', link: '/', target: '_blank'},
-                {subName: 'Company Rules and Regulations', link: '/', target: '_blank'},
-                {subName: 'Policies', link: '/', target: '_blank'},
-                {subName: 'Quality', link: '/', target: '_blank'},
+                {subName: 'Company Profile', link: '/pdf2/companyProfile', target: '_self'},
+                {subName: 'Organization Chart', link: '/pdf2/organizationChart', target: '_self'},
+                {subName: 'Corporate Values', link: '/pdf2/corporateValues', target: '_self'},
+                {subName: 'Vision & Mission', link: '/pdf2/missionVision', target: '_self'},
+                {subName: 'Company Rules and Regulations', link: '/pdf2/crr', target: '_self'},
+                {subName: 'Quality and Environmental Policy', link: '/pdf2/qualityEnvironmental', target: '_self'},
             ]
         },
         {
@@ -45,7 +45,7 @@ const TopNav = () => {
             subPages: [
                 {subName: 'Benefits', link: '/pdf/benefits', target: '_self'},
                 {subName: 'Promotions', link: '/pdf/promotions', target: '_self'},
-                {subName: 'Government Updates', link: '/pdf', target: '_self'},
+                {subName: 'Government Updates', link: '/pdf/government', target: '_self'},
             ]
         },
         {
@@ -55,7 +55,7 @@ const TopNav = () => {
             name: 'Environmental', link: '/', target: '_self', hasSubPages: false
         },
         {
-            name: 'Activities / Programs', link: '/', target: '_self', hasSubPages: false
+            name: 'Activities / Programs', link: '/pdf3', target: '_self', hasSubPages: false
         },
         // {
         //     name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false

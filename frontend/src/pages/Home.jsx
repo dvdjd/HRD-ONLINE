@@ -43,13 +43,12 @@ const Home = () => {
       setPost(lagayan)
     }
     kuninAngPost()
-    console.log("awa ko")
   }
   return (
     <>
       <br /><br /><br /><br />
       <div className={style['flex-container']}>
-          <div className={`${style["flex-item"]} ${style["small"]}`} onClick={() => console.log(posts)}>
+          <div className={`${style["flex-item"]} ${style["small"]}`}>
               <CardA />
           </div>
           <div className={`${style["flex-item"]} ${style["large"]}`} ref={c}>
