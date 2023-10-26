@@ -36,7 +36,7 @@ const CardE = ({pdfFile}) => {
                                     </div>
                                 ) : undefined}
                                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${pdf}`} plugins={cat === "forms" ? [newplugin] : [fullScreenPluginInstance]} />
+                                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${pdf}`} plugins={cat === "forms" ? [newplugin] : [fullScreenPluginInstance]} />
                                 </Worker>
                             </div>
                         )}

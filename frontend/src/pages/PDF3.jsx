@@ -307,7 +307,7 @@ const PDF3 = () => {
                                 {pdf !== "" ? (
                                     <div className="pdf-container" style={{height : "750px"}}>
                                         <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                            <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${pdf}`} plugins={[fullScreenPluginInstance]} />
+                                            <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${pdf}`} plugins={[fullScreenPluginInstance]} />
                                         </Worker>
                                     </div>
                                 ) : (

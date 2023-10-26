@@ -300,7 +300,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                         {content.p.file.length > 0 ? (
                                             <div style={{display: 'flex', justifyContent:'center', flexDirection: 'column', alignItems: 'center'}}>
                                                 {content.p.file[activeStep].type == 'image/jpeg' ? (
-                                                    <img src={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`} width="100%" height="auto"/>
+                                                    <img src={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`} width="100%" height="auto"/>
                                                 ): content.p.file[activeStep].type == 'video/mp4' ? (
                                                     <video
                                                         // autoPlay
@@ -308,11 +308,11 @@ const SeePost = forwardRef(({content}, ref) => {
                                                         // muted
                                                         key={videoKey}
                                                         controls
-                                                        poster={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`}
+                                                        poster={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`}
                                                         style={{width: '100%', objectFit: 'contain', height: '600px'}}
                                                     >
                                                         <source
-                                                        src={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`}
+                                                        src={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`}
                                                         type="video/mp4"
                                                         />
                                                     </video>

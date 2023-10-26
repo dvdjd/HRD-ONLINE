@@ -389,7 +389,7 @@ const CardC = ({post, deletePost}) => {
                                     <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
                                         {item.type == 'image/jpeg' ? (
                                             <img
-                                            src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            src={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                             // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                                             alt={item.filename}
                                             loading="lazy"
@@ -400,11 +400,11 @@ const CardC = ({post, deletePost}) => {
                                                 autoPlay
                                                 loop
                                                 muted
-                                                poster={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                                poster={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                                 style={{width: '100%', objectFit: 'contain'}}
                                             >
                                                 <source
-                                                src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                                src={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                                 type="video/mp4"
                                                 />
                                             </video>
@@ -428,7 +428,7 @@ const CardC = ({post, deletePost}) => {
                                 <ImageListItem key={item.img}>
                                     {item.type == 'image/jpeg' ||  item.type == 'image/jpg' || item.type == 'image/png'? (
                                         <img
-                                        src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                        src={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                         // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
                                         alt={item.filename}
                                         loading="lazy"
@@ -440,11 +440,11 @@ const CardC = ({post, deletePost}) => {
                                             controls
                                             // loop
                                             muted
-                                            poster={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            poster={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                             style={{width: '100%', height: '600px', objectFit: 'contain'}}
                                         >
                                             <source
-                                            src={`http://192.168.5.12:4000/uploads/${item.filename}`}
+                                            src={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                             type="video/mp4"
                                             />
                                         </video>
@@ -456,7 +456,7 @@ const CardC = ({post, deletePost}) => {
                                             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                                                 
                                                 {/* <Viewer fileUrl={samplePDF} plugins={[newplugin]} /> */}
-                                                <Viewer fileUrl={pdfAttached === "" ? samplePDF : `http://192.168.5.12:4000/files/${pdfAttached}`} plugins={[fullScreenPluginInstance]} />
+                                                <Viewer fileUrl={pdfAttached === "" ? samplePDF : `http://192.168.5.3:4000/files/${pdfAttached}`} plugins={[fullScreenPluginInstance]} />
                                             </Worker>
                                         </div>
                                     ) }
