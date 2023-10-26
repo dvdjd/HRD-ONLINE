@@ -29,29 +29,23 @@ const TopNav = () => {
         {
             name: 'NMCP Company', hasSubPages: true,
             subPages: [
-                {subName: 'Company Profile', link: '/', target: '_blank'},
-                {subName: 'Organization Chart', link: '/', target: '_blank'},
-                {subName: 'Corporate Vision & Mission', link: '/', target: '_blank'},
-                {subName: 'Mission', link: '/', target: '_blank'},
-                {subName: 'Vision', link: '/', target: '_blank'},
-                {subName: 'Corporate Values', link: '/', target: '_blank'},
-                {subName: 'Company Rules and Regulations', link: '/', target: '_blank'},
-                {subName: 'Policies', link: '/', target: '_blank'},
-                {subName: 'WW Calendar0', link: '/', target: '_blank'},
-                {subName: 'WW Calendar', link: '/', target: '_blank'},
-                {subName: 'Quality', link: '/', target: '_blank'},
+                {subName: 'Company Profile', link: '/pdf2/companyProfile', target: '_self'},
+                {subName: 'Organization Chart', link: '/pdf2/organizationChart', target: '_self'},
+                {subName: 'Corporate Values', link: '/pdf2/corporateValues', target: '_self'},
+                {subName: 'Vision & Mission', link: '/pdf2/missionVision', target: '_self'},
+                {subName: 'Company Rules and Regulations', link: '/pdf2/crr', target: '_self'},
+                {subName: 'Quality and Environmental Policy', link: '/pdf2/qualityEnvironmental', target: '_self'},
             ]
         },
         {
             name: 'Recruitment / Training', link: '/', target: '_self', hasSubPages: false, subPages: []
         },
         {
-            name: 'CompBen', hasSubPages: true,
+            name: 'Compensation / Benefits', hasSubPages: true,
             subPages: [
-                {subName: 'Compensation / Benifits', link: '/', target: '_blank'},
-                {subName: 'Promotions', link: '/', target: '_blank'},
-                {subName: 'Government Updates', link: '/', target: '_blank'},
-                {subName: 'Intranet Online Filing', link: 'http://192.168.4.9:90/ApplyOT.aspx', target: '_blank'},
+                {subName: 'Benefits', link: '/pdf/benefits', target: '_self'},
+                {subName: 'Promotions', link: '/pdf/promotions', target: '_self'},
+                {subName: 'Government Updates', link: '/pdf/government', target: '_self'},
             ]
         },
         {
@@ -61,11 +55,11 @@ const TopNav = () => {
             name: 'Environmental', link: '/', target: '_self', hasSubPages: false
         },
         {
-            name: 'Activities / Programs', link: '/', target: '_self', hasSubPages: false
+            name: 'Activities / Programs', link: '/pdf3', target: '_self', hasSubPages: false
         },
-        {
-            name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false
-        },
+        // {
+        //     name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false
+        // },
     ];
     const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
     const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -183,7 +177,7 @@ const TopNav = () => {
                                             target={page.target}
                                             href={page.link}
                                             key={index}
-                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
+                                            sx={{ my: 2, color: 'blue', display: 'block', textTransform: 'none' }}
                                         >
                                             {page.name}
                                         </Button>
@@ -243,10 +237,7 @@ const TopNav = () => {
                                             </Fade>
                                             )}
                                         </Popper>
-                                        <Button
-                                            target={page.target}
-                                            href={page.link}
-                                            key={index}
+                                        <Button target={page.target} href={page.link} key={index}
                                             onClick={handleClick('bottom-start', index)}
                                             sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
                                         >
@@ -286,21 +277,15 @@ const TopNav = () => {
                                     </ul>
                                 )}
                             </Tooltip>
-                            <Menu
-                            sx={{ mt: '45px' }}
-                            id="menu-appbar"
-                            anchorEl={anchorElUser}
+                            <Menu sx={{ mt: '45px' }} id="menu-appbar" anchorEl={anchorElUser} keepMounted open={Boolean(anchorElUser)} onClose={handleCloseUserMenu}
                             anchorOrigin={{
                                 vertical: 'top',
                                 horizontal: 'right',
                             }}
-                            keepMounted
                             transformOrigin={{
                                 vertical: 'top',
                                 horizontal: 'right',
                             }}
-                            open={Boolean(anchorElUser)}
-                            onClose={handleCloseUserMenu}
                             >
                                 {localStorage.getItem('isLogin') === 'false' ? (
                                     <MenuItem onClick={handleCloseUserMenu}>

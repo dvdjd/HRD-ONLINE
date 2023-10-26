@@ -41,6 +41,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import samplePDF from '../style/images/pdf-succinctly.pdf'
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import { fullScreenPlugin, RenderEnterFullScreenProps  } from '@react-pdf-viewer/full-screen';
 
 import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
 import { capitalizeWords, getTime } from '../utils/global';
@@ -53,6 +54,7 @@ const CardC = ({post, deletePost}) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
     const caps = post.p.postCaption
     const captionText = showFullCaption ? caps : caps.length > 400 ? `${caps.substring(0, 400)}...Show more` : caps
+    const [pdfAttached, setPdfAttached] = useState("")
     const itemData = [
         {
             type: 'image',
@@ -235,6 +237,8 @@ const CardC = ({post, deletePost}) => {
 
     //PDF
     const newplugin = defaultLayoutPlugin()
+    const fullScreenPluginInstance = fullScreenPlugin()
+    const { EnterFullScreen } = fullScreenPluginInstance;
     /*---------------zoom-----------------*/
     const content = {
         id: post.p.ID,
@@ -292,6 +296,9 @@ const CardC = ({post, deletePost}) => {
                 
         }
         gComments()
+
+        setPdfAttached(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
+        //console.log(post.p.file[0] === undefined || post.p.file[0].type !== "application/pdf" ? "" : post.p.file[0].filename)
     }, [])
 
     useEffect(() => {
@@ -324,7 +331,7 @@ const CardC = ({post, deletePost}) => {
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList postID={post.p.ID} ref={likes}/>
-            <SeePost content={content} ref={seePost}/>
+            <SeePost content={post} ref={seePost}/>
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
                     <div className={CardCCSS['likesComments']} style={{alignItems: 'center'}}>
@@ -349,12 +356,12 @@ const CardC = ({post, deletePost}) => {
                                             component="nav"
                                             aria-labelledby="nested-list-subheader"
                                             >
-                                            <ListItemButton>
+                                            {/* <ListItemButton>
                                                 <ListItemIcon>
                                                     <EditIcon />
                                                 </ListItemIcon>
                                                 <ListItemText primary="&nbsp;&nbsp;Edit&nbsp;&nbsp;"/>
-                                            </ListItemButton>
+                                            </ListItemButton> */}
                                             <ListItemButton sx={{":hover" : {background: 'rgba(255,114,118, .2)'}}} onClick={handleDeletePost}>
                                                 <ListItemIcon sx={{color: 'red'}}>
                                                     <DeleteIcon />
@@ -443,8 +450,13 @@ const CardC = ({post, deletePost}) => {
                                         </video>
                                     ) : (
                                         <div className="pdf-container" style={{height: '600px'}}>
+                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                                <EnterFullScreen />
+                                            </div>
                                             <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                                <Viewer fileUrl={samplePDF} plugins={[newplugin]} />
+                                                
+                                                {/* <Viewer fileUrl={samplePDF} plugins={[newplugin]} /> */}
+                                                <Viewer fileUrl={pdfAttached === "" ? samplePDF : `http://192.168.5.12:4000/files/${pdfAttached}`} plugins={[fullScreenPluginInstance]} />
                                             </Worker>
                                         </div>
                                     ) }

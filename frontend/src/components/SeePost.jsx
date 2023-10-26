@@ -12,6 +12,9 @@ import Avatar from '@mui/material/Avatar';
 import Me from '../style/images/me.png'
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import { countReact, getUser, checkReact, reactPost} from '../services/LandingPageAPI';
+import { capitalizeWords } from '../utils/global';
+import moment from 'moment';
 
 import { useTheme } from '@mui/material/styles';
 import MobileStepper from '@mui/material/MobileStepper';
@@ -47,7 +50,7 @@ import samplePDF from '../style/images/pdf-succinctly.pdf'
 
 const SeePost = forwardRef(({content}, ref) => {
     const[showFullCaption, setShowFullCaptio] = useState(false)
-    const captionText = showFullCaption ? content.caption : content.caption.length > 400 ? `${(content.caption).substring(0, 400)}...Show more` : content.caption
+    const captionText = showFullCaption ? content.p.postCaption : content.p.postCaption.length > 400 ? `${(content.p.postCaption).substring(0, 400)}...Show more` : content.p.postCaption
     const style = {
         position: 'absolute',
         width: {xs: 320, md: '90%'},
@@ -63,6 +66,8 @@ const SeePost = forwardRef(({content}, ref) => {
         flexDirection: {xs: 'column', md: 'row'}
     };
     const [post, setPost] = useState(false);
+    const [poster, setPoster] = useState(null)
+    const [postDate, setPostDate] = useState(null)
     const handleOpenPost = () => setPost(true);
     useImperativeHandle(ref, () => ({handleOpenPost}))
     const handleClosePost = () => setPost(false);
@@ -81,7 +86,8 @@ const SeePost = forwardRef(({content}, ref) => {
     const newplugin = defaultLayoutPlugin()
 
     /*---------------------react-----------------*/
-    let [likeList, setLikeList] = useState('Jhobert Erato and others...')
+    let [countLike, setCountLike] = useState(0)
+    let [likeList, setLikeList] = useState({data: []})
     const handleAddtoLikeList = () => {
         setLikeList((prevState) => `You, ${prevState}`)
     }
@@ -102,18 +108,27 @@ const SeePost = forwardRef(({content}, ref) => {
     };
     let [like, setLike] = useState('none')
    
-    const handleSetLike = (newLike) => {
-        if(like === newLike){
-            handleLikeDecrement()
+    const handleSetLike = (l) => {
+        let mode = 0
+        if(like === l){
             setLike('none')
+            mode = 2
         }
         else{
-            handleAddtoLikeList()
-            handleLikeIncrement()
-            setLike(newLike)
+            setLike(l)
+            mode = 1
         }
+        const rPost = async () => {
+            const r = await reactPost({
+                post_id : content.p.ID,
+                user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
+                react_type : l,
+                mode: mode
+            })
+            return r
+        }
+        rPost()
     }
-    let [countLike, setCountLike] = useState(7)
     const handleLikeIncrement = () => {
         setCountLike((prevState) => prevState + 1)
     }
@@ -172,7 +187,7 @@ const SeePost = forwardRef(({content}, ref) => {
     const handleSubmitMyComment = (event) => {
         event.preventDefault()
         const newComment = {
-            id: commentList[commentList.length - 1].id + 1,
+            //id: commentList[commentList.length - 1].id + 1,
             name: `Jhobert Erato`,
             department: `Systems`,
             avatar: `/static/images/avatar/3.jpg`,
@@ -182,7 +197,6 @@ const SeePost = forwardRef(({content}, ref) => {
             time: '07:12 AM'
         }
         setCommentList([...commentList,newComment])
-        setMyComment('')
         event.target.clear
     }
     const validComment = (strng) => {
@@ -191,8 +205,56 @@ const SeePost = forwardRef(({content}, ref) => {
     }
 
     useEffect(() => {
-        // console.log(content)
+        const today = new Date()
+        const today2 = new Date()
+        today.setHours(0, 0, 0, 0)
+        if(moment(content.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY') === moment(today).tz('Asia/Manila').format('MMMM DD, YYYY')){
+            if(today2.getHours() == moment(content.p.postDate).tz('Asia/Manila').format('HH')){
+                setPostDate('Just Now')
+            }
+            else{
+                setPostDate(`${today2.getHours() - moment(content.p.postDate).tz('Asia/Manila').format('HH')} Hours Ago`)
+            }
+        }
+        else{
+            setPostDate(moment(content.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A'))
+        }
+
+        const cReact = async () => {
+            const cr = await countReact({post_id: content.p.ID})
+            setLikeList(cr)
+            let c = 0
+            cr.data.forEach(element => {
+                c += element.count
+            });
+            setCountLike(c)
+        }
+        cReact()
+
+        const chReact = async() => {
+            const c = await checkReact({post_id: content.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
+            c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+        }
+        chReact()
+
+        const user = async () => {
+            const u = await getUser({id : content.p.postUserID})
+            setPoster(capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`))
+        }
+        user()
     }, [])
+    useEffect(() => {
+        const cReact = async () => {
+            const cr = await countReact({post_id: content.p.ID})
+            setLikeList(cr)
+            let c = 0
+            cr.data.forEach(element => {
+                c += element.count
+            });
+            setCountLike(c)
+        }
+        cReact()
+    }, [like])
     return (
         <>
             <div>
@@ -217,13 +279,13 @@ const SeePost = forwardRef(({content}, ref) => {
                                     <Box sx={{border: '1px solid #cccccc', mt: 1, padding: 1.5, borderRadius: 1}}>
                                         <div className={SeePostCSS.hide}>
                                             <Stack direction="row" spacing={2}>
-                                                <Avatar alt="Remy Sharp" src={Me} />
+                                                <Avatar alt={poster} src={poster} />
                                                 <div>
                                                     <Typography variant="body2">
-                                                        Jhobert Erato
+                                                        {poster}
                                                     </Typography>
                                                     <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
-                                                        12 hours ago
+                                                        {postDate}
                                                     </Typography>
                                                 </div>
                                             </Stack>
@@ -234,22 +296,22 @@ const SeePost = forwardRef(({content}, ref) => {
                                         <div className={SeePostCSS.hide}>
                                             <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
                                         </div>
-                                        {content.media.length > 0 ? (
+                                        {content.p.file.length > 0 ? (
                                             <div style={{display: 'flex', justifyContent:'center', flexDirection: 'column', alignItems: 'center'}}>
-                                                {content.media[activeStep].type == 'image/jpeg' ? (
-                                                    <img src={`http://192.168.5.12:4000/uploads/${content.media[activeStep].filename}`} width="100%" height="auto"/>
-                                                ): content.media[activeStep].type == 'video/mp4' ? (
+                                                {content.p.file[activeStep].type == 'image/jpeg' ? (
+                                                    <img src={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`} width="100%" height="auto"/>
+                                                ): content.p.file[activeStep].type == 'video/mp4' ? (
                                                     <video
                                                         // autoPlay
                                                         // loop
                                                         // muted
                                                         key={videoKey}
                                                         controls
-                                                        poster={`http://192.168.5.12:4000/uploads/${content.media[activeStep].filename}`}
+                                                        poster={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`}
                                                         style={{width: '100%', objectFit: 'contain', height: '600px'}}
                                                     >
                                                         <source
-                                                        src={`http://192.168.5.12:4000/uploads/${content.media[activeStep].filename}`}
+                                                        src={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`}
                                                         type="video/mp4"
                                                         />
                                                     </video>
@@ -263,13 +325,12 @@ const SeePost = forwardRef(({content}, ref) => {
                                                 <br />
                                                 <MobileStepper
                                                     variant="dots"
-                                                    steps={content.media.length}
+                                                    steps={content.p.file.length}
                                                     position="static"
                                                     activeStep={activeStep}
                                                     sx={{ maxWidth: 400, flexGrow: 1 }}
                                                     nextButton={
-                                                        <Button size="small" sx={{margin: 2}} onClick={handleNext} disabled={activeStep === content.media.length - 1}>
-                                                        {/* Next */}
+                                                        <Button size="small" sx={{margin: 2}} onClick={handleNext} disabled={activeStep === content.p.file.length - 1}>
                                                         {theme.direction === 'rtl' ? (
                                                             <KeyboardArrowLeft />
                                                         ) : (
@@ -284,7 +345,6 @@ const SeePost = forwardRef(({content}, ref) => {
                                                         ) : (
                                                             <KeyboardArrowLeft />
                                                         )}
-                                                        {/* Back */}
                                                         </Button>
                                                     }
                                                 />
@@ -296,13 +356,13 @@ const SeePost = forwardRef(({content}, ref) => {
                                     <CardContent sx={{overflowY: 'scroll'}}>
                                         <div className={SeePostCSS.show}>
                                             <Stack direction="row" spacing={2}>
-                                                <Avatar alt="Remy Sharp" src={Me} />
+                                                <Avatar alt={poster} src={poster} />
                                                 <div>
                                                     <Typography variant="body2">
-                                                        Jhobert Erato
+                                                        {poster}
                                                     </Typography>
                                                     <Typography sx={{ mb: 1.5, fontSize: '12px'}} color="text.secondary">
-                                                        12 hours ago
+                                                        {postDate}
                                                     </Typography>
                                                 </div>
                                             </Stack>
@@ -315,7 +375,43 @@ const SeePost = forwardRef(({content}, ref) => {
                                         </div>
                                         <div className={SeePostCSS.show} style={{marginTop: '10px'}}>
                                             <div className={CardCCSS['likesComments']}>
-                                                <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
+                                                {likeList.data.length > 0 ? (
+                                                    <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
+                                                        {likeList.data.slice(0, 3).map((like, index) => (
+                                                            <div key={index}>
+                                                                {like.reactType === 'laugh' ? (
+                                                                    <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                                        <FaLaughSquint color='#fff' size={15} style={{margin: '0'}}/> 
+                                                                    </Avatar>
+                                                                ) : like.reactType === 'like' ? (
+                                                                    <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#0454d9'}}>
+                                                                        <AiFillLike color='#fff' size={15} style={{margin: '0'}}/>
+                                                                    </Avatar>
+                                                                ) : like.reactType === 'heart' ? (
+                                                                    <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: 'red'}}>
+                                                                        <AiFillHeart color='#fff' size={15} style={{margin: '0'}}/>
+                                                                    </Avatar>
+                                                                    
+                                                                ) : like.reactType === 'wow' ? (
+                                                                    <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                                        <ImShocked2 color='#fff' size={15} style={{margin: '0'}}/> 
+                                                                    </Avatar>
+                                                                ) : like.reactType === 'sad' ? (
+                                                                    <Avatar key={index} size='sm' alt="HRD" sx={{width: '25px', height: '25px', bgcolor: '#ffbf00'}}>
+                                                                        <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>
+                                                                    </Avatar>
+                                                                ) : undefined}
+                                                            </div>
+                                                        ))}
+                                                        
+                                                        <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={() => likes.current?.handleOpen()}>
+                                                            <Typography sx={{ mb: 1.5, fontSize: '14px', marginBottom: 0}} color="text.secondary">
+                                                                {countLike}
+                                                            </Typography>
+                                                        </Button>
+                                                    </AvatarGroup>
+                                                ) : undefined}
+                                                {/* <AvatarGroup sx={{ flexDirection: 'row-reverse' }}>
                                                     <Avatar size='sm' alt="Cindy Baker" sx={{width: '20px', height: '20px', bgcolor: '#0454d9'}}>
                                                         <AiFillLike color='#fff' size={15} style={{margin: '0'}}/>  
                                                     </Avatar>
@@ -327,10 +423,10 @@ const SeePost = forwardRef(({content}, ref) => {
                                                     </Avatar>
                                                     <Button size="small" sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '1px'}}>
                                                         <Typography sx={{ mb: 1.5, fontSize: '12px', marginBottom: 0}} color="text.secondary">
-                                                            {likeList}
+                                                            {countLike}
                                                         </Typography>
                                                     </Button>
-                                                </AvatarGroup>
+                                                </AvatarGroup> */}
                                             </div>
                                         </div>
                                         <div className={SeePostCSS.show}>
@@ -359,12 +455,12 @@ const SeePost = forwardRef(({content}, ref) => {
                                                         )
                                                     }&nbsp;{countLike}
                                                 </Button>
-                                                <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
+                                                {/* <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
                                                     aria-owns={open ? 'mouse-over-popover' : undefined}
                                                     aria-haspopup="true"
                                                     onClick={() => handleShowComment()}
                                                 >   <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
-                                                </Button>
+                                                </Button> */}
                                                 <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
                                                     {({ TransitionProps }) => (
                                                     <Fade {...TransitionProps} timeout={350}>
@@ -395,11 +491,11 @@ const SeePost = forwardRef(({content}, ref) => {
                                                                         <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
                                                                     </Avatar>
                                                                 </div>
-                                                                <div className={CardCCSS['likes-items']}>
+                                                                {/* <div className={CardCCSS['likes-items']}>
                                                                     <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
                                                                         <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
                                                                     </Avatar>
-                                                                </div>
+                                                                </div> */}
                                                             </div>
                                                         </Paper>
                                                     </Fade>
@@ -408,7 +504,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                             </div>
                                         </div>
                                         <CardActions>
-                                            <Paper
+                                            {/* <Paper
                                                 sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
                                             >
                                                 <Avatar alt="Remy Sharp" src={Me} sx={{width: 24, height: 24}}/>
@@ -428,7 +524,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                         </IconButton>
                                                     ): undefined}
                                                 </form>
-                                            </Paper>
+                                            </Paper> */}
                                             {/* <Button size="medium" sx={{width: '100%'}} variant="contained" disableElevation onClick={() => {alert("yawa")}}>Post</Button> */}
                                         </CardActions>
                                         {showComment ? (
@@ -445,7 +541,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                                     <React.Fragment>
                                                                         <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}}
                                                                             onClick={() => handleShowFullComment(comments.id, !comments.showFullComment)}>
-                                                                            {!comments.showFullComment && comments.comment.length > 400 ? `${(comments.comment).substring(0, 400)}...Show more` : comments.comment}
+                                                                            {/* {!comments.showFullComment && comments.comment.length > 400 ? `${(comments.comment).substring(0, 400)}...Show more` : comments.comment} */}
                                                                         </Button>
                                                                         <br />
                                                                         <span sx={{ mt: 2, fontSize: '8px', marginBottom: 0}} color="text.secondary">
