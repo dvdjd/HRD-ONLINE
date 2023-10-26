@@ -232,7 +232,7 @@ const Post = (onPost) => {
                                 <CardContent sx={{overflowY: 'scroll'}}>
                                 
                                     <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
-                                        <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
+                                        <Avatar alt={`${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}`} src={`${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}`} sx={{ width: 30, height: 30 }} />
                                         <div style={{width: '100%'}}>
                                             {localStorage.getItem('isLogin') !== 'false' ? `${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}` : ''}
                                         </div>

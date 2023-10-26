@@ -7,9 +7,11 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import { fullScreenPlugin, RenderEnterFullScreenProps  } from '@react-pdf-viewer/full-screen';
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
+import { useParams } from 'react-router-dom';
 
 const CardE = ({pdfFile}) => {
     const newplugin = defaultLayoutPlugin()
+    const {cat} = useParams()
     const fullScreenPluginInstance = fullScreenPlugin()
     const { EnterFullScreen } = fullScreenPluginInstance
     const [pdf, setPdf] = useState("")
@@ -28,11 +30,13 @@ const CardE = ({pdfFile}) => {
                     <CardContent sx={{paddingBottom: 0, height: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
                         {pdf === "" ? (<h1>Please select from the left</h1>) : (
                             <div className="pdf-container" style={{width: '100%', height: '95%'}}>
-                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                    <EnterFullScreen />
-                                </div>
+                                {cat !== "forms" ? (
+                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                        <EnterFullScreen />
+                                    </div>
+                                ) : undefined}
                                 <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${pdf}`} plugins={[fullScreenPluginInstance]} />
+                                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${pdf}`} plugins={cat === "forms" ? [newplugin] : [fullScreenPluginInstance]} />
                                 </Worker>
                             </div>
                         )}

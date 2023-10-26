@@ -16,6 +16,7 @@ import MedicationLiquidIcon from '@mui/icons-material/MedicationLiquid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Zoom } from '@mui/material';
 import UploadPDF from './uploadPDF';
+import { isAdmin } from '../utils/global';
 
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -67,14 +68,21 @@ const CardB = () => {
     // {name: `Health Alert`, icon: <MedicationLiquidIcon />},
   ])
   const [system, setSystem] = useState([
-    {name: 'Performance Appraisal', link: "http://192.168.4.2:8080/hrd-online/pa/", stat: 1},
+    {name: 'Performance Appraisal', link: localStorage.getItem('isLogin') === 'true' ?
+        JSON.parse(localStorage.getItem('user')).UserType === "Immediate Superiors" ? `http://192.168.4.2:8080/hrd-online/PA/pa_entry-1.php?_PA=2&idno=${JSON.parse(localStorage.getItem('user')).ID_No}&usertype=${JSON.parse(localStorage.getItem('user')).UserType}` 
+      : JSON.parse(localStorage.getItem('user')).UserType === "Department Heads" ? `http://192.168.4.2:8080/hrd-online/PA/pa_entry-2.php?_PA=2&idno=${JSON.parse(localStorage.getItem('user')).ID_No}&usertype=${JSON.parse(localStorage.getItem('user')).UserType}`
+      : JSON.parse(localStorage.getItem('user')).UserType === "Division Heads" ? `http://192.168.4.2:8080/hrd-online/PA/pa_entry-3.php?_PA=2&idno=${JSON.parse(localStorage.getItem('user')).ID_No}&usertype=${JSON.parse(localStorage.getItem('user')).UserType}`
+      : "http://192.168.4.2:8080/hrd-online/pa/"
+    : "http://192.168.4.2:8080/hrd-online/pa/", stat: 1},
     {name: 'PTR-Online', link: JSON.parse(localStorage.getItem('user')) == null ? `http://192.168.4.2/PTR-Online/Login.aspx` : `http://192.168.4.2/PTR-Online/Menu.aspx?EmpID=${JSON.parse(localStorage.getItem('user')).ID_No}`, stat: 2},
-    {name: 'HRIS', link: "http://192.168.4.2/hris/login.aspx", stat: 1},
-    {name: 'Intranet Online Filing', link: "http://192.168.4.9:90/Login.aspx", stat: 1},
+    //{name: 'Competency Profile', link: localStorage.getItem('isLogin') === 'true' ? `http://192.168.4.2/hris/main.aspx?idno=${JSON.parse(localStorage.getItem('user')).ID_No}` : "http://192.168.4.2/hris/login.aspx", stat: 1},
+    {name: 'Competency Profile', link: "http://192.168.4.2/hris/login.aspx", stat: 1},
+    {name: 'EDS Web Portal', link: "http://192.168.4.9:90/Login.aspx", stat: 1},
   ])
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [file, setFile] = useState('')
   const [pdfKey, setPdfKey] = useState(0)
+  const [userType, setUserType] = useState("")
 
   const handleListItemClick = async (event, index, type) => {
     setSelectedIndex(index);
@@ -91,6 +99,7 @@ const CardB = () => {
 
   useEffect(() => {
     selectedIndexRef.current = selectedIndex
+    localStorage.getItem('isLogin') === 'true' ? setUserType(JSON.parse(localStorage.getItem('user')).UserType) : undefined
     const timer = setInterval(() => {
       setSelectedIndex((prev) => (prev === nav.length - 1 ? 0 : prev + 1))
     }, 5000);
@@ -165,7 +174,7 @@ const CardB = () => {
                 selected={selectedIndex === index}
                 sx={{width: '100%'}}
               >
-                <ListItemIcon onMouseEnter={() => {nav.name !== "People Concern" ? (setShowAddIcon(true), setAddIndex(index)) : undefined}} onMouseLeave={() => {setShowAddIcon(false)}} onClick={() => upload.current?.handleOpen(nav.name)}>
+                <ListItemIcon onMouseEnter={() => {nav.name !== "People Concern" ? isAdmin() === 1 ? (setShowAddIcon(true), setAddIndex(index)) : undefined : undefined}} onMouseLeave={() => {setShowAddIcon(false)}} onClick={isAdmin() === 1 ? () => upload.current?.handleOpen(nav.name) : undefined}>
                   {showAddIcon === true && addIndex === index && localStorage.getItem('isLogin') === 'true' ? addIcon : nav.icon}
                 </ListItemIcon>
                 <ListItemText primary={nav.name} onClick={nav.name === "People Concern" ? localStorage.getItem('isLogin') === 'true' ? () => upload.current?.handleOpen(nav.name) : () => setOpen2(true) : (event) => handleListItemClick(event, index, nav.name)}/>
@@ -188,6 +197,7 @@ const CardB = () => {
                 <ListItemButton
                   sx={{width: '100%'}}
                   href={nav.link} target="_blank"
+                  disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? localStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
                 >
                   <ListItemText primary={nav.name}/>
                 </ListItemButton>
@@ -195,8 +205,9 @@ const CardB = () => {
                   <ListItemButton
                     sx={{width: '100%'}}
                     onClick={() => setOpen2(true)}
+                    disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? true : false}
                   >
-                    <ListItemText primary={nav.name}/>
+                    <ListItemText primary={nav.name} />
                   </ListItemButton>
               )}
               

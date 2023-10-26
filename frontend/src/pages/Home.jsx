@@ -4,6 +4,7 @@ import CardB from '../components/CardB'
 import CardC from '../components/CardC'
 import style from '../style/style.module.css'
 import Post from '../components/Post';
+import { isAdmin } from '../utils/global'
 import PresidentMessage from '../components/PresidentMessage'
 import { deletePost } from '../services/LandingPageAPI'
 import { useRef } from 'react'
@@ -15,7 +16,6 @@ const Home = () => {
   const c = useRef()
   useEffect(() => {
     //presidentMessage.current?.handleClick()
-
     const kuninAngPost = async () => {
       const lagayan = await getPost()
       setPost(lagayan)
@@ -52,7 +52,7 @@ const Home = () => {
               <CardA />
           </div>
           <div className={`${style["flex-item"]} ${style["large"]}`} ref={c}>
-              {localStorage.getItem('isLogin') === 'true' ? <Post onPost={handlePost}/> : (<></>)}
+              {isAdmin() === 1 ? <Post onPost={handlePost}/> : (<></>)}
               {posts.length > 0 ? posts.map((p, index) => (
                 <React.Fragment key={index}>
                   <CardC post={{p}} deletePost={handleDeletePost}/>

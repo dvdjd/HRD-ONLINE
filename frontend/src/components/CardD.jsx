@@ -12,16 +12,16 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import ModeIcon from '@mui/icons-material/Mode';
 import Grid from '@mui/material/Grid';
-import FolderIcon from '@mui/icons-material/Folder';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import TextField from '@mui/material/TextField';
-
+import { isAdmin } from '../utils/global';
 import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import CancelIcon from '@mui/icons-material/Cancel';
-import AddCircleIcon from '@mui/icons-material/AddCircle';import WYSIWYG from './WYSIWYG';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { hrUpload, updateItem } from '../services/LandingPageAPI';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -204,32 +204,34 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
             <Box sx={{ minWidth: 275, mb: 2, height: "95%", overflowY: 'scroll'}}>
                 <Card variant="outlined" sx={{borderRadius: '10px', mb: 2}}>
                     <CardContent sx={{paddingBottom: 0}}>
-                        <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpen} sx={{width: '100%'}}>Add</Button>
+                        {isAdmin() === 1 ? (
+                            <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpen} sx={{width: '100%'}}>Add</Button>
+                        ) : undefined}
                         <Grid item xs={12} md={6}>
                             <Demo>
                                 <List dense={dense}>
                                     {categ.length > 0 ? categ.map((c, index) => (
                                         <ListItem key={index}
-                                            secondaryAction={
-                                                <IconButton edge="end" aria-label="delete" sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}
-                                                    onClick={(event) => {
-                                                        handleListItemClick(event, index);
-                                                        handleSelectFile(c);
-                                                        setCategory(c.uploadDisplayName);
-                                                        setOpenLogin(true);
-                                                        setMode("edit");
-                                                        setEditID(c.ID)
-                                                        setInputPDF("")
-                                                        setHasSelected(false)
-                                                    }}
-                                                >
+                                            secondaryAction={ isAdmin() === 1 ? (
+                                                    <IconButton edge="end" aria-label="delete" sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}
+                                                        onClick={(event) => {
+                                                            handleListItemClick(event, index);
+                                                            handleSelectFile(c);
+                                                            setCategory(c.uploadDisplayName);
+                                                            setOpenLogin(true);
+                                                            setMode("edit");
+                                                            setEditID(c.ID)
+                                                            setInputPDF("")
+                                                            setHasSelected(false)
+                                                        }}
+                                                    >
                                                     <ModeIcon />
                                                 </IconButton>
-                                            }
+                                                ) : undefined}
                                         >
                                             <ListItemButton sx={{borderRadius: '10px'}} selected={selectedIndex === index} onClick={(event) => {handleListItemClick(event, index); handleSelectFile(c)}}>
                                                 <ListItemAvatar>
-                                                    <FolderIcon sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}/>
+                                                    <InsertDriveFileIcon sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}/>
                                                     
                                                 </ListItemAvatar>
                                                 <ListItemText
