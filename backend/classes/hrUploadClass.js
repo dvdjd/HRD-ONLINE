@@ -34,4 +34,66 @@ module.exports = class hrUploadClass {
         }
         return res;
     }
+
+    async getUploadItems() {
+        let res = {};
+
+        try {
+            res.data = await this.mysql_hr_uploads.getUploadItems(this.item_information);
+
+            res.status = "success";
+        } catch (error) {
+            res.status = "error";
+            res.message = error.message;
+        }
+        return res;
+    }
+
+    async updateItem() {
+        let res = {};
+
+        try {
+            res.data = await this.mysql_hr_uploads.updateItem(this.item_information, this.item_file);
+
+            res.status = "success";
+        } catch (error) {
+            res.status = "error";
+            res.message = error.message;
+        }
+
+        return res;
+    }
+
+    async getByMenu() {
+        let res = {};
+
+        try {
+            let data = {
+                menu: []
+            };
+
+            let menu = await this.mysql_hr_uploads.getByMenu(this.item_information);
+            let menu_items
+
+            for (let i = 0; i < menu.length; i++) {
+                data.menu.push(menu[i]);
+                data.menu[i].files = [];
+
+                menu_items = await this.mysql_hr_uploads.getMenuItems(this.item_information.type, menu[i].uploadMenu);
+
+                for (let j = 0; j < menu_items.length; j++) {
+                    data.menu[i].files.push(menu_items[j].uploadName);
+                }
+            }
+
+            res.data = data
+
+            res.status = "success";
+        } catch (error) {
+            res.status = "error";
+            res.message = error.message;
+        }
+
+        return res;
+    }
 }

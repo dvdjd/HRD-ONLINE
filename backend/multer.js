@@ -23,7 +23,8 @@ const hrAttachment = multer.diskStorage({
         cb(null, "./public/hr_uploads/")
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + ".pdf");
+        console.log(req.body)
+        cb(null, req.body.file_name + ".pdf");
     }
 });
 
