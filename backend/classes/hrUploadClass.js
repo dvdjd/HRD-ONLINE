@@ -77,12 +77,13 @@ module.exports = class hrUploadClass {
 
             for (let i = 0; i < menu.length; i++) {
                 data.menu.push(menu[i]);
+                data.menu[i].isOpen = false;
                 data.menu[i].files = [];
 
                 menu_items = await this.mysql_hr_uploads.getMenuItems(this.item_information.type, menu[i].uploadMenu);
 
                 for (let j = 0; j < menu_items.length; j++) {
-                    data.menu[i].files.push(menu_items[j].uploadName);
+                    data.menu[i].files.push({ file: menu_items[j].uploadName, name: menu_items[j].uploadDisplayName });
                 }
             }
 
