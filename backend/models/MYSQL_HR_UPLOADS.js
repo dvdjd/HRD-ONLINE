@@ -7,7 +7,7 @@ class MYSQL_HR_UPLOADS extends MODEL {
     }
 
     async upload(item_information, item_file) {
-        let res = await this.query(`INSERT INTO ${this.table} (uploadName, uploadType, uploadDateTime, uploadDisplayName, isDelete) VALUES ('${item_file.filename}', '${item_information.type}', NOW(), '${item_information.display_name}', 0)`);
+        let res = await this.query(`INSERT INTO ${this.table} (uploadName, uploadType, uploadDateTime, uploadDisplayName, uploadMenu, isDelete) VALUES ('${item_file.filename}', '${item_information.type}', NOW(), '${item_information.display_name}', '${item_information.menu}', 0)`);
 
         return res;
     }
@@ -37,7 +37,7 @@ class MYSQL_HR_UPLOADS extends MODEL {
     }
 
     async getByMenu(item_information) {
-        let res = await this.query(`SELECT uploadMenu FROM ${this.table} WHERE uploadType = '${item_information.type}' AND isDelete != 1 AND uploadMenu != 'NULL' GROUP BY uploadMenu`);
+        let res = await this.query(`SELECT uploadMenu FROM ${this.table} WHERE uploadType = '${item_information.type}' AND isDelete != 1 AND uploadMenu != 'NULL' GROUP BY uploadMenu ORDER BY uploadMenu DESC`);
 
         return res;
     }
