@@ -9,6 +9,10 @@ import PresidentMessage from '../components/PresidentMessage'
 import { deletePost } from '../services/LandingPageAPI'
 import { useRef } from 'react'
 
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Box from '@mui/material/Box';
+import noData from '../style/images/noData.png'
 import { getPost } from '../services/LandingPageAPI'
 const Home = () => {
   const presidentMessage = useRef()
@@ -57,7 +61,15 @@ const Home = () => {
                 <React.Fragment key={index}>
                   <CardC post={{p}} deletePost={handleDeletePost}/>
                 </React.Fragment>
-              )) : undefined}
+              )) : (
+                <Box sx={{ minWidth: 275, mb: 2}}>
+                  <Card variant="outlined" sx={{borderRadius: '10px'}}>
+                    <CardContent sx={{paddingBottom: 0}}>
+                      <img src={noData} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '500px'}}/>
+                    </CardContent>
+                  </Card>
+                </Box>
+              )}
           </div>
           <div className={`${style["flex-item"]} ${style["small"]}`}>
               <CardB />

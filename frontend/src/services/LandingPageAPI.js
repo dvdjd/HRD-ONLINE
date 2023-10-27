@@ -192,3 +192,15 @@ export const updateItem = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//getByMenu
+export const getByMenu = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/getByMenu`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}

@@ -35,11 +35,11 @@ body{
         display: none; /* Display on larger screens (md and up) */
     }
 }
-@media (max-width: 1312px) {
+/* @media (max-width: 1312px) {
     .small {
         display: none;
     }
-}
+} */
 @media (max-width: 1500px) {
     .flex-container {
         height: 650px;

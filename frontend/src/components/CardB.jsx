@@ -138,7 +138,7 @@ const CardB = () => {
                         <EnterFullScreen />
                     </div>
                     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${file}`} plugins={[fullScreenPluginInstance]} />
+                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${file}`} plugins={[fullScreenPluginInstance]} />
                     </Worker>
                   </div>
                 </Box>
