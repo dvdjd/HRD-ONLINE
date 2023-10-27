@@ -3,6 +3,7 @@ import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import Fade from '@mui/material/Fade';
+import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -299,7 +300,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                         {content.p.file.length > 0 ? (
                                             <div style={{display: 'flex', justifyContent:'center', flexDirection: 'column', alignItems: 'center'}}>
                                                 {content.p.file[activeStep].type == 'image/jpeg' ? (
-                                                    <img src={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`} width="100%" height="auto"/>
+                                                    <img src={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`} width="100%" height="auto"/>
                                                 ): content.p.file[activeStep].type == 'video/mp4' ? (
                                                     <video
                                                         // autoPlay
@@ -307,11 +308,11 @@ const SeePost = forwardRef(({content}, ref) => {
                                                         // muted
                                                         key={videoKey}
                                                         controls
-                                                        poster={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`}
+                                                        poster={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`}
                                                         style={{width: '100%', objectFit: 'contain', height: '600px'}}
                                                     >
                                                         <source
-                                                        src={`http://192.168.5.12:4000/uploads/${content.p.file[activeStep].filename}`}
+                                                        src={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`}
                                                         type="video/mp4"
                                                         />
                                                     </video>
@@ -430,78 +431,84 @@ const SeePost = forwardRef(({content}, ref) => {
                                             </div>
                                         </div>
                                         <div className={SeePostCSS.show}>
-                                            <div style={{display: 'flex', justifyContent: 'space-around', width: '100%'}}>
-                                                <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
-                                                    aria-owns={open ? 'mouse-over-popover' : undefined}
-                                                    aria-haspopup="true"
-                                                    onMouseEnter={handleHoverOpen('top-start')}
-                                                    onBlur={handleHoverClose('top-start')}
-                                                    onClick={() => handleSetLike('like')}
-                                                >   {
-                                                        like === 'none' ? (
-                                                            <AiOutlineLike color='grey' size={20}/>
-                                                        ) : like === 'like' ? (
-                                                            <AiFillLike color='blue' size={20}/>
-                                                        ) : like === 'heart' ? (
-                                                            <AiFillHeart color='red' size={20}/>
-                                                        ) : like === 'laugh' ? (
-                                                            <FaLaughSquint color='ffbf00' size={20}/>
-                                                        ) : like === 'sad' ? (
-                                                            <FaSadTear color='ffbf00' size={20}/>
-                                                        ) : like === 'wow' ? (
-                                                            <ImShocked2 color='ffbf00' size={20}/>
-                                                        ) : (
-                                                            <FaAngry color='ffa187' size={20}/>
-                                                        )
-                                                    }&nbsp;{countLike}
-                                                </Button>
-                                                {/* <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
-                                                    aria-owns={open ? 'mouse-over-popover' : undefined}
-                                                    aria-haspopup="true"
-                                                    onClick={() => handleShowComment()}
-                                                >   <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
-                                                </Button> */}
-                                                <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
-                                                    {({ TransitionProps }) => (
-                                                    <Fade {...TransitionProps} timeout={350}>
-                                                        <Paper>
-                                                            <div className={CardCCSS['likes']}>
-                                                                <div className={CardCCSS['likes-items']}>
-                                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}} onClick={() => handleSetLike('like')}>
-                                                                        <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
-                                                                    </Avatar>
+                                            {localStorage.getItem('isLogin') === 'true' ? (
+                                                <div style={{display: 'flex', justifyContent: 'space-around', width: '100%'}}>
+                                                    <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
+                                                        aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                        aria-haspopup="true"
+                                                        onMouseEnter={handleHoverOpen('top-start')}
+                                                        onBlur={handleHoverClose('top-start')}
+                                                        onClick={() => handleSetLike('like')}
+                                                    >   {
+                                                            like === 'none' ? (
+                                                                <AiOutlineLike color='grey' size={20}/>
+                                                            ) : like === 'like' ? (
+                                                                <AiFillLike color='blue' size={20}/>
+                                                            ) : like === 'heart' ? (
+                                                                <AiFillHeart color='red' size={20}/>
+                                                            ) : like === 'laugh' ? (
+                                                                <FaLaughSquint color='ffbf00' size={20}/>
+                                                            ) : like === 'sad' ? (
+                                                                <FaSadTear color='ffbf00' size={20}/>
+                                                            ) : like === 'wow' ? (
+                                                                <ImShocked2 color='ffbf00' size={20}/>
+                                                            ) : (
+                                                                <FaAngry color='ffa187' size={20}/>
+                                                            )
+                                                        }&nbsp;{countLike}
+                                                    </Button>
+                                                    {/* <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
+                                                        aria-owns={open ? 'mouse-over-popover' : undefined}
+                                                        aria-haspopup="true"
+                                                        onClick={() => handleShowComment()}
+                                                    >   <FaRegCommentAlt color='grey' size={20}/>&nbsp;{commentList.length}
+                                                    </Button> */}
+                                                    <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
+                                                        {({ TransitionProps }) => (
+                                                        <Fade {...TransitionProps} timeout={350}>
+                                                            <Paper>
+                                                                <div className={CardCCSS['likes']}>
+                                                                    <div className={CardCCSS['likes-items']}>
+                                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#0454d9'}} onClick={() => handleSetLike('like')}>
+                                                                            <AiFillLike color='#fff' size={20} style={{margin: '0'}}/>  
+                                                                        </Avatar>
+                                                                    </div>
+                                                                    <div className={CardCCSS['likes-items']}>
+                                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}} onClick={() => handleSetLike('heart')}>
+                                                                            <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
+                                                                        </Avatar>
+                                                                    </div>
+                                                                    <div className={CardCCSS['likes-items']}>
+                                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('laugh')}>
+                                                                            <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
+                                                                        </Avatar>
+                                                                    </div>
+                                                                    <div className={CardCCSS['likes-items']}>
+                                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('sad')}>
+                                                                            <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>  
+                                                                        </Avatar>
+                                                                    </div>
+                                                                    <div className={CardCCSS['likes-items']}>
+                                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('wow')}>
+                                                                            <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
+                                                                        </Avatar>
+                                                                    </div>
+                                                                    {/* <div className={CardCCSS['likes-items']}>
+                                                                        <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
+                                                                            <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
+                                                                        </Avatar>
+                                                                    </div> */}
                                                                 </div>
-                                                                <div className={CardCCSS['likes-items']}>
-                                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: 'red'}} onClick={() => handleSetLike('heart')}>
-                                                                        <AiFillHeart color='#fff' size={20} style={{margin: '0'}}/> 
-                                                                    </Avatar>
-                                                                </div>
-                                                                <div className={CardCCSS['likes-items']}>
-                                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('laugh')}>
-                                                                        <FaLaughSquint color='#fff' size={20} style={{margin: '0'}}/>  
-                                                                    </Avatar>
-                                                                </div>
-                                                                <div className={CardCCSS['likes-items']}>
-                                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('sad')}>
-                                                                        <FaSadTear color='#fff' size={20} style={{margin: '0'}}/>  
-                                                                    </Avatar>
-                                                                </div>
-                                                                <div className={CardCCSS['likes-items']}>
-                                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffbf00'}} onClick={() => handleSetLike('wow')}>
-                                                                        <ImShocked2 color='#fff' size={20} style={{margin: '0'}}/>  
-                                                                    </Avatar>
-                                                                </div>
-                                                                {/* <div className={CardCCSS['likes-items']}>
-                                                                    <Avatar size='sm' alt="Cindy Baker" sx={{width: '30px', height: '30px', bgcolor: '#ffa187'}} onClick={() => handleSetLike('angry')}>
-                                                                        <FaAngry color='#fff' size={20} style={{margin: '0'}}/>  
-                                                                    </Avatar>
-                                                                </div> */}
-                                                            </div>
-                                                        </Paper>
-                                                    </Fade>
-                                                    )}
-                                                </Popper>                                                                                                                                                                                            
-                                            </div>
+                                                            </Paper>
+                                                        </Fade>
+                                                        )}
+                                                    </Popper>                                                                                                                                                                                            
+                                                </div>
+                                            ) : (
+                                                <Tooltip title="Kindly login to access full features =)" placement="right">
+                                                    <Button size="small">Learn More</Button>
+                                                </Tooltip>
+                                            )}
                                         </div>
                                         <CardActions>
                                             {/* <Paper

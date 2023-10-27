@@ -18,7 +18,7 @@ import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { hrUpload, getHrUpload} from '../services/LandingPageAPI';
-
+import { useParams } from 'react-router-dom';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import { fullScreenPlugin } from '@react-pdf-viewer/full-screen';
@@ -28,6 +28,20 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import FolderIcon from '@mui/icons-material/Folder';
+import FolderOutlinedIcon from '@mui/icons-material/FolderOutlined';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+
 const PDF3 = () => {
     const newplugin = defaultLayoutPlugin()
     const fullScreenPluginInstance = fullScreenPlugin()
@@ -35,7 +49,7 @@ const PDF3 = () => {
     const [pdf, setPdf] = useState('')
     const [pdfKey, setPdfKey] = useState(0)
     const [newCat, setNewCat] = useState('')
-
+    const {cat} = useParams()
     const style = {
         position: 'absolute',
         top: '50%',
@@ -46,7 +60,8 @@ const PDF3 = () => {
         boxShadow: 24,
         p: 1,
     };
-    const [openLogin, setOpenLogin] = useState(false);
+    const [openLoginFolder, setOpenLoginFolder] = useState(false);
+    const [openLoginFile, setOpenLoginFile] = useState(false);
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
         clipPath: 'inset(50%)',
@@ -72,12 +87,19 @@ const PDF3 = () => {
         }, 2000)
     }
    
-    const handleOpen = () => {
-        setOpenLogin(true)
+    const handleOpenFolder = () => {
+        setOpenLoginFolder(true)
     };
-    const handleClose = () => {
+    const handleOpenFile = () => {
+        setOpenLoginFile(true)
+    };
+    const handleCloseFolder = () => {
         setHasSelected(false)
-        setOpenLogin(false)
+        setOpenLoginFolder(false)
+    };
+    const handleCloseFile = () => {
+        setHasSelected(false)
+        setOpenLoginFile(false)
     };
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -96,10 +118,17 @@ const PDF3 = () => {
         formData.append('display_name', newCat)
         console.log(formData)
         const upload = await hrUpload(formData)
-        handleClose()
+        handleCloseFolder()
+        handleCloseFile()
         window.location.reload()
     }
 
+    /*----------------------Nested List -------------------*/
+    const [open, setOpen] = useState(false);
+
+    const handleClick = () => {
+        setOpen(!open);
+    };
     useEffect(() => {
         const getPDF = async () => {
             const gPdf = await getHrUpload({type: cat.replace(/'/g, "\\'")})
@@ -108,6 +137,7 @@ const PDF3 = () => {
         }
         getPDF()
     }, [])
+
     return (
         <>
             <br /><br /><br /><br />
@@ -115,7 +145,7 @@ const PDF3 = () => {
                 <Modal
                     aria-labelledby="transition-modal-title"
                     aria-describedby="transition-modal-description"
-                    open={openLogin}
+                    open={openLoginFolder}
                     closeAfterTransition
                     slots={{ backdrop: Backdrop }}
                     slotProps={{
@@ -124,10 +154,62 @@ const PDF3 = () => {
                         },
                     }}
                 >
-                    <Fade in={openLogin}>
+                    <Fade in={openLoginFolder}>
                         <Card sx={style} >
                             <Stack direction="row-reverse" spacing={1}>
-                                <IconButton aria-label="delete" size="medium" onClick={handleClose}>
+                                <IconButton aria-label="delete" size="medium" onClick={handleCloseFolder}>
+                                    <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
+                                </IconButton>
+                            </Stack>
+                            
+                            <form onSubmit={handleSubmit} >
+                                <CardContent>
+                                    <Paper sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "100%", mb: 2 }}>
+
+                                        <InputBase
+                                            sx={{ ml: 1, flex: 1 }}
+                                            placeholder="Enter Display Name ..."
+                                            inputProps={{ 'aria-label': 'upload file' }}
+                                            disabled
+                                            value={newCat}
+                                        />
+                                        <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+                                        <Button component="label" sx={{justifyContent: 'center'}}>
+                                            <CloudUploadIcon />
+                                            <VisuallyHiddenInput type="file" accept="application/pdf" onChange={handleSelectPDF}/>
+                                        </Button>
+                                    </Paper>
+                                    {hasSelected ? (
+                                        <>
+                                            <div className="pdf-container" style={{width: '100%', height: '400px'}}>
+                                                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                                                    <Viewer key={pdfKey} fileUrl={inputPDF} plugins={[newplugin]} />
+                                                </Worker>
+                                            </div>
+                                        </>
+                                    ) : undefined}
+                                    <Button size="medium" sx={{width: '100%', background : '#1976d2', mt: 2}} variant="contained" disableElevation type="submit">Submit</Button>
+                                </CardContent>
+                            </form>
+                        </Card>
+                    </Fade>
+                </Modal>
+                <Modal
+                    aria-labelledby="transition-modal-title"
+                    aria-describedby="transition-modal-description"
+                    open={openLoginFile}
+                    closeAfterTransition
+                    slots={{ backdrop: Backdrop }}
+                    slotProps={{
+                        backdrop: {
+                            timeout: 500,
+                        },
+                    }}
+                >
+                    <Fade in={openLoginFile}>
+                        <Card sx={style} >
+                            <Stack direction="row-reverse" spacing={1}>
+                                <IconButton aria-label="delete" size="medium" onClick={handleCloseFile}>
                                     <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
                                 </IconButton>
                             </Stack>
@@ -167,7 +249,39 @@ const PDF3 = () => {
                     <Box sx={{ minWidth: 275, mb: 2, height : "95%"}}>
                         <Card variant="outlined" sx={{borderRadius: '10px', mb: 2}}>
                             <CardContent >
-                                
+                                <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpenFolder} sx={{width: '100%'}}>Add</Button>
+                                <List
+                                    sx={{ width: '100%', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', borderStyle: 'none', boxShadow: 'none'}}
+                                    component="nav"
+                                    aria-labelledby="nested-list-subheader"
+                                >
+                                    <ListItemButton sx={{width: '100%'}}>
+                                        <ListItemIcon>
+                                        <FolderOutlinedIcon />
+                                        </ListItemIcon>
+                                        <ListItemText primary="2018" />
+                                        <AddCircleOutlineOutlinedIcon sx={{marginRight: 1}} onClick={handleOpenFile}/>
+                                        {open ? <ExpandLess onClick={handleClick}/> : <ExpandMore onClick={handleClick} />}
+                                    </ListItemButton>
+                                    {/* <Stack direction="row" flexDirection={"flex-end"} justifyContent="space-between" spacing={2} sx={{pb: 1}}>
+                                        <ListItemIcon>
+                                            <FolderOutlinedIcon />
+                                        </ListItemIcon>
+                                        <ListItemText primary="2018" />
+                                        <AddCircleOutlineOutlinedIcon sx={{marginRight: 1}} onClick={handleOpenFile}/>
+                                        {open ? <ExpandLess onClick={handleClick}/> : <ExpandMore onClick={handleClick} />}
+                                    </Stack> */}
+                                    <Collapse in={open} timeout="auto" unmountOnExit sx={{width: '100%'}}>
+                                        <List component="div" disablePadding sx={{width: '100%'}}>
+                                            <ListItemButton sx={{ pl: 4 }} >
+                                                <ListItemIcon>
+                                                <InsertDriveFileOutlinedIcon />
+                                                </ListItemIcon>
+                                                <ListItemText primary="Starred" />
+                                            </ListItemButton>
+                                        </List>
+                                    </Collapse>
+                                </List>
                             </CardContent>
                         </Card>
                     </Box>
@@ -181,10 +295,10 @@ const PDF3 = () => {
                                         {newCat}
                                     </Typography>
                                     <div>
-                                        <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}} onClick={handleOpen}>
+                                        <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}}>
                                             <EnterFullScreen />
                                         </IconButton>
-                                        <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}} onClick={handleOpen}>
+                                        <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}}>
                                             <EditIcon fontSize="inherit" />
                                         </IconButton>
                                     </div>
@@ -193,7 +307,7 @@ const PDF3 = () => {
                                 {pdf !== "" ? (
                                     <div className="pdf-container" style={{height : "750px"}}>
                                         <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                            <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${pdf}`} plugins={[fullScreenPluginInstance]} />
+                                            <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${pdf}`} plugins={[fullScreenPluginInstance]} />
                                         </Worker>
                                     </div>
                                 ) : (

@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import Badge from '@mui/material/Badge';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
@@ -16,7 +17,7 @@ import logo2 from '../style/images/logo.png'
 import TopNavCSS from './TopNav.module.css'
 import NavigationCSS from './Navigation.module.css'
 import {HiUser} from 'react-icons/hi'
-
+import { getUploadItems } from '../services/LandingPageAPI';
 import Popper from '@mui/material/Popper';
 import Fade from '@mui/material/Fade';
 import Paper from '@mui/material/Paper';
@@ -38,7 +39,11 @@ const TopNav = () => {
             ]
         },
         {
-            name: 'Recruitment / Training', link: '/', target: '_self', hasSubPages: false, subPages: []
+            name: 'Recruitment / Training', hasSubPages: true,
+            subPages: [
+                {subName: "Recruitment", link: '/pdf/recruitment', target: '_self'},
+                {subName: "Training", link: '/pdf/training', target: '_self'},
+            ]
         },
         {
             name: 'Compensation / Benefits', hasSubPages: true,
@@ -49,18 +54,27 @@ const TopNav = () => {
             ]
         },
         {
-            name: 'Procedure, Guidelines & Forms', link: '/', target: '_self', hasSubPages: false, subPages: []
+            name: 'Procedure, Guidelines & Forms', hasSubPages: true,
+            subPages: [
+                {subName: 'Forms', link: '/pdf/forms', target: '_self'},
+                {subName: 'Procedures Guidelines', link: '/pdf/proceduresGuidelines', target: '_self'},
+            ]
         },
         {
             name: 'Environmental', link: '/', target: '_self', hasSubPages: false
         },
         {
-            name: 'Activities / Programs', link: '/pdf3', target: '_self', hasSubPages: false
+            name: 'Activities / Programs', hasSubPages: true,
+            subPages: [
+                {subName: "Company Events", link: '/pdf3/companyEvents', target: '_self'},
+                {subName: "Motivational Program", link: '/pdf3/motivationProgram', target: '_self'},
+            ]
         },
         // {
         //     name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false
         // },
     ];
+    const [hasNew, setHasNew] = useState(false)
     const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
     const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -100,6 +114,11 @@ const TopNav = () => {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
     useEffect(() => {
         setUser(JSON.parse(localStorage.getItem('user')))
+        // const getPDF = async () => {
+        //     const gPdf = await getUploadItems({type: "recruitment"})
+        //     gPdf.data.length > 0 ? setHasNew(true) : setHasNew(false)
+        // }
+        // getPDF()
     }, [])
     return (
         <>
@@ -237,12 +256,24 @@ const TopNav = () => {
                                             </Fade>
                                             )}
                                         </Popper>
-                                        <Button target={page.target} href={page.link} key={index}
-                                            onClick={handleClick('bottom-start', index)}
-                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
-                                        >
-                                            {page.name}
-                                        </Button>
+                                        {page.name === "Recruitment / Training" && hasNew ? (
+                                            <Button target={page.target} href={page.link} key={index}
+                                                onClick={handleClick('bottom-start', index)}
+                                                sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
+                                            >
+                                                <Badge badgeContent={"New"} color="primary">
+                                                    <div>{page.name}</div>
+                                                </Badge>
+                                                
+                                            </Button>
+                                        ) : (
+                                            <Button target={page.target} href={page.link} key={index}
+                                                onClick={handleClick('bottom-start', index)}
+                                                sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
+                                            >
+                                                {page.name}
+                                            </Button>
+                                        )}
                                     </React.Fragment>
                                 ) : (
                                     <React.Fragment key={index}>

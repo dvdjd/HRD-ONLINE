@@ -17,7 +17,7 @@ const AppRoutes = () => {
             <Route path="/rules" element={<RulesReg />} />
             <Route path="/pdf/:cat" element={<PDF />} />
             <Route path="/pdf2/:cat" element={<PDF2 />} />
-            <Route path="/pdf3" element={<PDF3 />} />
+            <Route path="/pdf3/:cat" element={<PDF3 />} />
         </Routes>
     )
 }

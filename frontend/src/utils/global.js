@@ -40,3 +40,11 @@ export const getTime = (time) => {
     }
     
 }
+
+export const isAdmin = () => {
+    let num = 0
+    if(localStorage.getItem('isLogin') === 'true'){
+        JSON.parse(localStorage.getItem('user')).Administrator === 1 ? num = 1 : num = 0
+    }
+    return num
+}

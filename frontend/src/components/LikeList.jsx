@@ -143,7 +143,8 @@ const LikeList = forwardRef(({postID}, ref) => {
                                                         {`${capitalizeWords(react.FirstName)} ${capitalizeWords(react.LastName)}`}
                                                     </Typography>
                                                     <Typography sx={{ mb: 0, fontSize: '12px'}} color="text.secondary">
-                                                        {getTime(react.reactDateTime)}
+                                                        {/* {getTime(react.reactDateTime)} */}
+                                                        {react.Department}
                                                     </Typography>
                                                 </div>
                                             </div>
@@ -184,7 +185,8 @@ const LikeList = forwardRef(({postID}, ref) => {
                                                         {`${capitalizeWords(react.FirstName)} ${capitalizeWords(react.LastName)}`}
                                                     </Typography>
                                                     <Typography sx={{ mb: 0, fontSize: '12px'}} color="text.secondary">
-                                                        {getTime(react.reactDateTime)}
+                                                        {/* {getTime(react.reactDateTime)} */}
+                                                        {react.Department}
                                                     </Typography>
                                                 </div>
                                             </div>
@@ -206,7 +208,8 @@ const LikeList = forwardRef(({postID}, ref) => {
                                                         {`${capitalizeWords(react.FirstName)} ${capitalizeWords(react.LastName)}`}
                                                     </Typography>
                                                     <Typography sx={{ mb: 0, fontSize: '12px'}} color="text.secondary">
-                                                        {getTime(react.reactDateTime)}
+                                                        {/* {getTime(react.reactDateTime)} */}
+                                                        {react.Department}
                                                     </Typography>
                                                 </div>
                                             </div>
@@ -228,7 +231,8 @@ const LikeList = forwardRef(({postID}, ref) => {
                                                         {`${capitalizeWords(react.FirstName)} ${capitalizeWords(react.LastName)}`}
                                                     </Typography>
                                                     <Typography sx={{ mb: 0, fontSize: '12px'}} color="text.secondary">
-                                                        {getTime(react.reactDateTime)}
+                                                        {/* {getTime(react.reactDateTime)} */}
+                                                        {react.Department}
                                                     </Typography>
                                                 </div>
                                             </div>
@@ -250,7 +254,8 @@ const LikeList = forwardRef(({postID}, ref) => {
                                                         {`${capitalizeWords(react.FirstName)} ${capitalizeWords(react.LastName)}`}
                                                     </Typography>
                                                     <Typography sx={{ mb: 0, fontSize: '12px'}} color="text.secondary">
-                                                        {getTime(react.reactDateTime)}
+                                                        {/* {getTime(react.reactDateTime)} */}
+                                                        {react.Department}
                                                     </Typography>
                                                 </div>
                                             </div>
@@ -272,7 +277,8 @@ const LikeList = forwardRef(({postID}, ref) => {
                                                         {`${capitalizeWords(react.FirstName)} ${capitalizeWords(react.LastName)}`}
                                                     </Typography>
                                                     <Typography sx={{ mb: 0, fontSize: '12px'}} color="text.secondary">
-                                                        {getTime(react.reactDateTime)}
+                                                        {/* {getTime(react.reactDateTime)} */}
+                                                        {react.Department}
                                                     </Typography>
                                                 </div>
                                             </div>

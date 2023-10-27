@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import SamplePDF from '../style/images/pdf-succinctly.pdf'
+import { isAdmin } from '../utils/global';
 import notFound from '../style/images/notFound.jpg'
 import EditIcon from '@mui/icons-material/Edit';
 import IconButton from '@mui/material/IconButton';
@@ -218,16 +219,18 @@ const PDF2 = () => {
                                     </IconButton> */}
                                     <EnterFullScreen />
                                     <Zoom />
-                                    <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}} onClick={handleOpen}>
-                                        <EditIcon fontSize="inherit" />
-                                    </IconButton>
+                                    {isAdmin() === 1 ? (
+                                        <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}} onClick={handleOpen}>
+                                            <EditIcon fontSize="inherit" />
+                                        </IconButton>
+                                    ) : undefined}
                                 </div>
                                 
                             </Stack>
                             {pdf !== "" ? (
                                 <div className="pdf-container" style={{height : "750px"}}>
                                     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                        <Viewer key={pdfKey} fileUrl={`http://192.168.5.12:4000/hr_uploads/${pdf}`} plugins={[zoomPluginInstance, fullScreenPluginInstance]} />
+                                        <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${pdf}`} plugins={[zoomPluginInstance, fullScreenPluginInstance]} />
                                     </Worker>
                                 </div>
                             ) : (
