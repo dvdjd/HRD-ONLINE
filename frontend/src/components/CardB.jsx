@@ -115,7 +115,7 @@ const CardB = () => {
   const fullScreenPluginInstance = fullScreenPlugin()
   const { EnterFullScreen } = fullScreenPluginInstance;
   const zoomPluginInstance = zoomPlugin()
-  const { Zoom } = zoomPluginInstance
+  const { zoom } = zoomPluginInstance
   const [open, setOpen] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
   const handleClose = () => {setOpen(false)};
@@ -139,7 +139,7 @@ const CardB = () => {
                   <div className="pdf-container">
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                         <EnterFullScreen />
-                        <Zoom />
+                        <zoom />
                     </div>
                     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                     <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${file}`} plugins={[zoomPluginInstance, fullScreenPluginInstance]} />
