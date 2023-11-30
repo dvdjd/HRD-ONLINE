@@ -258,7 +258,7 @@ const CardC = ({post, deletePost}) => {
                 setPostDate('Just Now')
             }
             else{
-                setPostDate(`${today2.getHours() - moment(post.p.postDate).tz('Asia/Manila').format('HH')} Hours Ago`)
+                setPostDate(`${today2.getHours() - moment(post.p.postDate).tz('Asia/Manila').format('HH')} Hour/s Ago`)
             }
         }
         else{

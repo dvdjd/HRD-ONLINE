@@ -21,6 +21,7 @@ import { isAdmin } from '../utils/global';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import { fullScreenPlugin, RenderEnterFullScreenProps  } from '@react-pdf-viewer/full-screen';
+import { zoomPlugin } from '@react-pdf-viewer/zoom';
 
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
@@ -112,7 +113,9 @@ const CardB = () => {
   /*-----------PDF Viewer--------------*/
   const newplugin = defaultLayoutPlugin()
   const fullScreenPluginInstance = fullScreenPlugin()
-    const { EnterFullScreen } = fullScreenPluginInstance;
+  const { EnterFullScreen } = fullScreenPluginInstance;
+  const zoomPluginInstance = zoomPlugin()
+  const { Zoom } = zoomPluginInstance
   const [open, setOpen] = React.useState(false);
   const [open2, setOpen2] = React.useState(false);
   const handleClose = () => {setOpen(false)};
@@ -136,9 +139,10 @@ const CardB = () => {
                   <div className="pdf-container">
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                         <EnterFullScreen />
+                        <Zoom />
                     </div>
                     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${file}`} plugins={[fullScreenPluginInstance]} />
+                    <Viewer key={pdfKey} fileUrl={`http://192.168.5.3:4000/hr_uploads/${file}`} plugins={[zoomPluginInstance, fullScreenPluginInstance]} />
                     </Worker>
                   </div>
                 </Box>
