@@ -61,7 +61,7 @@ const TopNav = () => {
             ]
         },
         {
-            name: 'Environmental', link: '/', target: '_self', hasSubPages: false
+            name: 'Environmental', link: '/pdf/environmental', target: '_self', hasSubPages: false
         },
         {
             name: 'Activities / Programs', hasSubPages: true,
