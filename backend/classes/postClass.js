@@ -48,15 +48,19 @@ module.exports = class loginClass {
         let res = {};
         let upload_file = {};
         try {
-            this.item_information.postID = (await this.getPostID()).control_no;
-            console.log('this.item_information', this.item_information);
-            res.data = await this.mysql_post.post(this.item_information);
+            let control_no = (await this.getPostID()).control_no;
+            console.log('this.control_no', control_no);
+            let item_information = {
+                ...this.item_information,
+                control_no: control_no
+            }
+            res.data = await this.mysql_post.post(item_information);
 
-            // for (let i = 0; i < this.item_file.length; i++) {
-            //     upload_file = await this.mysql_post.upload(this.item_information, this.item_file[i])
-            // }
+            for (let i = 0; i < this.item_file.length; i++) {
+                upload_file = await this.mysql_post.upload(this.item_information, this.item_file[i])
+            }
 
-            // res.file_uploaded = upload_file;
+            res.file_uploaded = upload_file;
 
             res.status = "success";
 

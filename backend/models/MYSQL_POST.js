@@ -13,7 +13,7 @@ class MYSQL_POST extends MODEL {
     }
 
     async post(item_information) {
-        let res = await this.query(`INSERT INTO ${this.table} (postCaption, postDate, postUserID, isDelete, postID) VALUES ('${item_information.caption}', NOW(), '${item_information.user}', 0, '${item_information.postID}')`);
+        let res = await this.query(`INSERT INTO ${this.table} (postCaption, postDate, postUserID, isDelete, postID) VALUES ('${item_information.caption}', NOW(), '${item_information.user}', 0, '${item_information.control_no}')`);
 
         return res;
     }
