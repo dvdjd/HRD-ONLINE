@@ -80,7 +80,7 @@ module.exports = class loginClass {
 
             for (let i = 0; i < post.length; i++) {
                 let file = [];
-                let files = await this.mysql_post.getUploadFiles(post[i].ID)
+                let files = await this.mysql_post.getUploadFiles(post[i].postID)
 
                 for (let j = 0; j < files.length; j++) {
                     file.push({ type: files[j].uploadFileType, filename: files[j].uploadFileName })
