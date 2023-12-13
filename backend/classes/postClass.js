@@ -24,7 +24,7 @@ module.exports = class loginClass {
         try {
             res.data = await this.mysql_post.getPostID(this.item_information);
 
-            if (res.data.control_no == null) {
+            if (res.data[0].control_no == null) {
                 control_no = 1;
             } else {
                 post_id = res.data.control_no.toString();
@@ -48,14 +48,15 @@ module.exports = class loginClass {
         let res = {};
         let upload_file = {};
         try {
-            this.item_information.postID = await this.getPostID().control_no;
+            this.item_information.postID = (await this.getPostID()).control_no;
+            console.log('this.item_information', this.item_information);
             res.data = await this.mysql_post.post(this.item_information);
 
-            for (let i = 0; i < this.item_file.length; i++) {
-                upload_file = await this.mysql_post.upload(this.item_information, this.item_file[i])
-            }
+            // for (let i = 0; i < this.item_file.length; i++) {
+            //     upload_file = await this.mysql_post.upload(this.item_information, this.item_file[i])
+            // }
 
-            res.file_uploaded = upload_file;
+            // res.file_uploaded = upload_file;
 
             res.status = "success";
 
