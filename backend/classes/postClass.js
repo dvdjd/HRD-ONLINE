@@ -57,7 +57,7 @@ module.exports = class loginClass {
             res.data = await this.mysql_post.post(item_information);
 
             for (let i = 0; i < this.item_file.length; i++) {
-                upload_file = await this.mysql_post.upload(this.item_information, this.item_file[i])
+                upload_file = await this.mysql_post.upload(item_information, this.item_file[i])
             }
 
             res.file_uploaded = upload_file;

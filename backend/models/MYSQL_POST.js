@@ -19,7 +19,7 @@ class MYSQL_POST extends MODEL {
     }
 
     async upload(item_information, item_file) {
-        let res = await this.query(`INSERT INTO tbluploads (Post_ID, uploadFileName, uploadFileType) VALUES ('${item_information.post_id}', '${item_file.filename}', '${item_file.mimetype}')`);
+        let res = await this.query(`INSERT INTO tbluploads (Post_ID, uploadFileName, uploadFileType) VALUES ('${item_information.control_no}', '${item_file.filename}', '${item_file.mimetype}')`);
 
         return res;
     }
