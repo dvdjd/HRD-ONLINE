@@ -7,6 +7,43 @@ module.exports = class loginClass {
         this.item_file = item_file;
     }
 
+    async getPostID() {
+        const currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+        const yy = year.toString().slice(-2);
+        const mm = month < 10 ? '0' + month : month;
+        let post_id;
+        let control_no;
+
+        let res = {};
+        this.item_information = {
+            prefix: yy + mm
+        }
+
+        try {
+            res.data = await this.mysql_post.getPostID(this.item_information);
+
+            if (res.data.control_no == null) {
+                control_no = 1;
+            } else {
+                post_id = res.data.control_no.toString();
+                control_no = post_id.slice(-4);
+                control_no = parseInt(control_no, 10);
+                control_no = control_no + 1;
+            }
+            post_id = yy + mm + control_no.toString().padStart(4, '0');
+
+            res.control_no = post_id;
+
+        } catch (error) {
+            res.status = "error";
+            res.message = error.message;
+        }
+
+        return res;
+    }
+
     async post() {
         let res = {};
         let upload_file = {};

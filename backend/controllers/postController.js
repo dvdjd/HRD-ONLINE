@@ -3,14 +3,17 @@ const { upload } = require("./../multer");
 
 module.exports = {
     async post(req, res) {
-        upload(req, res, async (err) => {
+        // upload(req, res, async (err) => {
+        //     let post_class = new postClass(req.body, req.files);
 
-            let post_class = new postClass(req.body, req.files);
+        //     let post = await post_class.post();
+        //     res.send(post);
 
-            let post = await post_class.post();
-            res.send(post);
+        // });
+        let post_class = new postClass(req.body);
 
-        });
+        let post = await post_class.getPostID();
+        res.send(post);
     },
 
     async getPosts(req, res) {

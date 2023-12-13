@@ -6,6 +6,12 @@ class MYSQL_POST extends MODEL {
         super('tblpost')
     }
 
+    async getPostID(item_information) {
+        let res = await this.query(`SELECT MAX(postID) AS control_no FROM ${this.table} WHERE postID LIKE '%${item_information.prefix}%'`);
+
+        return res;
+    }
+
     async post(item_information) {
         let res = await this.query(`INSERT INTO ${this.table} (postCaption, postDate, postUserID, isDelete) VALUES ('${item_information.caption}', NOW(), '${item_information.user}', 0)`);
 
