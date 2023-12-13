@@ -31,7 +31,7 @@ class MYSQL_POST extends MODEL {
     }
 
     async getUploadFiles(post_id) {
-        let res = await this.query(`SELECT * FROM tbluploads WHERE Post_ID = '${post_id}'`);
+        let res = await this.query(`SELECT * FROM tbluploads WHERE postID = '${post_id}'`);
 
         return res;
     }
