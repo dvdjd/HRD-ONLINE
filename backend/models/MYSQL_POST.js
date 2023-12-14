@@ -37,7 +37,7 @@ class MYSQL_POST extends MODEL {
     }
 
     async removePost(item_information) {
-        let res = await this.query(`UPDATE ${this.table} SET isDelete = 1 WHERE ID = '${item_information.post_id}'`);
+        let res = await this.query(`UPDATE ${this.table} SET isDelete = 1 WHERE postID = '${item_information.post_id}'`);
 
         return res;
     }
