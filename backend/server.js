@@ -7,6 +7,7 @@ const postController = require("./controllers/postController");
 const commentController = require("./controllers/commentController");
 const reactController = require("./controllers/reactController");
 const hrUploadController = require("./controllers/hrUploadController");
+const emailController = require("./controllers/emailController");
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +36,9 @@ app.post("/getHrUpload", hrUploadController.getUpload);
 app.post("/getUploadItems", hrUploadController.getUploadItems);
 app.post("/updateItem", hrUploadController.updateItem);
 app.post("/getByMenu", hrUploadController.getByMenu);
+
+//Send mail
+app.post("/sendMail", emailController.sendMail)
 
 app.listen(4000, (err) => {
     if (err) throw err;
