@@ -325,7 +325,7 @@ const CardC = ({post, deletePost}) => {
         setEditPlacement(newPlacement)
     }
     const handleDeletePost = () => {
-        deletePost(post.p.ID)
+        deletePost(post.p.postID)
         setOpenEditPost(false)
     }
     return (
@@ -387,7 +387,7 @@ const CardC = ({post, deletePost}) => {
                             {post.p.file.map((item, index) => (
                                 <React.Fragment key={index}>
                                     <ImageListItem key={item.img} onClick={() => seePost.current?.handleOpenPost()}>
-                                        {item.type == 'image/jpeg' ? (
+                                        {item.type == 'image/jpeg' ||  item.type == 'image/jpg' || item.type == 'image/png' ? (
                                             <img
                                             src={`http://192.168.5.3:4000/uploads/${item.filename}`}
                                             // srcSet={`${item.img}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}

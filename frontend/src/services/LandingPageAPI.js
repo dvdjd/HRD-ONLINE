@@ -204,3 +204,15 @@ export const getByMenu = async (details) => {
         return {data: [], status: 'failed'}
     }
 }
+
+//Send Email
+export const sendMail = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/sendMail`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
