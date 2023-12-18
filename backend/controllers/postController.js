@@ -6,7 +6,7 @@ module.exports = {
         upload(req, res, async (err) => {
 
             let post_class = new postClass(req.body, req.files);
-
+            console.log(req.body)
             let post = await post_class.post();
             res.send(post);
 
