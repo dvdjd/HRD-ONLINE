@@ -113,7 +113,7 @@ const UploadPDF = forwardRef(({}, ref) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (uploadType === 'People Concern') {
-            const send = await sendMail({concern: concern})
+            const send = await sendMail({content: concern})
             setConcern('')
         } else {
             let formData = new FormData()
