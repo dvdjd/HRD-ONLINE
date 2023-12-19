@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import CancelIcon from '@mui/icons-material/Cancel';
 import WYSIWYG from './WYSIWYG';
-import { hrUpload } from '../services/LandingPageAPI';
+import { hrUpload, sendMail } from '../services/LandingPageAPI';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import '@react-pdf-viewer/core/lib/styles/index.css'
@@ -18,6 +18,7 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { styled } from '@mui/material/styles';
 import { Wysiwyg } from '@mui/icons-material';
+import { TextField } from '@mui/material';
 
 const UploadPDF = forwardRef(({}, ref) => {
     const style = {
@@ -48,6 +49,7 @@ const UploadPDF = forwardRef(({}, ref) => {
     const [uploadType, setUploadType] = useState('')
     const [hasSelected, setHasSelected] = useState(false)
     const [pdfKey, setPdfKey] = useState(0)
+    const [concern, setConcern] = useState('')
     const handleSelectPDF = (e) => {
         const file = e.target.files[0]
         setSendFile(file)
@@ -78,7 +80,7 @@ const UploadPDF = forwardRef(({}, ref) => {
         {type === "People Concern" ? (
             setFormIcon(
                 <>
-                    <WYSIWYG />
+                    <TextField id="concern" label="Tell us your concern..." variant="outlined" fullWidth onChange={(e) => setConcern(e.target.value)} multiline rows={10}/>
                 </>
             )
         ) : (
@@ -110,10 +112,16 @@ const UploadPDF = forwardRef(({}, ref) => {
     
     const handleSubmit = async (e) => {
         e.preventDefault()
-        let formData = new FormData()
-        formData.append('type', uploadType.replace(/'/g, "\\'"))
-        formData.append('file', sendFile)
-        const upload = await hrUpload(formData)
+        if (uploadType === 'People Concern') {
+            const send = await sendMail({content: concern})
+            setConcern('')
+        } else {
+            let formData = new FormData()
+            formData.append('type', uploadType.replace(/'/g, "\\'"))
+            formData.append('file', sendFile)
+            const upload = await hrUpload(formData)
+        } 
+        
         handleClose()
     }
   return (

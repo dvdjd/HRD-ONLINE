@@ -32,13 +32,14 @@ const Home = () => {
   }, [])
 
   const handleDeletePost = (id) => {
-    const updatedPosts = posts.filter(post => post.ID !== id)
+    const updatedPosts = posts.filter(post => post.postID !== id)
     setPost(updatedPosts)
 
     const delPost = async () => {
       const d = await deletePost({post_id: id})
     }
     delPost()
+    console.log(id)
   }
 
   const handlePost = () => {
