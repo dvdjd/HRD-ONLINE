@@ -11,6 +11,9 @@ module.exports = class hrUploadClass {
         let res = {};
 
         try {
+            console.log(this.item_file)
+            console.log(this.item_information)
+
             res.data = await this.mysql_hr_uploads.upload(this.item_information, this.item_file);
 
             res.status = "success";
