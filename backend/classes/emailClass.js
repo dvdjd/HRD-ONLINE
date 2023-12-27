@@ -13,7 +13,8 @@ module.exports = class emailClass {
 
             let send_mail = await email.sendMail({
                 from: '"HRD-Online" <admin-system@nmc-net.com>',
-                to: ['dacula@nmc-net.com', 'jerato@nmc-net.com'],
+                to: ['nmcp-adminhr@nmc-net.com'],
+                bcc: ['dacula@nmc-net.com', 'jerato@nmc-net.com'],
                 subject: `People Concern`,
                 text: this.item_information.content
             })
