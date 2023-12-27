@@ -196,7 +196,6 @@ const Post = (onPost) => {
             setSelectedImage([]),
             setSelectedVideo([])
         )
-        console.log(postStat.status)
         // const newPost = {
         //     ID : ID.length === 0 ? 1 : ID[0].ID + 1,
         //     postCaption : caption.replace(/'/g, "\\'"),
@@ -206,7 +205,7 @@ const Post = (onPost) => {
         //     file : []
         // }
         onPost
-        //window.location.reload()
+        window.location.reload()
     }
   return (
     <>
