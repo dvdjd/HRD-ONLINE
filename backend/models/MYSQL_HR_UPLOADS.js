@@ -19,7 +19,7 @@ class MYSQL_HR_UPLOADS extends MODEL {
     }
 
     async getUploadItems(item_information) {
-        let res = await this.query(`SELECT * FROM ${this.table} WHERE uploadType = '${item_information.type}' AND isDelete != 1 ORDER BY ID DESC`);
+        let res = await this.query(`SELECT * FROM ${this.table} WHERE uploadType = '${item_information.type}' AND isDelete != 1 ORDER BY uploadDisplayName ASC`);
 
         return res;
     }
