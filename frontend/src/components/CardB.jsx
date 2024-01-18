@@ -31,6 +31,10 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Modal from '@mui/material/Modal';
 
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import Collapse from '@mui/material/Collapse';
+import StarBorder from '@mui/icons-material/StarBorder';
 import React, { useEffect, useRef, useState } from 'react';
 
 const style = {
@@ -98,6 +102,10 @@ const CardB = () => {
 
   const selectedIndexRef = useRef(selectedIndex)
 
+  const [wwOpen, setWWOpen] = useState(false)
+  const handleSetWWOpen = () => {
+    setWWOpen(!wwOpen)
+  }
   useEffect(() => {
     selectedIndexRef.current = selectedIndex
     localStorage.getItem('isLogin') === 'true' ? setUserType(JSON.parse(localStorage.getItem('user')).UserType) : undefined
@@ -110,6 +118,8 @@ const CardB = () => {
 
   const [addIcon, setAddIcon] = useState((<AddCircleIcon sx={{color: '#0275d8'}} />))
   const [showAddIcon, setShowAddIcon] = useState(false)
+  const [showAddIcon2, setShowAddIcon2] = useState(false)
+  const [showAddIcon3, setShowAddIcon3] = useState(false)
   /*-----------PDF Viewer--------------*/
   const newplugin = defaultLayoutPlugin()
   const fullScreenPluginInstance = fullScreenPlugin()
@@ -178,13 +188,36 @@ const CardB = () => {
                 selected={selectedIndex === index}
                 sx={{width: '100%'}}
               >
-                <ListItemIcon onMouseEnter={() => {nav.name !== "People Concern" ? isAdmin() === 1 ? (setShowAddIcon(true), setAddIndex(index)) : undefined : undefined}} onMouseLeave={() => {setShowAddIcon(false)}} onClick={isAdmin() === 1 ? () => upload.current?.handleOpen(nav.name) : undefined}>
+                <ListItemIcon onMouseEnter={() => {nav.name === "President's Message" ? isAdmin() === 1 ? (setShowAddIcon(true), setAddIndex(index)) : undefined : undefined}} onMouseLeave={() => {setShowAddIcon(false)}} onClick={isAdmin() === 1 ? () => upload.current?.handleOpen(nav.name) : undefined}>
                   {showAddIcon === true && addIndex === index && localStorage.getItem('isLogin') === 'true' ? addIcon : nav.icon}
                 </ListItemIcon>
-                <ListItemText primary={nav.name} onClick={nav.name === "People Concern" ? localStorage.getItem('isLogin') === 'true' ? () => upload.current?.handleOpen(nav.name) : () => setOpen2(true) : (event) => handleListItemClick(event, index, nav.name)}/>
+                {nav.name === "WW Calendars" ? (
+                  <>
+                    <ListItemText primary={nav.name} onClick={handleSetWWOpen}/>
+                    {wwOpen ? <ExpandLess /> : <ExpandMore />}
+                  </>
+                ) : (
+                  <ListItemText primary={nav.name} onClick={nav.name === "People Concern" ? localStorage.getItem('isLogin') === 'true' ? () => upload.current?.handleOpen(nav.name) : () => setOpen2(true) : (event) => handleListItemClick(event, index, nav.name)}/>
+                )}
               </ListItemButton>
             </React.Fragment>
           ))}
+          <Collapse in={wwOpen} timeout="auto" unmountOnExit sx={{width: '100%'}}>
+            <List component="div" disablePadding>
+              <ListItemButton sx={{pl: 6}}>
+                <ListItemIcon onMouseEnter={() => {isAdmin() === 1 ? setShowAddIcon2(true) : undefined}} onMouseLeave={() => {setShowAddIcon2(false)}} onClick={isAdmin() === 1 ? () => upload.current?.handleOpen("WW Calendars - Operations") : undefined}>
+                  {showAddIcon2 === true && localStorage.getItem('isLogin') === 'true' ? addIcon : (<StarBorder />)}
+                </ListItemIcon>
+                <ListItemText primary="Operations" onClick={(event) => handleListItemClick(event, 2, "WW Calendars - Operations")}/>
+              </ListItemButton>
+              <ListItemButton sx={{pl: 6}}>
+                <ListItemIcon onMouseEnter={() => {isAdmin() === 1 ? setShowAddIcon3(true) : undefined}} onMouseLeave={() => {setShowAddIcon3(false)}} onClick={isAdmin() === 1 ? () => upload.current?.handleOpen("WW Calendars - Support") : undefined}>
+                  {showAddIcon3 === true && localStorage.getItem('isLogin') === 'true' ? addIcon : (<StarBorder />)}
+                </ListItemIcon>
+                <ListItemText primary="Support" onClick={(event) => handleListItemClick(event, 2, "WW Calendars - Support")}/>
+              </ListItemButton>
+            </List>
+          </Collapse>
         </List>
       </Box>
       <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper'}}>

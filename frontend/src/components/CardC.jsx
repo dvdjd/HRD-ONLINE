@@ -381,7 +381,9 @@ const CardC = ({post, deletePost}) => {
                     </div>
                     
                     <br />
-                    <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
+                    <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
+                        <pre>{captionText}</pre>
+                    </Button>
                     {post.p.file.length > 0 ? post.p.file.length > 1 ? (
                         <ImageList sx={{ width: '100%', height: 450, cursor: 'pointer' }} cols={post.p.file.length % 3 == 0 ? 3 : 2} rowHeight={'auto'}>
                             {post.p.file.map((item, index) => (
