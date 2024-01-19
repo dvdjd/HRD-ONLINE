@@ -31,7 +31,6 @@ const TopNav = () => {
             name: 'NMCP Company', hasSubPages: true,
             subPages: [
                 {subName: 'Company Profile', link: '/pdf2/companyProfile', target: '_self'},
-                {subName: 'Organization Chart', link: '/pdf2/organizationChart', target: '_self'},
                 {subName: 'Corporate Values', link: '/pdf2/corporateValues', target: '_self'},
                 {subName: 'Vision & Mission', link: '/pdf2/missionVision', target: '_self'},
                 {subName: 'Company Rules and Regulations', link: '/pdf2/crr', target: '_self'},
@@ -61,7 +60,7 @@ const TopNav = () => {
             ]
         },
         {
-            name: 'Environmental', link: '/pdf/environmental', target: '_self', hasSubPages: false
+            name: 'ESH', link: '/pdf/esh', target: '_self', hasSubPages: false
         },
         {
             name: 'Activities / Programs', hasSubPages: true,
