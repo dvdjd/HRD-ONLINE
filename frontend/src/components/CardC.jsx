@@ -267,7 +267,9 @@ const CardC = ({post, deletePost}) => {
 
         const user = async () => {
             const u = await getUser({id : post.p.postUserID})
-            setPoster(capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`))
+            setPoster(
+                u[0].FirstName === "HRD" ? u[0].FirstName : capitalizeWords(`${u[0].FirstName} ${u[0].LastName}`)
+            )
         }
         user()
 
