@@ -35,6 +35,7 @@ app.post("/hrUpload", hrUploadController.upload);
 app.post("/getHrUpload", hrUploadController.getUpload);
 app.post("/getUploadItems", hrUploadController.getUploadItems);
 app.post("/updateItem", hrUploadController.updateItem);
+app.post("/removeItem", hrUploadController.removeItem);
 app.post("/getByMenu", hrUploadController.getByMenu);
 
 //Send mail

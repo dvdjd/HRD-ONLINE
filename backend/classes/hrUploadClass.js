@@ -67,6 +67,22 @@ module.exports = class hrUploadClass {
         return res;
     }
 
+    async removeItem() {
+        let res = {};
+
+        try {
+            res.data = await this.mysql_hr_uploads.removeItem(this.item_information);
+
+            res.status = "success";
+
+        } catch (error) {
+            res.status = "error";
+            res.message = error.message;
+        }
+
+        return res;
+    }
+
     async getByMenu() {
         let res = {};
 

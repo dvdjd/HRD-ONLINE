@@ -38,6 +38,15 @@ module.exports = {
         });
     },
 
+    async removeItem(req, res) {
+
+        let hr_upload_class = new hrUploadClass(req.body);
+
+        let remove = await hr_upload_class.removeItem();
+
+        res.send(remove);
+    },
+
     async getByMenu(req, res) {
         let hr_upload_class = new hrUploadClass(req.body);
 
