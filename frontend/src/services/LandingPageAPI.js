@@ -193,6 +193,18 @@ export const updateItem = async (details) => {
     }
 }
 
+//removeItem
+export const removeItem = async (details) => {
+    try{
+        const {data} = await axios.post(`${api}/removeItem`, details)
+        return data
+    }
+    catch(err){
+        console.log(`Ne may error : ${err}`)
+        return {data: [], status: 'failed'}
+    }
+}
+
 //getByMenu
 export const getByMenu = async (details) => {
     try{

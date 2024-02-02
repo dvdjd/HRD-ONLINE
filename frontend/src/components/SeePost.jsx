@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
+import CancelIcon from '@mui/icons-material/Cancel';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Me from '../style/images/me.png'
@@ -205,6 +206,10 @@ const SeePost = forwardRef(({content}, ref) => {
         return regex.test(strng)
     }
 
+    const handleClose = () => {
+        setPost(false)
+    }
+
     useEffect(() => {
         const today = new Date()
         const today2 = new Date()
@@ -295,7 +300,9 @@ const SeePost = forwardRef(({content}, ref) => {
                                             <br />
                                         </div>
                                         <div className={SeePostCSS.hide}>
-                                            <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
+                                            <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
+                                                <pre>{captionText}</pre>
+                                            </Button>
                                         </div>
                                         {content.p.file.length > 0 ? (
                                             <div style={{display: 'flex', justifyContent:'center', flexDirection: 'column', alignItems: 'center'}}>
@@ -319,7 +326,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                 ) : (
                                                     <div className="pdf-container" style={{width: '100%', height: '600px'}}>
                                                         <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                                                        <Viewer fileUrl={samplePDF} plugins={[newplugin]} />
+                                                        <Viewer fileUrl={`http://192.168.5.3:4000/uploads/${content.p.file[activeStep].filename}`} plugins={[newplugin]} />
                                                         </Worker>
                                                     </div>
                                                 )}
@@ -355,6 +362,12 @@ const SeePost = forwardRef(({content}, ref) => {
                                 </CardContent>
                                 <div style={{flex: 1, width: '100%'}}>
                                     <CardContent sx={{overflowY: 'scroll'}}>
+                                        <Stack direction="row-reverse" spacing={1} justifyContent={'flex-end'} sx={{float: 'right!important'}}>
+                                            <IconButton aria-label="delete" size="medium" onClick={handleClose}>
+                                                <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
+                                            </IconButton>
+                                        </Stack>
+                                        <br />
                                         <div className={SeePostCSS.show}>
                                             <Stack direction="row" spacing={2}>
                                                 <Avatar alt={poster} src={poster} />
@@ -372,7 +385,9 @@ const SeePost = forwardRef(({content}, ref) => {
                                             <br />
                                         </div>
                                         <div className={SeePostCSS.show}>
-                                            <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>{captionText}</Button>
+                                            <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
+                                                <pre>{captionText}</pre>
+                                            </Button>
                                         </div>
                                         <div className={SeePostCSS.show} style={{marginTop: '10px'}}>
                                             <div className={CardCCSS['likesComments']}>
@@ -405,7 +420,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                             </div>
                                                         ))}
                                                         
-                                                        <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={() => likes.current?.handleOpen()}>
+                                                        <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={() => like.current?.handleOpen()}>
                                                             <Typography sx={{ mb: 1.5, fontSize: '14px', marginBottom: 0}} color="text.secondary">
                                                                 {countLike}
                                                             </Typography>
@@ -430,10 +445,11 @@ const SeePost = forwardRef(({content}, ref) => {
                                                 </AvatarGroup> */}
                                             </div>
                                         </div>
+                                        <Divider />
                                         <div className={SeePostCSS.show}>
                                             {localStorage.getItem('isLogin') === 'true' ? (
-                                                <div style={{display: 'flex', justifyContent: 'space-around', width: '100%'}}>
-                                                    <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
+                                                <div style={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
+                                                    <Button size="small" sx={{color: 'grey', borderRadius: 10, mt: 2}}
                                                         aria-owns={open ? 'mouse-over-popover' : undefined}
                                                         aria-haspopup="true"
                                                         onMouseEnter={handleHoverOpen('top-start')}
@@ -455,7 +471,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                                             ) : (
                                                                 <FaAngry color='ffa187' size={20}/>
                                                             )
-                                                        }&nbsp;{countLike}
+                                                        }
                                                     </Button>
                                                     {/* <Button variant="outlined" size="small" sx={{color: 'grey', width: '90%', marginLeft: 2, marginRight: 2, borderRadius: 10}}
                                                         aria-owns={open ? 'mouse-over-popover' : undefined}

@@ -5,6 +5,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import NoAccountsIcon from '@mui/icons-material/NoAccounts';
+import CancelIcon from '@mui/icons-material/Cancel';
 import IconButton from '@mui/material/IconButton';
 import ListSubheader from '@mui/material/ListSubheader';
 import DraftsIcon from '@mui/icons-material/Drafts';
@@ -48,7 +49,7 @@ const style = {
   justifyContent: 'space-between',
   alignItems: 'flex-start',
   display: 'flex',
-  flexDirection: {xs: 'column', md: 'row'},
+  flexDirection: 'column',
   overflow: 'auto !important'
 };
 const style2 = {
@@ -142,10 +143,15 @@ const CardB = () => {
           aria-labelledby="modal-modal-title"
           aria-describedby="modal-modal-description"
         >
-          <div style={{display:'flex', justifyContent: 'center', alignItems: 'flex-start'}}>
+          <div style={{display:'flex', justifyContent: 'center'}}>
             <Card sx={style}>
-              <CardContent sx={{flex: 2, width: {xs: 300, md: '90%'},}}>
-                <Box sx={{border: '1px solid #cccccc', mt: 1, padding: 1.5, borderRadius: 1}}>
+              <CardContent sx={{ width: {xs: 300, md: '95%'}, m:'auto'}}>
+                <Stack direction="row-reverse" spacing={1} justifyContent={'flex-end'} sx={{float: 'right!important'}}>
+                  <IconButton aria-label="delete" size="medium" onClick={handleClose}>
+                      <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
+                  </IconButton>
+                </Stack>
+                <Box sx={{ mt: 1, padding: 1.5, borderRadius: 1}}>
                   <div className="pdf-container">
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                         <EnterFullScreen />
