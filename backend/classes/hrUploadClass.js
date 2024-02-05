@@ -102,7 +102,7 @@ module.exports = class hrUploadClass {
                 menu_items = await this.mysql_hr_uploads.getMenuItems(this.item_information.type, menu[i].uploadMenu);
 
                 for (let j = 0; j < menu_items.length; j++) {
-                    data.menu[i].files.push({ file: menu_items[j].uploadName, name: menu_items[j].uploadDisplayName });
+                    data.menu[i].files.push({ id: menu_items[j].ID, file: menu_items[j].uploadName, name: menu_items[j].uploadDisplayName });
                 }
             }
 
