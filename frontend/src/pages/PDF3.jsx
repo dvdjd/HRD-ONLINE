@@ -17,7 +17,7 @@ import InputBase from '@mui/material/InputBase';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { hrUpload, getHrUpload, getByMenu} from '../services/LandingPageAPI';
+import { hrUpload, getHrUpload, getByMenu, removeItem, updateItem} from '../services/LandingPageAPI';
 import { useParams } from 'react-router-dom';
 import { Worker, Viewer} from '@react-pdf-viewer/core';
 import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
@@ -42,6 +42,8 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
 const PDF3 = () => {
     const newplugin = defaultLayoutPlugin()
@@ -64,6 +66,8 @@ const PDF3 = () => {
     };
     const [openLoginFolder, setOpenLoginFolder] = useState(false);
     const [openLoginFile, setOpenLoginFile] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false)
+
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
         clipPath: 'inset(50%)',
@@ -97,6 +101,7 @@ const PDF3 = () => {
     const handleOpenFolder = () => {
         setMode("folder")
         setFolderName("")
+        setDisplayName("")
         setOpenLoginFolder(true)
     };
     const handleCloseFolder = () => {
@@ -105,6 +110,10 @@ const PDF3 = () => {
     const handleCloseFile = () => {
         setOpenLoginFile(false)
     };
+    const [activeFolder, setActiveFolder] = useState()
+    const [activeSubFolder, setActiveSubFolder] = useState()
+    const [folderArr, setFolderArr] = useState([])
+    const [isEdit , setIsEdit] = useState(false)
     const handleSubmitFolder = async (e) => {
         e.preventDefault()
         console.log(mode)
@@ -161,24 +170,58 @@ const PDF3 = () => {
         setOpen(!open);
     };
     useEffect(() => {
-        // const getPDF = async () => {
-        //     const gPdf = await getHrUpload({type: cat.replace(/'/g, "\\'")})
-        //     setPdf(gPdf.data[0].uploadName)
-        //     //setPdf(getHR.data[0].uploadName)
-        // }
-        // getPDF()
-
         const getMenu = async () => {
             const gMenu = await getByMenu({type: cat})
             gMenu.data.menu.length > 0 ? setMenus(gMenu.data.menu): undefined
         }
         getMenu()
-    }, [])
+    }, [hasSelected])
 
     return (
         <>
             <br /><br /><br /><br />
             <div className={styleOrig['flex-container']}>
+                <Modal
+                    aria-labelledby="transition-modal-title"
+                    aria-describedby="transition-modal-description"
+                    open={openDelete}
+                    closeAfterTransition
+                    slots={{ backdrop: Backdrop }}
+                    slotProps={{
+                        backdrop: {
+                            timeout: 500,
+                        },
+                    }}
+                >
+                    <Fade in={openDelete}>
+                        <Card sx={style} >
+                            <Stack direction="row-reverse" spacing={1}>
+                                <IconButton aria-label="delete" size="medium" onClick={() => setOpenDelete(false)}>
+                                    <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
+                                </IconButton>
+                            </Stack>
+                            
+                            <form onSubmit={async (e) => {
+                                e.preventDefault()
+                                folderArr.length > 1 ? 
+                                    folderArr.forEach(async (item) => {
+                                        await removeItem({id: item.id})
+                                    })
+                                :
+                                    await removeItem({id: folderArr[0]})
+                                window.location.reload()
+                            }} >
+                                <CardContent>
+                                    <Typography sx={{textAlign: 'center'}} variant='h6'>Are you sure you want to delete this file/s?</Typography>
+                                    <Box display={'flex'} justifyContent={'flex-end'} m={'20px 0 10px 0'}>
+                                        <Button variant='outlined' sx={{ mr: '10px'}} color='error' type='submit'>Confirm</Button>
+                                        <Button variant='contained' onClick={() => setOpenDelete((prev) => !prev)}>Cancel</Button>
+                                    </Box>
+                                </CardContent>
+                            </form>
+                        </Card>
+                    </Fade>
+                </Modal>
                 <Modal
                     aria-labelledby="transition-modal-title"
                     aria-describedby="transition-modal-description"
@@ -253,7 +296,26 @@ const PDF3 = () => {
                                 </IconButton>
                             </Stack>
                             
-                            <form onSubmit={handleSubmitFolder} >
+                            <form onSubmit={isEdit ? 
+                                async (e) => {
+                                    e.preventDefault()
+                                    let formData = new FormData()
+                                    if(hasSelected === false || displayName === ""){
+                                        alert("Kindly input display name and attached a pdf file.")
+                                    }
+                                    else{
+                                        formData.append('id', folderArr)
+                                        formData.append('type', cat)
+                                        formData.append('display_name', displayName)
+                                        formData.append('file_name', Date.now())
+                                        formData.append('file', sendFile)
+                                        console.log(await updateItem(formData))
+                                        setOpenLoginFile(false)
+                                        window.location.reload()
+                                    }
+                                    
+                                }
+                                : handleSubmitFolder} >
                                 <CardContent>
                                     <Paper sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "100%", mb: 2 }}>
                                         <InputBase
@@ -261,6 +323,7 @@ const PDF3 = () => {
                                             placeholder="Enter Display Name ..."
                                             inputProps={{ 'aria-label': 'upload file' }}
                                             onChange={(e) => setDisplayName(e.target.value)}
+                                            value={displayName}
                                         />
                                         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                                         <Button component="label" sx={{justifyContent: 'center'}}>
@@ -297,24 +360,80 @@ const PDF3 = () => {
                                 >
                                     {menus.length > 0 ? menus.map((menu, index) => (
                                         <React.Fragment key={index}>
-                                            <ListItemButton sx={{width: '100%'}} onClick={() => {menu.isOpen = menu.isOpen ? false : true, setKeyNum((prev) => prev + 1)}}>
+                                            <ListItemButton
+                                                sx={{width: '100%'}}
+                                                onClick={() => {
+                                                    menu.isOpen = menu.isOpen ? false : true
+                                                    setKeyNum((prev) => prev + 1)
+                                                    setFolderArr(menus[index].files)
+                                                }}
+                                            >
                                                 <ListItemIcon>
-                                                <FolderOutlinedIcon />
+                                                    <FolderOutlinedIcon
+                                                        sx={{color: activeFolder === index ? 'rgb(66, 165, 245, 0.5)' : 'none'}}
+                                                    />
                                                 </ListItemIcon>
-                                                <ListItemText primary={menu.uploadMenu} />
+                                                <ListItemText
+                                                    primary={menu.uploadMenu}
+                                                    sx={{color: activeFolder === index ? 'rgb(66, 165, 245, 0.5)' : 'none'}}    
+                                                />
                                                 {menu.isOpen ? (
-                                                    <AddCircleOutlineOutlinedIcon sx={{marginRight: 1}} onClick={() => {setMode(index), setFolderName(menu.uploadMenu), setOpenLoginFile(true)}}/>
+                                                    <>
+                                                        <AddCircleOutlineOutlinedIcon
+                                                            sx={{
+                                                                marginRight: 1,
+                                                                color: activeFolder === index ? 'rgb(66, 165, 245, 0.5)' : 'none'
+                                                            }}
+                                                            onClick={() => {setMode(index), setFolderName(menu.uploadMenu), setOpenLoginFile(true)}}
+                                                        />
+                                                        <DeleteOutlinedIcon
+                                                            sx={{
+                                                                marginRight: 1,
+                                                                color: activeFolder === index ? 'rgb(255, 0, 0, 0.5)' : 'none'
+                                                            }}
+                                                            onClick={() => setOpenDelete(true)}/>
+                                                    </>
                                                 ) : undefined}
-                                                {menu.isOpen ? <ExpandLess /> : <ExpandMore />}
+                                                {menu.isOpen ? <ExpandLess
+                                                                    sx={{color: activeFolder === index ? '#42A5F5' : 'none'}}
+                                                                /> : <ExpandMore
+                                                                    sx={{color: activeFolder === index ? '#42A5F5' : 'none'}}
+                                                                />}
                                             </ListItemButton>
                                             <Collapse in={menu.isOpen} timeout="auto" unmountOnExit sx={{width: '100%'}} key={keyNum}>
                                                 <List component="div" disablePadding sx={{width: '100%'}}>
                                                     {menu.files.map((menuFile, fileIndex) => (
-                                                        <ListItemButton sx={{ pl: 4 }} key={fileIndex} onClick={() => {setPdf(menuFile.file), setPdfKey(prev => prev + 1)}}>
+                                                        <ListItemButton sx={{ pl: 4 }} key={fileIndex} onClick={() => {setPdf(menuFile.file), setPdfKey(prev => prev + 1), setActiveFolder(index), setActiveSubFolder(fileIndex)}}>
                                                             <ListItemIcon>
-                                                            <InsertDriveFileOutlinedIcon />
+                                                                <InsertDriveFileOutlinedIcon
+                                                                    sx={{color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'}}
+                                                                />
                                                             </ListItemIcon>
-                                                            <ListItemText primary={menuFile.name} />
+                                                            <ListItemText
+                                                                primary={menuFile.name}
+                                                                sx={{color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'}}
+                                                            />
+                                                            <DeleteOutlinedIcon
+                                                                sx={{
+                                                                    color: activeFolder === index && activeSubFolder === fileIndex ? 'rgb(255, 0, 0)' : 'none',
+                                                                    mr: '5px'
+                                                                }}
+                                                                onClick={() => {
+                                                                    setFolderArr([menuFile.id])
+                                                                    setOpenDelete(true)
+                                                                }}
+                                                            />
+                                                            <EditOutlinedIcon
+                                                                sx={{
+                                                                    color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'
+                                                                }}
+                                                                onClick={() => {
+                                                                    setIsEdit(true)
+                                                                    setFolderArr(menuFile.id)
+                                                                    setDisplayName(menuFile.name)
+                                                                    setOpenLoginFile(true)
+                                                                }}
+                                                            />
                                                         </ListItemButton>
                                                     ))}
                                                 </List>
