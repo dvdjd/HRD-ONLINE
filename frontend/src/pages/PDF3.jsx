@@ -377,7 +377,7 @@ const PDF3 = () => {
                                                     primary={menu.uploadMenu}
                                                     sx={{color: activeFolder === index ? 'rgb(66, 165, 245, 0.5)' : 'none'}}    
                                                 />
-                                                {menu.isOpen ? (
+                                                {isAdmin() === 1 && menu.isOpen ? (
                                                     <>
                                                         <AddCircleOutlineOutlinedIcon
                                                             sx={{
@@ -391,7 +391,8 @@ const PDF3 = () => {
                                                                 marginRight: 1,
                                                                 color: activeFolder === index ? 'rgb(255, 0, 0, 0.5)' : 'none'
                                                             }}
-                                                            onClick={() => setOpenDelete(true)}/>
+                                                            onClick={() => setOpenDelete(true)}
+                                                        />
                                                     </>
                                                 ) : undefined}
                                                 {menu.isOpen ? <ExpandLess
@@ -413,27 +414,30 @@ const PDF3 = () => {
                                                                 primary={menuFile.name}
                                                                 sx={{color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'}}
                                                             />
-                                                            <DeleteOutlinedIcon
-                                                                sx={{
-                                                                    color: activeFolder === index && activeSubFolder === fileIndex ? 'rgb(255, 0, 0)' : 'none',
-                                                                    mr: '5px'
-                                                                }}
-                                                                onClick={() => {
-                                                                    setFolderArr([menuFile.id])
-                                                                    setOpenDelete(true)
-                                                                }}
-                                                            />
-                                                            <EditOutlinedIcon
-                                                                sx={{
-                                                                    color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'
-                                                                }}
-                                                                onClick={() => {
-                                                                    setIsEdit(true)
-                                                                    setFolderArr(menuFile.id)
-                                                                    setDisplayName(menuFile.name)
-                                                                    setOpenLoginFile(true)
-                                                                }}
-                                                            />
+                                                            {isAdmin() === 1 && (<>
+                                                                <DeleteOutlinedIcon
+                                                                    sx={{
+                                                                        color: activeFolder === index && activeSubFolder === fileIndex ? 'rgb(255, 0, 0)' : 'none',
+                                                                        mr: '5px'
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        setFolderArr([menuFile.id])
+                                                                        setOpenDelete(true)
+                                                                    }}
+                                                                />
+                                                                <EditOutlinedIcon
+                                                                    sx={{
+                                                                        color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'
+                                                                    }}
+                                                                    onClick={() => {
+                                                                        setIsEdit(true)
+                                                                        setFolderArr(menuFile.id)
+                                                                        setDisplayName(menuFile.name)
+                                                                        setOpenLoginFile(true)
+                                                                    }}
+                                                                />
+                                                            </>)}
+                                                            
                                                         </ListItemButton>
                                                     ))}
                                                 </List>
