@@ -131,8 +131,17 @@ const CardB = () => {
   const [open2, setOpen2] = React.useState(false);
   const handleClose = () => {setOpen(false)};
   const handleClose2 = () => {setOpen2(false)};
+  const handleClose3 = () => {setOpen3(false)};
   const [addIndex, setAddIndex] = useState(0)
   const upload = useRef()
+
+  const [open3, setOpen3] = useState(false)
+  const [iFrameLink, setIFrameLink] = useState("")
+  const handleOpenIFrame = (link) => {
+    setOpen3(true)
+    setIFrameLink(link)
+  }
+
   return (
     <>
       <UploadPDF ref={upload} />
@@ -181,6 +190,34 @@ const CardB = () => {
                 <IconButton aria-label="delete" sx={{color: 'red'}} size='large'>
                   <NoAccountsIcon sx={{width: 50, height: 50}}/>
                 </IconButton>
+              </CardContent>
+            </Card>
+          </div> 
+        </Modal>
+        <Modal
+          open={open3}
+          onClose={handleClose3}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <div style={{display:'flex', justifyContent: 'center'}}>
+            <Card sx={style}>
+              <CardContent sx={{ width: {xs: 300, md: '95%'}}}>
+                <Stack direction="row-reverse" spacing={1} justifyContent={'flex-end'} sx={{float: 'right!important'}}>
+                  <IconButton aria-label="delete" size="medium" onClick={handleClose3}>
+                      <CancelIcon fontSize="inherit" sx={{color: 'red'}} />
+                  </IconButton>
+                </Stack>
+                <Box sx={{ borderRadius: 1, display: 'flex', justifyContent: 'center'}}>
+                  <iframe
+                    src={iFrameLink}
+                    title="W3Schools Free Online Web Tutorials"
+                    style={{
+                      height: "80vh",
+                      width: "100%"
+                    }}
+                    ></iframe>
+                </Box>
               </CardContent>
             </Card>
           </div> 
@@ -239,7 +276,8 @@ const CardB = () => {
               {nav.stat === 1 || localStorage.getItem('isLogin') === 'true' || nav.name === "PTR-Online" ? (
                 <ListItemButton
                   sx={{width: '100%'}}
-                  href={nav.link} target="_blank"
+                  // href={nav.link} target="_blank"
+                  onClick={() => handleOpenIFrame(nav.link)}
                   disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? localStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
                 >
                   <ListItemText primary={nav.name}/>
