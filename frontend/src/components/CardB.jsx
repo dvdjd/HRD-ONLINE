@@ -273,24 +273,41 @@ const CardB = () => {
         >
           {system.map((nav, index) => (
             <React.Fragment key={index}>
-              {nav.stat === 1 || localStorage.getItem('isLogin') === 'true' || nav.name === "PTR-Online" ? (
-                <ListItemButton
-                  sx={{width: '100%'}}
-                  // href={nav.link} target="_blank"
-                  onClick={() => handleOpenIFrame(nav.link)}
-                  disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? localStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
-                >
-                  <ListItemText primary={nav.name}/>
-                </ListItemButton>
-              ) : (
-                  <ListItemButton
-                    sx={{width: '100%'}}
-                    onClick={() => setOpen2(true)}
-                    disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? true : false}
-                  >
-                    <ListItemText primary={nav.name} />
-                  </ListItemButton>
-              )}
+              {nav.stat === 1 || localStorage.getItem('isLogin') === 'true' || nav.name === "PTR-Online" ? 
+                nav.name === "Performance Appraisal" || nav.name === "PTR-Online" ? 
+                  (
+                  
+                    <ListItemButton
+                      sx={{width: '100%'}}
+                      // href={nav.link} target="_blank"
+                      onClick={() => handleOpenIFrame(nav.link)}
+                      disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? localStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
+                    >
+                      <ListItemText primary={nav.name}/>
+                    </ListItemButton>
+                  ) 
+                : 
+                  (
+                    
+                    <ListItemButton
+                      sx={{width: '100%'}}
+                      href={nav.link} target="_blank"
+                      disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? localStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
+                    >
+                      <ListItemText primary={nav.name}/>
+                    </ListItemButton>
+                  ) 
+              :
+                (
+                    <ListItemButton
+                      sx={{width: '100%'}}
+                      onClick={() => setOpen2(true)}
+                      disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? true : false}
+                    >
+                      <ListItemText primary={nav.name} />
+                    </ListItemButton>
+                )
+              }
               
             </React.Fragment>
           ))}
