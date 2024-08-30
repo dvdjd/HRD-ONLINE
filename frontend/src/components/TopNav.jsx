@@ -10,8 +10,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { useMediaQuery } from '@mui/material';
 import logo from '../style/images/nmcp-logo.png'
 import logo2 from '../style/images/logo.png'
 import TopNavCSS from './TopNav.module.css'
@@ -19,13 +19,25 @@ import NavigationCSS from './Navigation.module.css'
 import {HiUser} from 'react-icons/hi'
 import { getUploadItems } from '../services/LandingPageAPI';
 import Popper from '@mui/material/Popper';
+import Popover from '@mui/material/Popover';
 import Fade from '@mui/material/Fade';
 import Paper from '@mui/material/Paper';
 import Login from './Login';
+import Drawer from './Drawer';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginActions } from '../redux/actions';
 
 import { capitalizeWords } from '../utils/global';
 
 const TopNav = () => {
+    const dispatch = useDispatch()
+    const isMobile = useMediaQuery("(max-width: 600px)")
+    const [openDrawer, setOpenDrawer] = useState(false)
+
+    const toggleDrawer = (val) => {
+        setOpenDrawer(val)
+    }
+
     const pages = [
         {
             name: 'NMCP Company', hasSubPages: true,
@@ -53,78 +65,73 @@ const TopNav = () => {
             ]
         },
         {
-            name: 'Procedure, Guidelines & Forms', hasSubPages: true,
+            name: 'HRD', hasSubPages: true,
             subPages: [
+                {subName: 'Activities', link: '/pdf3/companyEvents', target: '_self'},
+                {subName: 'Programs', link: '/pdf3/motivationProgram', target: '_self'},
                 {subName: 'Forms', link: '/pdf/forms', target: '_self'},
                 {subName: 'Procedures Guidelines', link: '/pdf/proceduresGuidelines', target: '_self'},
             ]
         },
+        // {
+        //     name: 'ESH', link: '/pdf/esh', target: '_self', hasSubPages: false
+        // },
         {
-            name: 'ESH', link: '/pdf/esh', target: '_self', hasSubPages: false
-        },
-        {
-            name: 'Activities / Programs', hasSubPages: true,
+            name: 'ESH', hasSubPages: true,
             subPages: [
-                {subName: "Company Events", link: '/pdf3/companyEvents', target: '_self'},
-                {subName: "Motivational Program", link: '/pdf3/motivationProgram', target: '_self'},
+                {subName: 'Activities/Programs', link: '/pdf3/eshCompanyEvents', target: '_self'},
+                {subName: 'Forms', link: '/pdf/eshForms', target: '_self'},
+                {subName: 'Procedures Guidelines', link: '/pdf/eshProceduresGuidelines', target: '_self'},
             ]
         },
+        // {
+        //     name: 'Activities / Programs', hasSubPages: true,
+        //     subPages: [
+        //         {subName: "Company Events", link: '/pdf3/companyEvents', target: '_self'},
+        //         {subName: "Motivational Program", link: '/pdf3/motivationProgram', target: '_self'},
+        //     ]
+        // },
         // {
         //     name: 'Galleries', link: '/galleries', target: '_self', hasSubPages: false
         // },
     ];
-    const [hasNew, setHasNew] = useState(false)
-    const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-    const [anchorElNav, setAnchorElNav] = React.useState(null);
     const [anchorElUser, setAnchorElUser] = React.useState(null);
-    const [subPages, setSubPages] = useState([])
-    const handleSetSubPages = (index) => {
-        setSubPages([])
-        pages[index].hasSubPages ? setSubPages(pages[index].subPages) : setSubPages([])
-    }
-    const handleOpenNavMenu = (event) => {
-        setAnchorElNav(event.currentTarget);
-    };
+
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
     };
 
     const handleCloseUserMenu = () => {
         setAnchorElUser(null);
     };
     /*-----------------SubPages Modal----------------------*/
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [open, setOpen] = React.useState(false);
-    const [placement, setPlacement] = React.useState();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [activePage, setActivePage] = useState(-1)
+    //const [open, setOpen] = React.useState(false);
 
-    const handleClick = (newPlacement, index) => (event) => {
-        handleSetSubPages(index)
-        setAnchorEl(event.currentTarget);
-        setOpen((prev) => placement !== newPlacement || !prev);
-        setPlacement(newPlacement);
-    };
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
+    const handleOpen = (e, index) => {
+        setAnchorEl(e.currentTarget)
+        setActivePage(index)
+    }
     /*-----------------Login------------------------------*/
-    const login = useRef()
-    // const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+    // const [user, setUser] = useState(JSON.parse(sessionStorage.getItem('user')))
+    const [user, setUser] = useState(null)
     useEffect(() => {
-        setUser(JSON.parse(localStorage.getItem('user')))
-        // const getPDF = async () => {
-        //     const gPdf = await getUploadItems({type: "recruitment"})
-        //     gPdf.data.length > 0 ? setHasNew(true) : setHasNew(false)
-        // }
-        // getPDF()
+        const isLoggedIn = sessionStorage.getItem('user')
+        const u = isLoggedIn != "undefined" ? JSON.parse(sessionStorage.getItem('user')) : false
+        
+        u && setUser(u)
     }, [])
+
     return (
         <>
             <div>
-                <Login ref={login} />
+                <Login />
             </div>
-            <AppBar position="fixed" sx={{bgcolor: '#fff'}}>
+            <AppBar position="fixed" sx={{bgcolor: '#fff'}} elevation={1}>
                 <Container maxWidth={{xs: 'sm', md: 'lg'}} sx={{paddingRight: '0px'}}>
                     <Toolbar disableGutters>
                         <img src={logo2} alt="logo" width="60px" height="60px" className={TopNavCSS.logo}/>
@@ -141,88 +148,88 @@ const TopNav = () => {
                             textDecoration: 'none',
                             }}
                         >
-                            HRD-Online
+                            HRD-ESH Online
                         </Typography>
 
                         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
                             <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleOpenNavMenu}
-                            color="black"
+                                size="large"
+                                aria-label="account of current user"
+                                aria-controls="menu-appbar"
+                                aria-haspopup="true"
+                                onClick={() => toggleDrawer(true)}
+                                color="black"
                             >
-                            <MenuIcon />
+                                <MenuIcon />
                             </IconButton>
-                            <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorElNav}
-                            anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                            }}
-                            open={Boolean(anchorElNav)}
-                            onClose={handleCloseNavMenu}
-                            sx={{
-                                display: { xs: 'block', md: 'none' },
-                            }}
+                            {/* <Menu
+                                id="menu-appbar"
+                                anchorEl={anchorElNav}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                }}
+                                open={Boolean(anchorElNav)}
+                                onClose={handleCloseNavMenu}
+                                sx={{
+                                    display: { xs: 'block', md: 'none' },
+                                }}
                             >
-                            {pages.map((page, index) => (
-                                page.hasSubPages ? (
+                                {pages.map((page, index) => (
+                                    page.hasSubPages ? (
+                                        // <MenuItem key={index} onClick={handleCloseNavMenu}>
+                                        <MenuItem key={index} onClick={handleClick('right-start', index)}>
+                                            <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
+                                                {({ TransitionProps }) => (
+                                                <Fade {...TransitionProps} timeout={350}>
+                                                    <Paper>
+                                                        {subPages.map((subPage, subIndex) => (
+                                                                <React.Fragment key={subIndex}>
+                                                                    <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black'}}>{subPage.subName}</Button><br />
+                                                                </React.Fragment>
+                                                            )
+                                                        )}
+                                                    </Paper>
+                                                </Fade>
+                                                )}
+                                            </Popper>
+                                            <Button
+                                                target={page.target}
+                                                href={page.link}
+                                                key={index}
+                                                sx={{ my: 2, color: 'blue', display: 'block', textTransform: 'none' }}
+                                            >
+                                                {page.name}
+                                            </Button>
+                                            </MenuItem>
+                                    ) : (
+                                        // <MenuItem key={index} onClick={handleCloseNavMenu}>
+                                        <MenuItem key={index}>
+                                            <Button
+                                                target={page.target}
+                                                href={page.link}
+                                                key={index}
+                                                onClick={handleCloseUserMenu}
+                                                sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
+                                            >
+                                                {page.name}
+                                            </Button>
+                                            </MenuItem>
+                                    )
                                     // <MenuItem key={index} onClick={handleCloseNavMenu}>
-                                    <MenuItem key={index} onClick={handleClick('right-start', index)}>
-                                        <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
-                                            {({ TransitionProps }) => (
-                                            <Fade {...TransitionProps} timeout={350}>
-                                                <Paper>
-                                                    {subPages.map((subPage, subIndex) => (
-                                                            <React.Fragment key={subIndex}>
-                                                                <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black'}}>{subPage.subName}</Button><br />
-                                                            </React.Fragment>
-                                                        )
-                                                    )}
-                                                </Paper>
-                                            </Fade>
-                                            )}
-                                        </Popper>
-                                        <Button
-                                            target={page.target}
-                                            href={page.link}
-                                            key={index}
-                                            sx={{ my: 2, color: 'blue', display: 'block', textTransform: 'none' }}
-                                        >
-                                            {page.name}
-                                        </Button>
-                                        </MenuItem>
-                                ) : (
-                                    // <MenuItem key={index} onClick={handleCloseNavMenu}>
-                                    <MenuItem key={index}>
-                                        <Button
-                                            target={page.target}
-                                            href={page.link}
-                                            key={index}
-                                            onClick={handleCloseUserMenu}
-                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none' }}
-                                        >
-                                            {page.name}
-                                        </Button>
-                                        </MenuItem>
-                                )
-                                // <MenuItem key={index} onClick={handleCloseNavMenu}>
-                                //     <Typography textAlign="center" sx={{color: 'black'}}>{page.name}</Typography>
-                                // </MenuItem>
-                            ))}
-                            </Menu>
+                                    //     <Typography textAlign="center" sx={{color: 'black'}}>{page.name}</Typography>
+                                    // </MenuItem>
+                                ))}
+                            </Menu> */}
                         </Box>
-                        <img src={logo} alt="logo" width="40px" height="40px" className={TopNavCSS.logo2}/>
+                        <img src={logo} alt="logo" width="25px" height="25px" className={TopNavCSS.logo2}/>
                         <Typography
-                            variant="h5"
+                            variant="body2"
                             noWrap
                             component="a"
                             href="/"
@@ -235,44 +242,18 @@ const TopNav = () => {
                                 textDecoration: 'none',
                             }}
                         >
-                            HRD-Online
+                            HRD-ESH -Online
                         </Typography>
                         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'space-evenly', mr: 2 }}>
                             {pages.map((page, index) => (
                                 page.hasSubPages ? (
                                     <React.Fragment key={index}>
-                                        <Popper open={open} anchorEl={anchorEl} placement={placement} transition sx={{zIndex: 9999}}>
-                                            {({ TransitionProps }) => (
-                                            <Fade {...TransitionProps} timeout={350}>
-                                                <Paper>
-                                                    {subPages.map((subPage, subIndex) => (
-                                                            <React.Fragment key={subIndex}>
-                                                                <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black', width: '100%', justifyContent: 'flex-start'}} fullWidth>{subPage.subName}</Button><br />
-                                                            </React.Fragment>
-                                                        )
-                                                    )}
-                                                </Paper>
-                                            </Fade>
-                                            )}
-                                        </Popper>
-                                        {page.name === "Recruitment / Training" && hasNew ? (
-                                            <Button target={page.target} href={page.link} key={index}
-                                                onClick={handleClick('bottom-start', index)}
-                                                sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
-                                            >
-                                                <Badge badgeContent={"New"} color="primary">
-                                                    <div>{page.name}</div>
-                                                </Badge>
-                                                
-                                            </Button>
-                                        ) : (
-                                            <Button target={page.target} href={page.link} key={index}
-                                                onClick={handleClick('bottom-start', index)}
-                                                sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
-                                            >
-                                                {page.name}
-                                            </Button>
-                                        )}
+                                        <Button target={page.target} href={page.link} key={index}
+                                            onClick={(e) => handleOpen(e, index)}
+                                            sx={{ my: 2, color: 'black', display: 'block', textTransform: 'none', fontSize: '12px' }}
+                                        >
+                                            {page.name}
+                                        </Button>
                                     </React.Fragment>
                                 ) : (
                                     <React.Fragment key={index}>
@@ -288,49 +269,76 @@ const TopNav = () => {
                                     </React.Fragment>
                                 )
                             ))}
-                        </Box>
-
-                        <Box sx={{ flexGrow: 0 }}>
-                            <Tooltip title="">
-                                {localStorage.getItem('isLogin') === 'true' ? (
-                                    <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                                        <Avatar alt={localStorage.getItem('user') !== null ? capitalizeWords(user.FirstName) : ''} src="/static/images/avatar/2.jpg" />
-                                    </IconButton>
-                                ) : (
-                                    <ul className={NavigationCSS['navbar-items']} onClick={() => login.current?.handleOpen()}>
-                                        <li className={NavigationCSS['login']}><a className={`${NavigationCSS['d-flex']} ${NavigationCSS['align-center']}`}>
-                                            <div className={NavigationCSS["icon"]}>  
-                                                <HiUser color='#0454d9' size={20} className={NavigationCSS['mr-10']} style={{margin: '0'}}/>
-                                            </div>
-                                            Login
-                                        </a></li>
-                                    </ul>
-                                )}
-                            </Tooltip>
-                            <Menu sx={{ mt: '45px' }} id="menu-appbar" anchorEl={anchorElUser} keepMounted open={Boolean(anchorElUser)} onClose={handleCloseUserMenu}
-                            anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
-                            transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
-                            }}
+                            <Popover
+                                id={id}
+                                open={open}
+                                anchorEl={anchorEl}
+                                onClose={() => setAnchorEl(false)}
+                                anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                                }}
+                                elevation={1}
                             >
-                                {localStorage.getItem('isLogin') === 'false' ? (
-                                    <MenuItem onClick={handleCloseUserMenu}>
-                                        <Button onClick={() => login.current?.handleOpen()}>Login</Button>
-                                    </MenuItem>
-                                ) : (
-                                    <MenuItem onClick={handleCloseUserMenu}>
-                                        <Button onClick={() => (localStorage.setItem('isLogin', false), localStorage.removeItem('user'), window.location.reload())} sx={{color: 'red'}}>Logout</Button>
-                                    </MenuItem>
+                                {activePage > -1 && pages[activePage].subPages.map((subPage, subIndex) => (
+                                        <React.Fragment key={subIndex}>
+                                            <Button href={subPage.link} target={subPage.target} sx={{textTransform: 'none', color: 'black', width: '100%', justifyContent: 'flex-start'}} fullWidth>{subPage.subName}</Button><br />
+                                        </React.Fragment>
+                                    )
                                 )}
-                            </Menu>
+                            </Popover>
                         </Box>
+                        {
+                            !isMobile && (
+                                <Box sx={{ flexGrow: 0 }}>
+                                    {sessionStorage.getItem('isLogin') === 'true' ? (
+                                        <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                            <Avatar alt={user != null ? capitalizeWords(user?.FirstName) : ''} src="/static/images/avatar/2.jpg" />
+                                        </IconButton>
+                                    ) : (
+                                        <ul className={NavigationCSS['navbar-items']} onClick={() => dispatch(loginActions.setOpen())}>
+                                            <li className={NavigationCSS['login']}>
+                                                <a className={`${NavigationCSS['d-flex']} ${NavigationCSS['align-center']}`}>
+                                                    <div style={{
+                                                        padding: '5px 7px',
+                                                        borderRadius: '60px',
+                                                        background: '#ffff',
+                                                        margin: '0 10px 0 0'
+                                                    }}>  
+                                                        <HiUser color='#0454d9' size={20} className={NavigationCSS['mr-10']} style={{margin: '0'}}/>
+                                                    </div>
+                                                    Login
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    )}
+                                    <Menu sx={{ mt: '45px' }} id="menu-appbar" anchorEl={anchorElUser} keepMounted open={Boolean(anchorElUser)} onClose={handleCloseUserMenu}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                    >
+                                        {sessionStorage.getItem('isLogin') === 'false' ? (
+                                            <MenuItem onClick={handleCloseUserMenu}>
+                                                <Button onClick={() => dispatch(loginActions.setOpen())}>Login</Button>
+                                            </MenuItem>
+                                        ) : (
+                                            <MenuItem onClick={handleCloseUserMenu}>
+                                                <Button onClick={() => (sessionStorage.setItem('isLogin', false), sessionStorage.removeItem('user'), window.location.reload())} sx={{color: 'red'}}>Logout</Button>
+                                            </MenuItem>
+                                        )}
+                                    </Menu>
+                                </Box>
+                            )
+                        }
                     </Toolbar>
                 </Container>
             </AppBar>
+            <Drawer open={openDrawer} toggleDrawer={toggleDrawer} />
         </>
     )
 }

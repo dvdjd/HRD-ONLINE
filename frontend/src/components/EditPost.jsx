@@ -157,9 +157,9 @@ const EditPost = forwardRef(({id}, ref) => {
     };
     const [videoKey, setVideoKey] = useState(0)
 
-    const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')))
+    const [user, setUser] = useState(JSON.parse(sessionStorage.getItem('user')))
     useEffect(() => {
-        setUser(JSON.parse(localStorage.getItem('user')))
+        setUser(JSON.parse(sessionStorage.getItem('user')))
     },[])
 
     /*-------------Posting-------------*/
@@ -170,7 +170,7 @@ const EditPost = forwardRef(({id}, ref) => {
         let formData = new FormData()
         formData.append('post_id', ID.length === 0 ? 1 : ID[0].ID + 1)
         formData.append('caption', caption.replace(/'/g, "\\'"))
-        formData.append('user', JSON.parse(localStorage.getItem('user')).ID_No)
+        formData.append('user', JSON.parse(sessionStorage.getItem('user')).ID_No)
         if(selectedImage.length > 0){
             selectedImage.forEach(image => {
                 formData.append('files', image)
@@ -222,7 +222,7 @@ const EditPost = forwardRef(({id}, ref) => {
                                     <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
                                         <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
                                         <div style={{width: '100%'}}>
-                                            {localStorage.getItem('isLogin') !== 'false' ? `${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}` : ''}
+                                            {sessionStorage.getItem('isLogin') !== 'false' ? `${capitalizeWords(user.FirstName)} ${capitalizeWords(user.LastName)}` : ''}
                                         </div>
                                     </Stack>
                                     <Box sx={{ display: 'flex', alignItems: 'flex-end', mt: 2}}>

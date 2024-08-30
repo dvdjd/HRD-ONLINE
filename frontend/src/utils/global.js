@@ -43,8 +43,37 @@ export const getTime = (time) => {
 
 export const isAdmin = () => {
     let num = 0
-    if(localStorage.getItem('isLogin') === 'true'){
-        JSON.parse(localStorage.getItem('user')).Administrator === 1 ? num = 1 : num = 0
+    if(sessionStorage.getItem('isLogin') === 'true'){
+        JSON.parse(sessionStorage.getItem('user')).Administrator === 1 ? num = 1 : num = 0
     }
     return num
+}
+
+export const isDeptESH = () => {
+    let num = 0
+    if(sessionStorage.getItem('isLogin') === 'true'){
+        JSON.parse(sessionStorage.getItem('user')).Department === "ESH" ? num = 1 : num = 0
+    }
+    return num
+}
+
+export const timeAgo = (date) => {
+    const now = moment();
+    const diffInMinutes = now.diff(moment(date), 'minutes');
+    const diffInHours = now.diff(moment(date), 'hours');
+    const diffInDays = now.diff(moment(date), 'days');
+
+    if (diffInMinutes < 1) {
+        return "just now";
+    } else if (diffInHours < 2) {
+        return `${diffInMinutes} minutes ago`;
+    } else if (diffInHours === 2) {
+        return "2 hours ago";
+    } else if (diffInDays === 1) {
+        return "yesterday";
+    } else if (diffInDays < 7) {
+        return `${diffInDays} days ago`;
+    } else {
+        return moment(date).format('MMMM D, YYYY');
+    }
 }

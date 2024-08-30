@@ -123,7 +123,7 @@ const SeePost = forwardRef(({content}, ref) => {
         const rPost = async () => {
             const r = await reactPost({
                 post_id : content.p.ID,
-                user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
+                user_id : `${JSON.parse(sessionStorage.getItem('user')).ID_No}`,
                 react_type : l,
                 mode: mode
             })
@@ -238,8 +238,15 @@ const SeePost = forwardRef(({content}, ref) => {
         cReact()
 
         const chReact = async() => {
-            const c = await checkReact({post_id: content.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
-            c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+            const isLoggedIn = sessionStorage.getItem('user')
+            
+            if(isLoggedIn != "undefined"){
+                const c = await checkReact({post_id: content.p.ID, user_id: JSON.parse(sessionStorage.getItem('user'))?.ID_No})
+                c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+            }else{
+                setLike('none')
+            }
+            
         }
         chReact()
 
@@ -385,7 +392,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                             <br />
                                         </div>
                                         <div className={SeePostCSS.show}>
-                                            <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
+                                            <Button variant='body2' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
                                                 <pre>{captionText}</pre>
                                             </Button>
                                         </div>
@@ -447,7 +454,7 @@ const SeePost = forwardRef(({content}, ref) => {
                                         </div>
                                         <Divider />
                                         <div className={SeePostCSS.show}>
-                                            {localStorage.getItem('isLogin') === 'true' ? (
+                                            {sessionStorage.getItem('isLogin') === 'true' ? (
                                                 <div style={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
                                                     <Button size="small" sx={{color: 'grey', borderRadius: 10, mt: 2}}
                                                         aria-owns={open ? 'mouse-over-popover' : undefined}
@@ -588,18 +595,6 @@ const SeePost = forwardRef(({content}, ref) => {
                     </Fade>
                 </Modal>
             </div>
-            {/* <Card variant="outlined" sx={{borderRadius: '10px'}}>
-                <CardContent sx={{paddingBottom: 0}}>
-                    <Stack direction="row" spacing={2} sx={{alignItems: 'center'}}>
-                        <Avatar alt="Remy Sharp" src={Me} sx={{ width: 30, height: 30 }} />
-                        <div style={{width: '100%'}}>
-                            <Button variant='outlined' onClick={handleOpenPost} sx={{padding: '5pxpx 20px', textTransform: 'none', textAlign: 'justify', fontWeight: 'normal', color: 'grey', width: '100%', borderRadius: 10, justifyContent: 'flex-start'}}>
-                                {`What's new Jhobert?`}
-                            </Button>
-                        </div>
-                    </Stack>
-                </CardContent>
-            </Card> */}
         </>
     )
 })

@@ -16,11 +16,12 @@ import MoreHorizOutlinedIcon from '@mui/icons-material/MoreHorizOutlined';
 import Grid from '@mui/material/Grid';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import TextField from '@mui/material/TextField';
-import { isAdmin } from '../utils/global';
+import { isAdmin, isDeptESH } from '../utils/global';
 import Backdrop from '@mui/material/Backdrop';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 import Popper from '@mui/material/Popper';
+import {Popover} from '@mui/material';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -44,17 +45,20 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import { Typography } from '@mui/material';
+import { useLocation } from 'react-router-dom';
   
 const Demo = styled('div')(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
 }));
 const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
+    const location = useLocation()
     const {cat} = useParams()
     const [dense, setDense] = useState(false)
     const [secondary, setSecondary] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null)
     const [open, setOpen] = useState(false)
     const [removeID, setRemoveID] = useState(0)
+    const [selectedFile, setSelectedFile] = useState(null)
     
 
     const style = {
@@ -92,6 +96,8 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
     const [sendFile, setSendFile] = useState()
     const [hasSelected, setHasSelected] = useState(false)
     const [pdfKey, setPdfKey] = useState(0)
+    const [isESH, setIsESH] = useState(false)
+
     const handleSelectPDF = (e) => {
         const file = e.target.files[0]
         setSendFile(file)
@@ -142,6 +148,7 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                 const upload = await hrUpload(formData)
                 setSelectedIndex(1)
                 handleClose()
+                window.location.reload()
             }
             else if (mode === "edit"){
                 formData.append('id', editID)
@@ -164,6 +171,11 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
         const remove = await removeItem({id: removeID})
         window.location.reload()
     }
+
+    useEffect(() => {
+        setIsESH(location.pathname.includes('esh') ? true : false)
+    }, [location])
+
     return (
         <>
             <Modal
@@ -230,7 +242,9 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
             <Box sx={{ minWidth: 275, mb: 2, height: "95%", overflowY: 'scroll'}}>
                 <Card variant="outlined" sx={{borderRadius: '10px', mb: 2}}>
                     <CardContent sx={{paddingBottom: 0}}>
-                        {isAdmin() === 1 ? (
+                        {isESH ? isDeptESH() === 1 ? (
+                            <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpen} sx={{width: '100%'}}>Add</Button>
+                        ) : undefined : isAdmin() === 1 ? (
                             <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpen} sx={{width: '100%'}}>Add</Button>
                         ) : undefined}
                         <Grid item xs={12} md={6}>
@@ -238,9 +252,9 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                                 <List dense={dense}>
                                     {categ.length > 0 ? categ.map((c, index) => (
                                         <ListItem key={index}
-                                            secondaryAction={ isAdmin() === 1 ? (
+                                            secondaryAction={ isESH ? isDeptESH() === 1 && (
                                                 <>
-                                                    <Popper
+                                                    {/* <Popper
                                                         open={open}
                                                         anchorEl={anchorEl}
                                                         placement='top'
@@ -274,32 +288,86 @@ const CardD = ({categ, handleAddCateg, handleSelectFile}) => {
                                                                 </Paper>
                                                             </Fade>
                                                         )}
-                                                    </Popper> 
+                                                    </Popper>  */}
                                                     <IconButton edge="end" aria-label="delete" sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}
                                                         onClick={(event) => {
                                                             setAnchorEl(event.currentTarget)
                                                             setOpen((prev) => !prev);
                                                             handleListItemClick(event, index);
                                                             setRemoveID(c.ID)
+                                                            setSelectedFile(c)
                                                         }}
                                                     >
                                                         <MoreHorizOutlinedIcon />
                                                     </IconButton>
                                                 </>
-                                                ) : undefined}
+                                                ) : isAdmin() === 1 && (
+                                                    <>
+                                                        <IconButton edge="end" aria-label="delete" sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}
+                                                            onClick={(event) => {
+                                                                setAnchorEl(event.currentTarget)
+                                                                setOpen((prev) => !prev);
+                                                                handleListItemClick(event, index);
+                                                                setRemoveID(c.ID)
+                                                                setSelectedFile(c)
+                                                            }}
+                                                        >
+                                                            <MoreHorizOutlinedIcon />
+                                                        </IconButton>
+                                                    </>
+                                                )}
                                         >
-                                            <ListItemButton sx={{borderRadius: '10px'}} selected={selectedIndex === index} onClick={(event) => {handleListItemClick(event, index); handleSelectFile(c)}}>
-                                                <ListItemAvatar>
-                                                    <InsertDriveFileIcon sx={{color: selectedIndex === index ? '#42a5f5' : "#bdbdbd"}}/>
-                                                </ListItemAvatar>
+                                            <ListItemButton sx={{borderRadius: '10px', pr: 0}} selected={selectedIndex === index} onClick={(event) => {handleListItemClick(event, index); handleSelectFile(c)}}>
+                                                
                                                 <ListItemText
-                                                    primary={c.uploadDisplayName}
-                                                    secondary={secondary ? 'Secondary text' : null}
+                                                    secondary={<Typography variant='caption'>
+                                                        {
+                                                            c.uploadDisplayName
+                                                        }
+                                                    </Typography>}
                                                 />
                                             </ListItemButton>
                                             
                                         </ListItem> 
                                     )) : undefined}
+                                    <Popover
+                                        open={open}
+                                        anchorEl={anchorEl}
+                                        onClose={() => setOpen(false)}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
+                                        }}
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        elevation={1}
+                                    >
+                                        <Paper elevation={0} sx={{background: 'transparent'}}>
+                                            <IconButton edge="end" aria-label="delete" sx={{color: '#42a5f5'}}
+                                                onClick={(event) => {
+                                                    handleSelectFile(selectedFile);
+                                                    setCategory(selectedFile?.uploadDisplayName);
+                                                    setOpenLogin(true);
+                                                    setMode("edit");
+                                                    setEditID(selectedFile?.ID)
+                                                    setInputPDF("")
+                                                    setHasSelected(false)
+                                                }}
+                                            >
+                                                <ModeIcon />
+                                            </IconButton>
+                                            <IconButton edge="end" aria-label="delete" sx={{color: 'red', mx: '2px'}}
+                                                onClick={() => {
+                                                    setMode("remove")
+                                                    setOpenLogin(true)
+                                                }}
+                                            >
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </Paper>
+                                    </Popover>
                                 </List>
                             </Demo>
                         </Grid>

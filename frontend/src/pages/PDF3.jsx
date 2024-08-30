@@ -25,7 +25,7 @@ import { fullScreenPlugin } from '@react-pdf-viewer/full-screen';
 import { zoomPlugin } from '@react-pdf-viewer/zoom';
 import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
-import { isAdmin } from '../utils/global';
+import { isAdmin, isDeptESH } from '../utils/global';
 import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 
@@ -44,8 +44,10 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { useLocation } from 'react-router-dom';
 
 const PDF3 = () => {
+    const location = useLocation()
     const newplugin = defaultLayoutPlugin()
     const fullScreenPluginInstance = fullScreenPlugin()
     const { EnterFullScreen } = fullScreenPluginInstance;
@@ -114,6 +116,7 @@ const PDF3 = () => {
     const [activeSubFolder, setActiveSubFolder] = useState()
     const [folderArr, setFolderArr] = useState([])
     const [isEdit , setIsEdit] = useState(false)
+    const [isESH, setIsESH] = useState(false)
     const handleSubmitFolder = async (e) => {
         e.preventDefault()
         console.log(mode)
@@ -177,9 +180,13 @@ const PDF3 = () => {
         getMenu()
     }, [hasSelected])
 
+    useEffect(() => {
+        setIsESH(location.pathname.includes('esh') ? true : false)
+    }, [location])
+
     return (
         <>
-            <br /><br /><br /><br />
+            <br /><br />
             <div className={styleOrig['flex-container']}>
                 <Modal
                     aria-labelledby="transition-modal-title"
@@ -350,7 +357,12 @@ const PDF3 = () => {
                     <Box sx={{ minWidth: 275, mb: 2, height : "95%"}}>
                         <Card variant="outlined" sx={{borderRadius: '10px', mb: 2}}>
                             <CardContent >
-                                {isAdmin() === 1 ? (
+                                {/* {isAdmin() === 1 ? (
+                                    <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpenFolder} sx={{width: '100%'}}>Add</Button>
+                                ) : undefined} */}
+                                {isESH ? isDeptESH() === 1 ? (
+                                    <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpenFolder} sx={{width: '100%'}}>Add</Button>
+                                ) : undefined : isAdmin() === 1 ? (
                                     <Button variant="outlined" endIcon={< AddCircleIcon/>} onClick={handleOpenFolder} sx={{width: '100%'}}>Add</Button>
                                 ) : undefined}
                                 <List
@@ -374,10 +386,31 @@ const PDF3 = () => {
                                                     />
                                                 </ListItemIcon>
                                                 <ListItemText
-                                                    primary={menu.uploadMenu}
+                                                    secondary={<Typography variant='body1'>
+                                                        {
+                                                            menu.uploadMenu
+                                                        }
+                                                    </Typography>}
                                                     sx={{color: activeFolder === index ? 'rgb(66, 165, 245, 0.5)' : 'none'}}    
                                                 />
-                                                {isAdmin() === 1 && menu.isOpen ? (
+                                                {isESH ? isDeptESH() === 1 ? (
+                                                    <>
+                                                        <AddCircleOutlineOutlinedIcon
+                                                            sx={{
+                                                                marginRight: 1,
+                                                                color: activeFolder === index ? 'rgb(66, 165, 245, 0.5)' : 'none'
+                                                            }}
+                                                            onClick={() => {setMode(index), setFolderName(menu.uploadMenu), setOpenLoginFile(true)}}
+                                                        />
+                                                        <DeleteOutlinedIcon
+                                                            sx={{
+                                                                marginRight: 1,
+                                                                color: activeFolder === index ? 'rgb(255, 0, 0, 0.5)' : 'none'
+                                                            }}
+                                                            onClick={() => setOpenDelete(true)}
+                                                        />
+                                                    </>
+                                                ) : undefined : isAdmin() === 1 ? (
                                                     <>
                                                         <AddCircleOutlineOutlinedIcon
                                                             sx={{
@@ -395,6 +428,7 @@ const PDF3 = () => {
                                                         />
                                                     </>
                                                 ) : undefined}
+                                                
                                                 {menu.isOpen ? <ExpandLess
                                                                     sx={{color: activeFolder === index ? '#42A5F5' : 'none'}}
                                                                 /> : <ExpandMore
@@ -405,38 +439,64 @@ const PDF3 = () => {
                                                 <List component="div" disablePadding sx={{width: '100%'}}>
                                                     {menu.files.map((menuFile, fileIndex) => (
                                                         <ListItemButton sx={{ pl: 4 }} key={fileIndex} onClick={() => {setPdf(menuFile.file), setPdfKey(prev => prev + 1), setActiveFolder(index), setActiveSubFolder(fileIndex)}}>
-                                                            <ListItemIcon>
-                                                                <InsertDriveFileOutlinedIcon
-                                                                    sx={{color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'}}
-                                                                />
-                                                            </ListItemIcon>
+                                                            
                                                             <ListItemText
-                                                                primary={menuFile.name}
+                                                                secondary={<Typography variant='caption'>
+                                                                    {
+                                                                        menuFile.name
+                                                                    }
+                                                                </Typography>}
                                                                 sx={{color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'}}
                                                             />
-                                                            {isAdmin() === 1 && (<>
-                                                                <DeleteOutlinedIcon
-                                                                    sx={{
-                                                                        color: activeFolder === index && activeSubFolder === fileIndex ? 'rgb(255, 0, 0)' : 'none',
-                                                                        mr: '5px'
-                                                                    }}
-                                                                    onClick={() => {
-                                                                        setFolderArr([menuFile.id])
-                                                                        setOpenDelete(true)
-                                                                    }}
-                                                                />
-                                                                <EditOutlinedIcon
-                                                                    sx={{
-                                                                        color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'
-                                                                    }}
-                                                                    onClick={() => {
-                                                                        setIsEdit(true)
-                                                                        setFolderArr(menuFile.id)
-                                                                        setDisplayName(menuFile.name)
-                                                                        setOpenLoginFile(true)
-                                                                    }}
-                                                                />
-                                                            </>)}
+                                                            {isESH ? isDeptESH() === 1 ? (
+                                                                <>
+                                                                    <DeleteOutlinedIcon
+                                                                        sx={{
+                                                                            color: activeFolder === index && activeSubFolder === fileIndex ? 'rgb(255, 0, 0)' : 'none',
+                                                                            mr: '5px'
+                                                                        }}
+                                                                        onClick={() => {
+                                                                            setFolderArr([menuFile.id])
+                                                                            setOpenDelete(true)
+                                                                        }}
+                                                                    />
+                                                                    <EditOutlinedIcon
+                                                                        sx={{
+                                                                            color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'
+                                                                        }}
+                                                                        onClick={() => {
+                                                                            setIsEdit(true)
+                                                                            setFolderArr(menuFile.id)
+                                                                            setDisplayName(menuFile.name)
+                                                                            setOpenLoginFile(true)
+                                                                        }}
+                                                                    />
+                                                                </>
+                                                            ) : undefined : isAdmin() === 1 ? (
+                                                                <>
+                                                                    <DeleteOutlinedIcon
+                                                                        sx={{
+                                                                            color: activeFolder === index && activeSubFolder === fileIndex ? 'rgb(255, 0, 0)' : 'none',
+                                                                            mr: '5px'
+                                                                        }}
+                                                                        onClick={() => {
+                                                                            setFolderArr([menuFile.id])
+                                                                            setOpenDelete(true)
+                                                                        }}
+                                                                    />
+                                                                    <EditOutlinedIcon
+                                                                        sx={{
+                                                                            color: activeFolder === index && activeSubFolder === fileIndex ? '#42A5F5' : 'none'
+                                                                        }}
+                                                                        onClick={() => {
+                                                                            setIsEdit(true)
+                                                                            setFolderArr(menuFile.id)
+                                                                            setDisplayName(menuFile.name)
+                                                                            setOpenLoginFile(true)
+                                                                        }}
+                                                                    />
+                                                                </>
+                                                            ) : undefined}
                                                             
                                                         </ListItemButton>
                                                     ))}
@@ -461,9 +521,6 @@ const PDF3 = () => {
                                         <div style={{display: 'flex', alignItems: 'center'}}>
                                             <EnterFullScreen />
                                             <Zoom />
-                                            <IconButton aria-label="edit" size="large" sx={{color : "#42a5f5"}}>
-                                                <EditIcon fontSize="inherit" />
-                                            </IconButton>
                                         </div>
                                     </div>
                                 </Stack>

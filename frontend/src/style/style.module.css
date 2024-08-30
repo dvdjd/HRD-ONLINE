@@ -45,3 +45,7 @@ body{
         height: 650px;
     }
 }
+
+::-webkit-scrollbar{
+    width: 8px;
+}

@@ -21,9 +21,11 @@ import SendIcon from '@mui/icons-material/Send';
 import MobileStepper from '@mui/material/MobileStepper';
 
 import Popper from '@mui/material/Popper';
+import { Popover } from '@mui/material';
 import Fade from '@mui/material/Fade';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import {useMediaQuery} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
@@ -47,79 +49,20 @@ import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
 import { fullScreenPlugin, RenderEnterFullScreenProps  } from '@react-pdf-viewer/full-screen';
 
 import { getUser, reactPost, countReact, checkReact, postComment, getComments } from '../services/LandingPageAPI';
-import { capitalizeWords, getTime } from '../utils/global';
+import { capitalizeWords, getTime, timeAgo } from '../utils/global';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 
+import DrawerBottomComp from './DrawerBottomComp';
 
 const CardC = ({post, deletePost}) => {
+    const isMobile = useMediaQuery("(max-width:600px)")
     const[showFullCaption, setShowFullCaptio] = useState(false)
     const caps = post.p.postCaption
     const captionText = showFullCaption ? caps : caps.length > 400 ? `${caps.substring(0, 400)}...Show more` : caps
     const [pdfAttached, setPdfAttached] = useState("")
-    const itemData = [
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-            title: 'Breakfast',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d',
-            title: 'Burger',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1522770179533-24471fcdba45',
-            title: 'Camera',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c',
-            title: 'Coffee',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1533827432537-70133748f5c8',
-            title: 'Hats',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62',
-            title: 'Honey',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1516802273409-68526ee1bdd6',
-            title: 'Basketball',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1518756131217-31eb79b20e8f',
-            title: 'Fern',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1597645587822-e99fa5d45d25',
-            title: 'Mushrooms',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1567306301408-9b74779a11af',
-            title: 'Tomato basil',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1471357674240-e1a485acb3e1',
-            title: 'Sea star',
-        },
-        {
-            type: 'image',
-            img: 'https://images.unsplash.com/photo-1589118949245-7d38baf380d6',
-            title: 'Bike',
-        },
-    ];
+
     const isLogin = true
 
     const [postDate, setPostDate] = useState(null)
@@ -163,7 +106,7 @@ const CardC = ({post, deletePost}) => {
         const rPost = async () => {
             const r = await reactPost({
                 post_id : post.p.ID,
-                user_id : `${JSON.parse(localStorage.getItem('user')).ID_No}`,
+                user_id : `${JSON.parse(sessionStorage.getItem('user')).ID_No}`,
                 react_type : l,
                 mode: mode
             })
@@ -230,15 +173,15 @@ const CardC = ({post, deletePost}) => {
         const newComment = {
             // id: commentList[commentList.length - 1].id + 1,
             Post_ID : post.p.ID,
-            commentUserID: JSON.parse(localStorage.getItem('user')).ID_No,
+            commentUserID: JSON.parse(sessionStorage.getItem('user')).ID_No,
             comment: myComment.replace(/'/g, "\\'"),
             showFullComment: false,
             commentDateTime: "Just Now",
-            FirstName : JSON.parse(localStorage.getItem('user')).FirstName,
-            LastName : JSON.parse(localStorage.getItem('user')).LastName,
-            Department : JSON.parse(localStorage.getItem('user')).Department
+            FirstName : JSON.parse(sessionStorage.getItem('user')).FirstName,
+            LastName : JSON.parse(sessionStorage.getItem('user')).LastName,
+            Department : JSON.parse(sessionStorage.getItem('user')).Department
         }
-        const pComment = await postComment({post_id: post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No, comment: myComment})
+        const pComment = await postComment({post_id: post.p.ID, user_id: JSON.parse(sessionStorage.getItem('user')).ID_No, comment: myComment})
 
         setCommentList([...commentList,newComment])
         setMyComment('')
@@ -265,19 +208,9 @@ const CardC = ({post, deletePost}) => {
     const [poster, setPoster] = useState(null)
     useEffect(() => {
         const today = new Date()
-        const today2 = new Date()
         today.setHours(0, 0, 0, 0)
-        if(moment(post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY') === moment(today).tz('Asia/Manila').format('MMMM DD, YYYY')){
-            if(today2.getHours() == moment(post.p.postDate).tz('Asia/Manila').format('HH')){
-                setPostDate('Just Now')
-            }
-            else{
-                setPostDate(`${today2.getHours() - moment(post.p.postDate).tz('Asia/Manila').format('HH')} Hour/s Ago`)
-            }
-        }
-        else{
-            setPostDate(moment(post.p.postDate).tz('Asia/Manila').format('MMMM DD, YYYY hh:MM A'))
-        }
+
+        setPostDate(timeAgo(post.p.postDate))
 
         const user = async () => {
             const u = await getUser({id : post.p.postUserID})
@@ -288,6 +221,7 @@ const CardC = ({post, deletePost}) => {
         user()
 
         const cReact = async () => {
+            
             const cr = await countReact({post_id: post.p.ID})
             setLikeList(cr)
             let c = 0
@@ -299,8 +233,15 @@ const CardC = ({post, deletePost}) => {
         cReact()
 
         const chReact = async() => {
-            const c = await checkReact({post_id: post.p.ID, user_id: JSON.parse(localStorage.getItem('user')).ID_No})
-            c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+            const isLoggedIn = sessionStorage.getItem('user')
+            if(isLoggedIn != "undefined" && isLoggedIn != null){
+                const c = await checkReact({post_id: post.p.ID, user_id: JSON.parse(sessionStorage.getItem('user')).ID_No})
+                c.data.length > 0 ? setLike(c.data[0].reactType) : setLike('none')
+            }else{
+                setLike('none')
+            }
+            
+            
         }
         chReact()
 
@@ -329,27 +270,35 @@ const CardC = ({post, deletePost}) => {
         }
         cReact()
     }, [like])
-    useEffect(() => {
-        console.log(post)
-    }, [])
 
     /*---------------------Edit/Delete Post -------------------*/
     const [anchorEditPost, setAnchorEditPost] = useState(null)
     const[openEditPost, setOpenEditPost] = useState(false)
     const [editPlacement, setEditPlacement] = useState()
 
+    const openPopover = Boolean(anchorEditPost);
+    const id = open ? 'simple-popover' : undefined;
+
     const handleOpenEdit = (newPlacement) => (event) => {
+        // setAnchorEditPost(event.currentTarget)
+        // setOpenEditPost((prev) => editPlacement !== newPlacement || !prev)
+        // setEditPlacement(newPlacement)
+        
         setAnchorEditPost(event.currentTarget)
-        setOpenEditPost((prev) => editPlacement !== newPlacement || !prev)
-        setEditPlacement(newPlacement)
     }
     const handleDeletePost = () => {
         deletePost(post.p.postID)
         setOpenEditPost(false)
     }
+
+    const [openDrawer, setOpenDrawer] = useState(false)
+    const handleSetOpenDrawer = () => {
+        setOpenDrawer(true)
+    }
     return (
         <Box sx={{ minWidth: 275, mb: 2}}>
             <LikeList postID={post.p.ID} ref={likes}/>
+            <DrawerBottomComp open={openDrawer} handleClose={() => setOpenDrawer(false)} handleOpen={handleSetOpenDrawer} postID={post.p.ID}/>
             <SeePost content={post} ref={seePost}/>
             <Card variant="outlined" sx={{borderRadius: '10px'}}>
                 <CardContent sx={{paddingBottom: 0}}>
@@ -365,32 +314,27 @@ const CardC = ({post, deletePost}) => {
                                 </Typography>
                             </div>
                         </Stack>
-                        {localStorage.getItem('isLogin') === 'true' && JSON.parse(localStorage.getItem('user')).ID_No === post.p.postUserID ? (
+                        {sessionStorage.getItem('isLogin') === 'true' && JSON.parse(sessionStorage.getItem('user')).ID_No === post.p.postUserID ? (
                             <>
-                                <Popper open={openEditPost} anchorEl={anchorEditPost} placement={editPlacement} transition>
-                                    {({ TransitionProps }) => (
-                                    <Fade {...TransitionProps} timeout={350}>
-                                        <List
-                                            sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper', flexDirection: 'column', borderRadius: 2}}
-                                            component="nav"
-                                            aria-labelledby="nested-list-subheader"
-                                            >
-                                            {/* <ListItemButton>
-                                                <ListItemIcon>
-                                                    <EditIcon />
-                                                </ListItemIcon>
-                                                <ListItemText primary="&nbsp;&nbsp;Edit&nbsp;&nbsp;"/>
-                                            </ListItemButton> */}
-                                            <ListItemButton sx={{":hover" : {background: 'rgba(255,114,118, .2)'}}} onClick={handleDeletePost}>
-                                                <ListItemIcon sx={{color: 'red'}}>
-                                                    <DeleteIcon />
-                                                </ListItemIcon>
-                                                <ListItemText primary="Delete" sx={{color: 'red'}}/>
-                                            </ListItemButton>
-                                        </List>
-                                    </Fade>
-                                    )}
-                                </Popper>
+                                <Popover
+                                    id={id}
+                                    open={openPopover}
+                                    anchorEl={anchorEditPost}
+                                    onClose={() => setAnchorEditPost(false)}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'right',
+                                    }}
+                                    transformOrigin={{
+                                        vertical: 'top',
+                                        horizontal: 'right',
+                                    }}
+                                    elevation={1}
+                                >
+                                    <Button sx={{color: 'red'}} startIcon={<DeleteIcon />} onClick={handleDeletePost}>
+                                        Delete
+                                    </Button><br />
+                                </Popover>
                                 <IconButton aria-label="settings" onClick={handleOpenEdit('left-start')}>
                                     <MoreHorizIcon size={10} />
                                 </IconButton>
@@ -398,7 +342,10 @@ const CardC = ({post, deletePost}) => {
 
                         ) : undefined}
                     </div>
-                    <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
+                    {/* <Button variant='body1' sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal'}} onClick={() => setShowFullCaptio(prevState => !prevState)}>
+                        <pre>{captionText}</pre>
+                    </Button> */}
+                    <Button variant={isMobile ? 'caption' : 'body1'} sx={{padding: 0, textTransform: 'none', textAlign: 'justify', fontWeight: 'normal' }} onClick={() => setShowFullCaptio(prevState => !prevState)}>
                         <pre>{captionText}</pre>
                     </Button>
                     {post.p.file.length > 0 ? post.p.file.length > 1 ? (
@@ -574,7 +521,7 @@ const CardC = ({post, deletePost}) => {
                                     </div>
                                 ))}
 
-                                <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={() => likes.current?.handleOpen()}>
+                                <Button sx={{paddingBottom: 0, textTransform: 'none', paddingLeft: '3px', width: '5px', height: '30px', justifyContent: 'flex-start', paddingTop: 0}} onClick={isMobile ? handleSetOpenDrawer : () => likes.current?.handleOpen()}>
                                     <Typography sx={{ mb: 1.5, fontSize: '14px', marginBottom: 0}} color="text.secondary">
                                         {countLike}
                                     </Typography>
@@ -599,7 +546,7 @@ const CardC = ({post, deletePost}) => {
                     <hr />
                 </CardContent>
                 <CardContent sx={{padding: 1}}>
-                    {localStorage.getItem('isLogin') === 'true' ?  (
+                    {sessionStorage.getItem('isLogin') === 'true' ?  (
                         <>
                             <div className={CardCCSS['btnLikeComments']}>
                                 <div>
@@ -627,7 +574,7 @@ const CardC = ({post, deletePost}) => {
                                             )
                                         }
                                     </Button>
-                                    <Popper open={open} anchorEl={anchorEl} placement={placement} transition>
+                                    <Popper open={open} anchorEl={anchorEl} placement={placement} transition onMouseLeave={handleHoverClose('top-start')}>
                                         {({ TransitionProps }) => (
                                         <Fade {...TransitionProps} timeout={350}>
                                             <Paper>
@@ -677,7 +624,7 @@ const CardC = ({post, deletePost}) => {
                                     <Paper
                                         sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: '100%', margin: '0 5 2 2'}}
                                     >
-                                        <Avatar alt={`${capitalizeWords(JSON.parse(localStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(localStorage.getItem('user')).LastName)}`} src={`${capitalizeWords(JSON.parse(localStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(localStorage.getItem('user')).LastName)}`} sx={{width: 24, height: 24}}/>
+                                        <Avatar alt={`${capitalizeWords(JSON.parse(sessionStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(sessionStorage.getItem('user')).LastName)}`} src={`${capitalizeWords(JSON.parse(sessionStorage.getItem('user')).FirstName)} ${capitalizeWords(JSON.parse(sessionStorage.getItem('user')).LastName)}`} sx={{width: 24, height: 24}}/>
                                         <form onSubmit={handleSubmitMyComment} style={{width: '100%', display: 'flex'}}>
                                             <InputBase
                                                 sx={{ ml: 1, flex: 1 }}

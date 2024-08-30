@@ -23,7 +23,7 @@ const PDF = () => {
     }, [])
   return (
     <>
-        <br /><br /><br /><br />
+        <br /><br />
         <div className={style['flex-container']}>
             <div className={`${style["flex-item"]} ${style["small"]}`}>
                 <CardD categ={pdfArr} handleAddCateg={handleAddPdf} handleSelectFile={handleSetSelectedPdf}/>

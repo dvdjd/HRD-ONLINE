@@ -53,7 +53,6 @@ const LikeList = forwardRef(({postID}, ref) => {
             const gr = await getReact({post_id: postID})
             if(gr.length > 0){
                 setAllReactions(gr)
-                
             }
             setTabItems([
                 {label: `All ${gr.length}`, value: '1'},

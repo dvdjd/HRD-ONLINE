@@ -1,4 +1,5 @@
-import {Route, Routes} from 'react-router-dom'
+import { useEffect } from 'react'
+import {Route, Routes, useLocation} from 'react-router-dom'
 import Home from './pages/Home'
 import Galleries from './pages/Galleries'
 import LoginPage from './pages/LoginPage'
@@ -7,8 +8,17 @@ import PDF from './pages/PDF'
 import PDF2 from './pages/PDF2'
 import PDF3 from './pages/PDF3'
 import MVC from './pages/MVC'
+import { useDispatch } from 'react-redux'
+import { userActions } from './redux/actions'
+
 
 const AppRoutes = () => {
+    const dispatch = useDispatch()
+    const loc = useLocation()
+
+    useEffect(() => {
+        !window.sessionStorage.getItem("isLogin") && dispatch(userActions.setUserInfoToNull())
+    }, [loc])
     return(
         <Routes>
             <Route path="/" element={<Home />} />

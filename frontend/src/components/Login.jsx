@@ -10,43 +10,43 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import TextField from '@mui/material/TextField';
 import LockIcon from '@mui/icons-material/Lock';
 import CardActions from '@mui/material/CardActions';
-import { login } from '../services/LandingPageAPI';
-import { json } from 'react-router-dom';
+import { useMediaQuery } from '@mui/material';
+import {useSelector, useDispatch} from "react-redux"
+import { loginActions, loginThunk, userActions } from '../redux/actions';
+import {login} from '../services/LandingPageAPI'
 
-const Login = forwardRef(({}, ref) => {
+const Login = () => {
+    const dispatch = useDispatch()
+    const isMobile = useMediaQuery("(max-width:600px)")
+    const isOpen = useSelector(state => state.login.open)
+    const loginStatus = useSelector(state => state.login.loginStatus)
+    const loginData = useSelector(state => state.login.loginData)
+
     const style = {
         position: 'absolute',
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: {xs: 200, md: 400},
+        width: isMobile ? '80vw' : 400,
         bgcolor: 'background.paper',
         boxShadow: 24,
         p: 1,
     
     };
     const [openLogin, setOpenLogin] = useState(false);
-    const handleOpen = () => setOpenLogin(true);
-    const handleClose = () => setOpenLogin(false);
-
-    useImperativeHandle(ref, () => ({handleOpen}))
+    const handleClose = () => dispatch(loginActions.setClose());
 
     const userRef = useRef()
-    const errRef = useRef()
 
+    const [user, setUser] = useState(null)
     const [pin, setPin] = useState('')
     const [password, setPassword] = useState('') 
     const [err, setErr] = useState(false)
-    const [user, setUser] = useState(null)
 
-    useEffect( () => {
-        //localStorage.setItem()
-        //userRef.current.focus()
-
-    }, [])
     
     const handleSubmit = async (e) => {
         e.preventDefault()
+        //dispatch(loginThunk({pin : pin, password: password}))
         const getUser = await login({pin : pin, password: password})
         getUser.staus === 'failed' || getUser.status === 'error' ? setErr(true) : (
             setErr(false),
@@ -54,14 +54,40 @@ const Login = forwardRef(({}, ref) => {
             setPassword(''),
             setUser(getUser),
             setOpenLogin(false),
-            localStorage.setItem('user', JSON.stringify(getUser.data[0])),
-            localStorage.setItem('isLogin', true)
+            sessionStorage.setItem('user', JSON.stringify(getUser.data[0])),
+            sessionStorage.setItem('isLogin', true)
         )
 
         if(getUser.status === 'success'){
             window.location.reload()
         }
+        else{
+
+        }
     }
+
+    useEffect(() => {
+        setOpenLogin(isOpen);
+    }, [isOpen])
+
+    useEffect(() => {
+        setErr(loginStatus === 'error' ? true : false)
+        if(loginStatus === 'success'){
+            setPin('')
+            setPassword('')
+            dispatch(loginActions.setClose())
+        }
+        
+    }, [loginStatus])
+
+    useEffect(() => {
+        if(loginData.length > 0){
+            dispatch(userActions.setUserInfo(loginData[0]))
+            //sessionStorage.setItem('isLogin', true)
+            sessionStorage.setItem('user', JSON.stringify(loginData[0]))
+            window.location.reload()
+        }
+    }, [loginData])
     return (
         <>
             <Modal
@@ -100,6 +126,6 @@ const Login = forwardRef(({}, ref) => {
             </Modal>
         </>
     )
-})
+}
 
 export default Login

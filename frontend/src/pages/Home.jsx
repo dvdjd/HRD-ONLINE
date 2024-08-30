@@ -11,25 +11,20 @@ import { useRef } from 'react'
 
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box';
 import noData from '../style/images/noData.png'
-import { getPost } from '../services/LandingPageAPI'
+import { useDispatch, useSelector } from 'react-redux'
+import { getPosts } from '../redux/actions'
+
 const Home = () => {
+  const isMobile = useMediaQuery("(max-width:600px)")
   const presidentMessage = useRef()
+  const dispatch = useDispatch()
+  const post = useSelector(state => state.post.posts)
+
   const [posts, setPost] = useState([])
   const c = useRef()
-  useEffect(() => {
-    //presidentMessage.current?.handleClick()
-    const kuninAngPost = async () => {
-      const lagayan = await getPost()
-      setPost(lagayan)
-    }
-
-    kuninAngPost()
-    if (c.current) {
-      c.current.scrollTo(0, 0);
-    }
-  }, [])
 
   const handleDeletePost = (id) => {
     const updatedPosts = posts.filter(post => post.postID !== id)
@@ -43,30 +38,48 @@ const Home = () => {
   }
 
   const handlePost = () => {
-    const kuninAngPost = async () => {
-      const lagayan = await getPost()
-      setPost(lagayan)
-    }
-    kuninAngPost()
+    // const kuninAngPost = async () => {
+    //   const lagayan = await getPost()
+    //   setPost(lagayan)
+    // }
+    // kuninAngPost()
+    dispatch(getPosts())
   }
+
+  useEffect(() => {
+    //presidentMessage.current?.handleClick()
+    dispatch(getPosts())
+    if (c.current) {
+      c.current.scrollTo(0, 0);
+    }
+  }, [])
+
+  useEffect(() => {
+    setPost(post)
+  }, [post])
   return (
     <>
-      <br /><br /><br /><br />
+      {isMobile ? (
+        <br />
+      ) : (<>
+        <br /><br />
+      </>)}
+      
       <div className={style['flex-container']}>
           <div className={`${style["flex-item"]} ${style["small"]}`}>
               <CardA />
           </div>
           <div className={`${style["flex-item"]} ${style["large"]}`} ref={c}>
               {isAdmin() === 1 ? <Post onPost={handlePost}/> : (<></>)}
-              {posts.length > 0 ? posts.map((p, index) => (
-                <React.Fragment key={index}>
+              {posts.length > 0 ? posts.map((p) => (
+                <React.Fragment key={p?.ID}>
                   <CardC post={{p}} deletePost={handleDeletePost}/>
                 </React.Fragment>
               )) : (
                 <Box sx={{ minWidth: 275, mb: 2}}>
                   <Card variant="outlined" sx={{borderRadius: '10px'}}>
                     <CardContent sx={{paddingBottom: 0}}>
-                      <img src={noData} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '500px'}}/>
+                      <img src={noData} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh'}}/>
                     </CardContent>
                   </Card>
                 </Box>

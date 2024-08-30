@@ -19,6 +19,7 @@ import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
+import { useMediaQuery } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { hrUpload, getHrUpload} from '../services/LandingPageAPI';
 
@@ -34,6 +35,7 @@ import Stack from '@mui/material/Stack';
 import { styled } from '@mui/material/styles';
 
 const PDF2 = () => {
+    const isMobile = useMediaQuery("(max-width: 600px")
     const newplugin = defaultLayoutPlugin()
     const fullScreenPluginInstance = fullScreenPlugin()
     const { EnterFullScreen } = fullScreenPluginInstance;
@@ -139,8 +141,8 @@ const PDF2 = () => {
     }, [])
   return (
     <>
-        <br /><br /><br /><br />
-        <div className={style['flex-container']}>
+        <br /><br />
+        <div className={style['flex-container']} style={{margin: '0 10px 10px 10px'}}>
             <div className={`${style["flex-item"]} ${style["small"]}`}>
                 <Modal
                     aria-labelledby="transition-modal-title"
