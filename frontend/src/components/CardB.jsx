@@ -297,14 +297,14 @@ const CardB = () => {
           {system.map((nav, index) => (
             <React.Fragment key={index}>
               {nav.stat === 1 || sessionStorage.getItem('isLogin') === 'true' || nav.name === "PTR-Online" ? 
-                nav.name === "Performance Appraisal" || nav.name === "PTR-Online" || nav.name === "Competency Profile" ? 
+                nav.name === "PTR-Online" ? 
                   (
                   
                     <ListItemButton
                       sx={{width: '100%'}}
                       // href={nav.link} target="_blank"
                       onClick={() => handleOpenIFrame(nav.link)}
-                      disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" || nav.name === "PTR-Online" ? sessionStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
+                      disabled={sessionStorage.getItem('isLogin') == 'false' ? true  : false}
                     >
                       <ListItemText primary={nav.name}/>
                     </ListItemButton>
@@ -315,7 +315,7 @@ const CardB = () => {
                     <ListItemButton
                       sx={{width: '100%'}}
                       href={nav.link} target="_blank"
-                      disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? sessionStorage.getItem('isLogin') == 'false' ? true : userType === null ? true : false : false}
+                      disabled={nav.name === "Performance Appraisal" || nav.name === "Competency Profile" ? sessionStorage.getItem('isLogin') == 'false' ? true : userType === 'pic' ? true : false : false}
                     >
                       <ListItemText primary={nav.name}/>
                     </ListItemButton>
