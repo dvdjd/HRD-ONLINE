@@ -41,7 +41,7 @@ app.post("/getByMenu", hrUploadController.getByMenu);
 //Send mail
 app.post("/sendMail", emailController.sendMail)
 
-app.listen(4010, (err) => {
+app.listen(4000, (err) => {
     if (err) throw err;
     console.log("Running on port 4010.");
 });
